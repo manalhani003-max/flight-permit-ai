@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>FLIGHT PERMIT AI</title>
+
+<style>
+body{
+background:#0b1a2f;
+font-family:Arial;
+direction:rtl;
+color:white;
+margin:0;
+}
+
+.container{
+display:flex;
+gap:20px;
+padding:20px;
+flex-wrap:wrap;
+}
+
+.box{
+background:#12243c;
+padding:20px;
+border-radius:12px;
+width:48%;
+}
+
+input, textarea{
+width:100%;
+padding:10px;
+margin-bottom:10px;
+border-radius:8px;
+border:none;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.aiBtn{background:#ff9800;color:black;}
+.analyzeBtn{background:#4caf50;color:white;}
+
+#resultBox{
+background:white;
+color:black;
+padding:15px;
+border-radius:10px;
+min-height:200px;
+}
+
+iframe{
+width:100%;
+height:300px;
+border:none;
+margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="box">
+<h3>📥 إدخال البيانات</h3>
+
+<input id="name" placeholder="Operator">
+<input id="reg" placeholder="Registration">
+<input id="country" placeholder="Country">
+<input id="from" placeholder="FROM ICAO">
+<input id="to" placeholder="TO ICAO">
+<input id="cargo" placeholder="Cargo">
+
+<textarea id="pasteData" placeholder="الصقي النص هنا..."></textarea>
+
+<button class="aiBtn" onclick="smartParse()">🧠 تحليل ذكي</button>
+<button class="analyzeBtn" onclick="analyze()">✈️ تحليل الرحلة</button>
+
+</div>
+
+<div class="box">
+<h3>📊 النتيجة</h3>
+<div id="resultBox">🚀 جاهز</div>
+<iframe id="radarFrame"></iframe>
+</div>
+
+</div>
+
+<script>
+
+// ==========================
+// 🧠 قراءة ذكية (بدون API)
+// ==========================
+function smartParse(){
+
+let text = document.getElementById("pasteData").value;
+
+// Operator (أول سطر غالباً)
+let lines = text.split("\n").filter(l=>l.trim()!="");
+let operator = lines[0] || "";
+
+// Registration
+let regMatch = text.match(/\b([A-Z0-9]{1,2}-[A-Z0-9]{2,5})\b/i);
+let reg = regMatch ? regMatch[0].toUpperCase() : "";
+
+// Airports
+let airports = text.match(/\b[A-Z]{4}\b/g) || [];
+let from = airports[0] || "";
+let to = airports[1] || "";
+
+// Country
+let country = "";
+if(reg.startsWith("4X")) country="israel";
+if(reg.startsWith("EP")) country="iran";
+if(reg.startsWith("RA")) country="russia";
+
+// Cargo
+let cargo = "";
+if(text.toLowerCase().includes("battery")) cargo="battery";
+if(text.toLowerCase().includes("cargo")) cargo="cargo";
+
+// تعبئة
+document.getElementById("name").value = operator;
+document.getElementById("reg").value = reg;
+document.getElementById("from").value = from;
+document.getElementById("to").value = to;
+document.getElementById("country").value = country;
+document.getElementById("cargo").value = cargo;
+
+}
+
+// ==========================
+// ✈️ التحليل
+// ==========================
+function analyze(){
+
+let name = document.getElementById("name").value.toLowerCase();
+let reg = document.getElementById("reg").value.toUpperCase();
+let country = document.getElementById("country").value.toLowerCase();
+let from = document.getElementById("from").value.toUpperCase();
+let to = document.getElementById("to").value.toUpperCase();
+let cargo = document.getElementById("cargo").value.toLowerCase();
+
+let risk = "منخفض 🟢";
+let reasons = [];
+
+// 🚫 إسرائيل
+if(reg.startsWith("4X") || country.includes("israel")){
+risk = "مراجعة ⚠️";
+reasons.push("✈️ مشغل / تسجيل إسرائيلي - يحتاج موافقة الإدارة");
+}
+
+// 🚫 إيران
+if(reg.startsWith("EP")){
+risk = "مرفوض ❌";
+reasons.push("🚫 تسجيل إيراني");
+}
+
+// مواد خطرة
+if(cargo.includes("battery")){
+risk = "عالي 🔴";
+reasons.push("⚠️ مواد خطرة");
+}
+
+// القرار
+let decision = "✔ APPROVE";
+if(risk.includes("❌")) decision = "❌ REJECT";
+if(risk.includes("⚠️")) decision = "⚠️ REVIEW";
+
+// عرض
+document.getElementById("resultBox").innerHTML = `
+🚨 مستوى الخطورة: ${risk}<br><br>
+👤 المشغل: ${name || "غير معروف"}<br>
+🛩️ التسجيل: ${reg || "غير معروف"}<br>
+🌍 المسار: ${from} → ${to}<br><br>
+
+📌 الأسباب:<br>
+${reasons.length ? reasons.map(r=>"• "+r).join("<br>") : "• لا يوجد"}<br><br>
+
+📋 القرار:<br>
+${decision}
+`;
+
+// رادار
+if(reg){
+document.getElementById("radarFrame").src =
+"https://www.flightradar24.com/search?q=" + reg;
+}
+
+}
+
+</script>
+
+</body>
+</html>
