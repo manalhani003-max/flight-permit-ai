@@ -200,6 +200,32 @@ let cargo = document.getElementById("cargo").value.toLowerCase();
 
 let risk = "منخفض 🟢";
 let reasons = [];
+  // 🚫 قوائم حظر (مبسطة)
+let euBannedCountries = ["iran","russia","syria"];
+let usBannedCountries = ["iran","syria","north korea"];
+
+// فحص الدولة
+if(euBannedCountries.includes(country)){
+risk = "مرفوض ❌";
+reasons.push("🇪🇺 حظر أوروبي");
+}
+
+if(usBannedCountries.includes(country)){
+risk = "مرفوض ❌";
+reasons.push("🇺🇸 حظر أمريكي");
+}
+
+// فحص التسجيل
+if(reg.startsWith("EP")){
+risk = "مرفوض ❌";
+reasons.push("🚫 تسجيل إيراني (محظور دولياً)");
+}
+
+// فحص المشغل (ذكي)
+if(name.includes("iran") || name.includes("syrian")){
+risk = "مرفوض ❌";
+reasons.push("🚫 مشغل ضمن قائمة الحظر");
+}
 // 🌍 قوانين المسارات (مبسطة)
 let restrictedAirspace = ["LL", "EP", "SY", "UA", "RU"];
 
@@ -231,9 +257,28 @@ reasons.push("⚠️ مواد خطرة");
 }
 
 // القرار
+// 🧠 قرار ذكي احترافي
 let decision = "✔ APPROVE";
-if(risk.includes("❌")) decision = "❌ REJECT";
-else if(risk.includes("⚠️")) decision = "⚠️ REVIEW";
+
+// رفض مباشر
+if(reg.startsWith("EP")){
+decision = "❌ REJECT";
+}
+
+// مراجعة إلزامية
+else if(
+reg.startsWith("4X") ||
+country.includes("israel") ||
+checkAirspace(from) ||
+checkAirspace(to)
+){
+decision = "⚠️ REVIEW - REQUIRE AUTHORIZATION";
+}
+
+// مواد خطرة
+else if(cargo.includes("battery")){
+decision = "⚠️ REVIEW - DANGEROUS GOODS";
+}
 
 // عرض
 document.getElementById("resultBox").innerHTML = `
