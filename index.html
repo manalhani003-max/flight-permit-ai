@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <title>FLIGHT PERMIT AI</title>
 
+<!-- ✅ خريطة -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <style>
 body{
 background:#0b1a2f;
@@ -85,7 +89,6 @@ margin-top:10px;
 <button class="aiBtn" onclick="smartParse()">🧠 تحليل ذكي</button>
 <button class="analyzeBtn" onclick="analyze()">✈️ تحليل الرحلة</button>
 
-<!-- ✅ زر المسح -->
 <button onclick="clearAll()" style="background:red;color:white;">
 مسح 🧹
 </button>
@@ -95,6 +98,10 @@ margin-top:10px;
 <div class="box">
 <h3>📊 النتيجة</h3>
 <div id="resultBox">🚀 جاهز</div>
+
+<!-- ✅ الخريطة -->
+<div id="map" style="height:300px;margin-top:10px;border-radius:10px;"></div>
+
 <iframe id="radarFrame"></iframe>
 </div>
 
@@ -102,11 +109,8 @@ margin-top:10px;
 
 <script>
 
-// ==========================
-// 🧹 مسح البيانات
-// ==========================
+// 🧹 مسح
 function clearAll(){
-
 document.getElementById("pasteData").value="";
 document.getElementById("name").value="";
 document.getElementById("reg").value="";
@@ -115,13 +119,10 @@ document.getElementById("to").value="";
 document.getElementById("cargo").value="";
 document.getElementById("country").value="";
 document.getElementById("resultBox").innerHTML="🚀 جاهز";
-<div id="map" style="height:300px;margin-top:10px;border-radius:10px;"></div>
-  add map box
+document.getElementById("map").innerHTML="";
 }
 
-// ==========================
 // 🧠 قراءة ذكية
-// ==========================
 function smartParse(){
 
 let text = document.getElementById("pasteData").value;
@@ -182,11 +183,12 @@ document.getElementById("to").value = to;
 document.getElementById("cargo").value = cargo;
 document.getElementById("country").value = country;
 
+// ✅ رسم المسار
+drawRoute(from,to);
+
 }
 
-// ==========================
-// ✈️ التحليل
-// ==========================
+// ✈️ تحليل
 function analyze(){
 
 let name = document.getElementById("name").value.toLowerCase();
@@ -198,7 +200,18 @@ let cargo = document.getElementById("cargo").value.toLowerCase();
 
 let risk = "منخفض 🟢";
 let reasons = [];
+// 🌍 قوانين المسارات (مبسطة)
+let restrictedAirspace = ["LL", "EP", "SY", "UA", "RU"];
 
+function checkAirspace(code){
+return restrictedAirspace.some(r => code.startsWith(r));
+}
+
+// فحص المسار
+if(checkAirspace(from) || checkAirspace(to)){
+risk = "مراجعة ⚠️";
+reasons.push("🌍 مسار عبر أجواء حساسة");
+}
 // إسرائيل
 if(reg.startsWith("4X") || country.includes("israel")){
 risk = "مراجعة ⚠️";
@@ -222,7 +235,7 @@ let decision = "✔ APPROVE";
 if(risk.includes("❌")) decision = "❌ REJECT";
 else if(risk.includes("⚠️")) decision = "⚠️ REVIEW";
 
-// النتيجة
+// عرض
 document.getElementById("resultBox").innerHTML = `
 🚨 مستوى الخطورة: ${risk}<br><br>
 👤 المشغل: ${name || "غير معروف"}<br>
@@ -241,6 +254,40 @@ if(reg){
 document.getElementById("radarFrame").src =
 "https://www.flightradar24.com/search?q=" + reg;
 }
+
+}
+
+// ✈️ رسم المسار
+function drawRoute(from,to){
+
+let coords = {
+OJAI:[31.7,35.99],
+HESH:[27.97,34.39],
+LFKJ:[41.92,8.8],
+OMSJ:[25.33,55.52],
+OMAL:[24.43,54.65],
+LLBG:[32.0,34.87],
+
+// ✈️ أضيفي أي مطار جديد هون بسهولة
+EGLL:[51.47,-0.45],
+KJFK:[40.64,-73.78],
+LFPG:[49.00,2.55],
+EDDF:[50.03,8.57],
+RJTT:[35.55,139.78]
+};
+
+if(!coords[from] || !coords[to]) return;
+
+let map = L.map('map').setView(coords[from],5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom: 10
+}).addTo(map);
+
+L.marker(coords[from]).addTo(map).bindPopup("FROM: "+from);
+L.marker(coords[to]).addTo(map).bindPopup("TO: "+to);
+
+L.polyline([coords[from], coords[to]]).addTo(map);
 
 }
 
