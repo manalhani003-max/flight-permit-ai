@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>FLIGHT PERMIT AI</title>
 
-<!-- خريطة -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
@@ -76,7 +75,6 @@ text = text.replace(/\s+/g," ").trim();
 
 let lines = text.split("\n").map(l=>l.trim()).filter(l=>l.length>2);
 
-// المشغل
 let operator = "";
 for(let line of lines){
 let l = line.toLowerCase();
@@ -87,11 +85,9 @@ break;
 }
 if(!operator) operator = lines[0] || "";
 
-// التسجيل
 let regMatch = text.match(/\b([A-Z0-9]{1,2}-[A-Z0-9]{2,5})\b/i);
 let regVal = regMatch ? regMatch[0].toUpperCase() : "";
 
-// المطارات
 let airports = text.match(/\b[A-Z]{4}\b/g) || [];
 let ignore = ["CALL","DATE","FROM","TO","TYPE","FLIGHT"];
 airports = airports.filter(a=>!ignore.includes(a));
@@ -99,12 +95,10 @@ airports = airports.filter(a=>!ignore.includes(a));
 let fromVal = airports[0] || "";
 let toVal = airports[1] || "";
 
-// الشحن
 let cargoVal = "";
 if(text.toLowerCase().includes("lithium")) cargoVal="lithium batteries";
 else if(text.toLowerCase().includes("cargo")) cargoVal="cargo";
 
-// الدولة (محسنة)
 let countryVal = "";
 if(regVal.startsWith("4X")) countryVal="israel";
 if(regVal.startsWith("EP")) countryVal="iran";
@@ -112,12 +106,8 @@ if(regVal.startsWith("RA")) countryVal="russia";
 if(regVal.startsWith("OK")) countryVal="czech";
 if(regVal.startsWith("YK")) countryVal="syria";
 
-// قراءة من النص
 if(text.toLowerCase().includes("syria")) countryVal="syria";
-if(text.toLowerCase().includes("iran")) countryVal="iran";
-if(text.toLowerCase().includes("israel")) countryVal="israel";
 
-// تعبئة
 name.value = operator;
 reg.value = regVal;
 from.value = fromVal;
@@ -125,11 +115,10 @@ to.value = toVal;
 cargo.value = cargoVal;
 country.value = countryVal;
 
-// رسم
 drawRoute(fromVal,toVal);
 
-// AI
-analyzeWithAI(text, true);
+// ❌ AI معطل مؤقت حتى لا يكسر البرنامج
+// analyzeWithAI(text,true);
 }
 
 // ✈️ تحليل
@@ -145,11 +134,18 @@ let cargoVal = cargo.value.toLowerCase();
 let risk = "منخفض 🟢";
 let reasons = [];
 
-// حظر دولي
+// 🚫 دول محظورة
 let banned = ["iran","syria","north korea","russia"];
 if(banned.includes(countryVal)){
 risk = "مرفوض ❌";
 reasons.push("🚫 دولة محظورة");
+}
+
+// 🪖 مشغل عسكري
+let military = ["air force","military","army","navy"];
+if(military.some(m => nameVal.includes(m))){
+risk = "مرفوض ❌";
+reasons.push("🪖 مشغل عسكري");
 }
 
 // تسجيل
@@ -159,7 +155,7 @@ reasons.push("🚫 تسجيل إيراني");
 }
 
 // إسرائيل
-if(regVal.startsWith("4X") || countryVal.includes("israel")){
+if(regVal.startsWith("4X")){
 risk = "مراجعة ⚠️";
 reasons.push("✈️ تسجيل إسرائيلي");
 }
@@ -177,12 +173,10 @@ risk = "عالي 🔴";
 reasons.push("⚠️ مواد خطرة");
 }
 
-// قرار
 let decision="✔ APPROVE";
 if(risk.includes("❌")) decision="❌ REJECT";
 else if(risk.includes("⚠️")) decision="⚠️ REVIEW";
 
-// عرض
 resultBox.innerHTML = `
 🚨 مستوى الخطورة: ${risk}<br><br>
 👤 المشغل: ${nameVal || "غير معروف"}<br>
@@ -193,10 +187,11 @@ ${reasons.length ? reasons.map(r=>"• "+r).join("<br>") : "• لا يوجد"}<
 📋 القرار:<br>${decision}
 `;
 
-// رادار (محسن)
-if(fromVal && toVal){
-radarFrame.src = "https://www.flightradar24.com/data/flights/"+fromVal.toLowerCase()+"-"+toVal.toLowerCase();
+// ✅ رادار مضبوط
+if(regVal){
+radarFrame.src = "https://www.flightradar24.com/search?q="+regVal;
 }
+
 }
 
 // ✈️ خريطة
@@ -207,15 +202,9 @@ OJAI:[31.7,35.99],
 HESH:[27.97,34.39],
 OSDI:[33.41,36.52],
 OIII:[35.42,51.15],
-LFKJ:[41.92,8.8],
 OMSJ:[25.33,55.52],
 OMAL:[24.43,54.65],
-LLBG:[32.0,34.87],
-EGLL:[51.47,-0.45],
-KJFK:[40.64,-73.78],
-LFPG:[49.00,2.55],
-EDDF:[50.03,8.57],
-RJTT:[35.55,139.78]
+LLBG:[32.0,34.87]
 };
 
 if(!coords[from] || !coords[to]) return;
@@ -226,67 +215,10 @@ window.map = L.map('map').setView(coords[from],5);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.map);
 
-L.marker(coords[from]).addTo(window.map).bindPopup("FROM: "+from);
-L.marker(coords[to]).addTo(window.map).bindPopup("TO: "+to);
+L.marker(coords[from]).addTo(window.map);
+L.marker(coords[to]).addTo(window.map);
 
 L.polyline([coords[from], coords[to]]).addTo(window.map);
-}
-
-// 🤖 AI ذكي
-async function analyzeWithAI(text, fillFields=false){
-
-try{
-let response = await fetch("https://api.openai.com/v1/chat/completions",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer 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
-},
-body: JSON.stringify({
-model:"gpt-4o-mini",
-messages:[
-{
-role:"system",
-content:`Extract flight data as JSON:
-{"operator":"","registration":"","country":"","from":"","to":"","cargo":""}`
-},
-{role:"user",content:text}
-]
-})
-});
-
-let data = await response.json();
-let content = data.choices?.[0]?.message?.content;
-
-if(!content) return;
-
-let parsed;
-try{
-parsed = JSON.parse(content);
-}catch{
-console.log("AI not JSON");
-return;
-}
-
-// تعبئة
-if(fillFields){
-if(parsed.operator) name.value = parsed.operator;
-if(parsed.registration) reg.value = parsed.registration;
-if(parsed.country) country.value = parsed.country;
-if(parsed.from) from.value = parsed.from;
-if(parsed.to) to.value = parsed.to;
-if(parsed.cargo) cargo.value = parsed.cargo;
-
-// إعادة رسم
-drawRoute(from.value,to.value);
-}
-
-console.log("AI SUCCESS", parsed);
-
-}catch(e){
-console.log("AI ERROR");
-}
-
 }
 
 </script>
