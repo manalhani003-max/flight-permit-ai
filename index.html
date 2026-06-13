@@ -1,227 +1,179 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>FLIGHT PERMIT AI</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<style>
-body{background:#0b1a2f;font-family:Arial;direction:rtl;color:white;margin:0;}
-.container{display:flex;gap:20px;padding:20px;flex-wrap:wrap;}
-.box{background:#12243c;padding:20px;border-radius:12px;width:48%;}
-input, textarea{width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:none;}
-button{width:100%;padding:12px;margin-top:5px;border:none;border-radius:8px;cursor:pointer;font-weight:bold;}
-.aiBtn{background:#ff9800;color:black;}
-.analyzeBtn{background:#4caf50;color:white;}
-#resultBox{background:white;color:black;padding:15px;border-radius:10px;min-height:200px;}
-iframe{width:100%;height:300px;border:none;margin-top:10px;}
-</style>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>نظام تصاريح الطيران الذكي</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-
 <body>
-
-<div class="container">
-
-<div class="box">
-<h3>📥 إدخال البيانات</h3>
-
-<input id="name" placeholder="Operator">
-<input id="reg" placeholder="Registration">
-<input id="country" placeholder="Country">
-<input id="from" placeholder="FROM ICAO">
-<input id="to" placeholder="TO ICAO">
-<input id="cargo" placeholder="Cargo">
-
-<textarea id="pasteData" placeholder="الصقي النص هنا..."></textarea>
-
-<button class="aiBtn" onclick="smartParse()">🧠 تحليل ذكي</button>
-<button class="analyzeBtn" onclick="analyze()">✈️ تحليل الرحلة</button>
-<button onclick="clearAll()" style="background:red;color:white;">مسح 🧹</button>
-
+<div class="app">
+<div class="hdr">
+  <div class="hdr-ico">✈</div>
+  <div>
+    <h1>نظام تصاريح الطيران الذكي</h1>
+    <p>تحليل فوري ودقيق · نموذج منظم أو نص حر · Excel بصفحة لكل نوع تصريح</p>
+  </div>
 </div>
-
-<div class="box">
-<h3>📊 النتيجة</h3>
-<div id="resultBox">🚀 جاهز</div>
-<div id="map" style="height:300px;margin-top:10px;border-radius:10px;"></div>
-<iframe id="radarFrame"></iframe>
+<div class="tabs">
+  <button class="tab on" onclick="sTab('issue',this)">✈ إصدار تصريح</button>
+  <button class="tab" onclick="sTab('recs',this)">📋 السجلات</button>
+  <button class="tab" onclick="sTab('cnts',this)">📊 العدادات</button>
 </div>
-
+<div class="sec on" id="s-issue">
+  <div class="hint-box hint-idle" id="hint-box">💡 اختر نوع التصريح أولاً ← ثم أدخل بيانات الرحلة</div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ctitle">نوع التصريح</div>
+        <div class="catline">🟦 عبور — OVF CHARTER</div>
+        <div class="ptypes">
+          <button class="pb" onclick="selT('OP','ovf',this)">OP</button>
+          <button class="pb" onclick="selT('OF','ovf',this)">OF</button>
+          <button class="pb" onclick="selT('OCC','ovf',this)">OCC</button>
+          <button class="pb" onclick="selT('OCP','ovf',this)">OCP</button>
+          <button class="pb" onclick="selT('OG','ovf',this)">OG</button>
+        </div>
+        <div class="catline">🟧 هبوط / إقلاع — LANDING CHARTER</div>
+        <div class="ptypes">
+          <button class="pb" onclick="selT('T','lnd',this)">T</button>
+          <button class="pb" onclick="selT('CC','lnd',this)">CC</button>
+          <button class="pb" onclick="selT('CP','lnd',this)">CP</button>
+          <button class="pb" onclick="selT('TS','lnd',this)">TS</button>
+          <button class="pb" onclick="selT('GA','lnd',this)">GA</button>
+          <button class="pb" onclick="selT('MT','lnd',this)">MT</button>
+          <button class="pb" onclick="selT('M','lnd',this)">M</button>
+        </div>
+        <div class="pres" id="pshow">
+          <div class="psub">الرقم التالي — <strong id="tlbl"></strong></div>
+          <div class="pnum" id="nnum">—</div>
+          <div class="psub" id="rlbl"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ctitle">📋 البيانات المستخرجة</div>
+        <div class="ai-status ai-idle" id="ai-status">
+          <span id="ai-ico">⬜</span>
+          <span id="ai-msg">في انتظار إدخال بيانات الرحلة...</span>
+        </div>
+        <div class="pbar"><div class="pfill" id="pfill"></div></div>
+        <div class="ext-panel" id="ext-panel">
+          <div class="ext-title">✅ تم الاستخراج التلقائي</div>
+          <div class="ext-grid">
+            <div class="ex-item"><span class="ex-k">Flight Operator</span><span class="ex-v" id="ex-op">—</span></div>
+            <div class="ex-item"><span class="ex-k">ICAO / Callsign</span><span class="ex-v" id="ex-ic">—</span></div>
+            <div class="ex-item"><span class="ex-k">Route</span><span class="ex-v" id="ex-rt">—</span></div>
+            <div class="ex-item"><span class="ex-k">REG A/C</span><span class="ex-v" id="ex-rg">—</span></div>
+            <div class="ex-item"><span class="ex-k">Flight Date</span><span class="ex-v" id="ex-dt">—</span></div>
+            <div class="ex-item"><span class="ex-k">LSA / GSA</span><span class="ex-v" id="ex-ls">—</span></div>
+            <div class="ex-item"><span class="ex-k">Issue Date</span><span class="ex-v" id="ex-id">—</span></div>
+            <div class="ex-item"><span class="ex-k">Status</span><span class="ex-v" id="ex-st">—</span></div>
+          </div>
+          <div id="legs-wrap" style="display:none;margin-top:10px">
+            <div style="font-size:11px;font-weight:800;color:#0a7050;margin-bottom:5px">🗺 مسارات الرحلة</div>
+            <table class="legs-table" id="legs-table">
+              <thead><tr><th>Flight No</th><th>Date</th><th>From</th><th>DEP</th><th>To</th><th>ARR</th></tr></thead>
+              <tbody id="legs-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ptab-bar">
+          <button class="ptab on" onclick="showPasteTab('free',this)">📋 نص حر (Paste)</button>
+          <button class="ptab" onclick="showPasteTab('template',this)">📝 نموذج منظم</button>
+        </div>
+        <div class="paste-section on" id="ps-free">
+          <textarea class="ta" id="rtxt" placeholder="الصق نص الرحلة هنا... التحليل فوري تلقائي" oninput="onInput(this.value)"></textarea>
+          <div style="font-size:11px;color:#aaa;margin-top:5px">⚡ التحليل يبدأ فوراً عند اللصق</div>
+        </div>
+        <div class="paste-section" id="ps-template">
+          <div class="tpl-form">
+            <div class="tpl-row"><span class="tpl-label">FLIGHT TYPE :</span><input class="tpl-input" id="tpl-ftype" placeholder="Ferry Flight / Charter / Overflight..." oninput="tplChange()"></div>
+            <div class="tpl-row"><span class="tpl-label">OPERATOR NAME :</span><input class="tpl-input" id="tpl-op" placeholder="ARABWINGS" oninput="tplChange()"></div>
+            <div class="tpl-row"><span class="tpl-label">REGISTRATION :</span><input class="tpl-input" id="tpl-reg" placeholder="JYAWD" style="text-transform:uppercase" oninput="tplChange()"></div>
+            <div class="tpl-row"><span class="tpl-label">A/C TYPE :</span><input class="tpl-input" id="tpl-actype" placeholder="HAWKER 800XP" oninput="tplChange()"></div>
+            <div class="tpl-row"><span class="tpl-label">CALL SIGN :</span><input class="tpl-input" id="tpl-cs" placeholder="AWS401" style="text-transform:uppercase" oninput="tplChange()"></div>
+            <div class="tpl-row"><span class="tpl-label">FLIGHT NUMBER :</span><input class="tpl-input" id="tpl-fn" placeholder="AWS401" style="text-transform:uppercase" oninput="tplChange()"></div>
+            <div class="tpl-sep">— مسارات الرحلة (LEGS) —</div>
+            <div class="leg-hdr"><span>Flight No</span><span>Date</span><span>From → Time</span><span></span><span>To → Time</span></div>
+            <div id="legs-input"></div>
+            <span class="add-leg" onclick="addLeg()">+ إضافة مسار</span>
+          </div>
+        </div>
+        <div style="height:1px;background:#f0f0f0;margin:14px 0 12px"></div>
+        <div class="field-row">
+          <div><span class="lbl">✈ Flight Operator</span><input class="fi" id="fop" placeholder="تلقائي"></div>
+          <div><span class="lbl">📡 ICAO / Callsign</span><input class="fi" id="fic" placeholder="تلقائي" style="text-transform:uppercase"></div>
+        </div>
+        <div id="fg-route-reg">
+          <div class="field-row">
+            <div><span class="lbl">🗺 Route</span><input class="fi" id="frt" placeholder="تلقائي"></div>
+            <div><span class="lbl">🔖 REG A/C</span><input class="fi" id="frg" placeholder="تلقائي" style="text-transform:uppercase"></div>
+          </div>
+        </div>
+        <div id="fg-fdate"><span class="lbl">📅 Flight Date</span><input class="fi" id="fdt" placeholder="تلقائي"></div>
+        <div class="field-row">
+          <div><span class="lbl">🏢 LSA or GSA Name</span><input class="fi" id="fls" placeholder="تلقائي"></div>
+          <div><span class="lbl">📅 Issue Date</span><input class="fi" id="fidate" placeholder="تلقائي (اليوم)"></div>
+        </div>
+        <span class="lbl">📌 Status</span>
+        <select class="fi" id="fstatus">
+          <option value="COMPLETE">COMPLETE ✅</option>
+          <option value="NOT COMPLETE">NOT COMPLETE ⏳</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div id="albox"></div>
+  <div class="acts">
+    <button class="bc" onclick="clrAll()">🗑 مسح الكل</button>
+    <button class="bg" onclick="issue()">✅ إصدار وحفظ التصريح</button>
+  </div>
+  <button class="bx" onclick="doExport()">📊 تصدير Excel الكامل — جميع الأنواع في ملف واحد</button>
 </div>
-
-<script>
-
-// 🧹 مسح
-function clearAll(){
-pasteData.value="";
-name.value="";
-reg.value="";
-from.value="";
-to.value="";
-cargo.value="";
-country.value="";
-resultBox.innerHTML="🚀 جاهز";
-if(window.map){window.map.remove();}
-}
-
-// 🧠 قراءة ذكية
-function smartParse(){
-
-let text = pasteData.value;
-text = text.replace(/\s+/g," ").trim();
-
-let lines = text.split("\n").map(l=>l.trim()).filter(l=>l.length>2);
-
-let operator = "";
-for(let line of lines){
-let l = line.toLowerCase();
-if(l.includes("air")||l.includes("aviation")||l.includes("charter")||l.includes("ltd")||l.includes("a.s")){
-operator = line;
-break;
-}
-}
-if(!operator) operator = lines[0] || "";
-
-let regMatch = text.match(/\b([A-Z0-9]{1,2}-[A-Z0-9]{2,5})\b/i);
-let regVal = regMatch ? regMatch[0].toUpperCase() : "";
-
-let airports = text.match(/\b[A-Z]{4}\b/g) || [];
-let ignore = ["CALL","DATE","FROM","TO","TYPE","FLIGHT"];
-airports = airports.filter(a=>!ignore.includes(a));
-
-let fromVal = airports[0] || "";
-let toVal = airports[1] || "";
-
-let cargoVal = "";
-if(text.toLowerCase().includes("lithium")) cargoVal="lithium batteries";
-else if(text.toLowerCase().includes("cargo")) cargoVal="cargo";
-
-let countryVal = "";
-if(regVal.startsWith("4X")) countryVal="israel";
-if(regVal.startsWith("EP")) countryVal="iran";
-if(regVal.startsWith("RA")) countryVal="russia";
-if(regVal.startsWith("OK")) countryVal="czech";
-if(regVal.startsWith("YK")) countryVal="syria";
-
-if(text.toLowerCase().includes("syria")) countryVal="syria";
-
-name.value = operator;
-reg.value = regVal;
-from.value = fromVal;
-to.value = toVal;
-cargo.value = cargoVal;
-country.value = countryVal;
-
-drawRoute(fromVal,toVal);
-
-// ❌ AI معطل مؤقت حتى لا يكسر البرنامج
-// analyzeWithAI(text,true);
-}
-
-// ✈️ تحليل
-function analyze(){
-
-let nameVal = name.value.toLowerCase();
-let regVal = reg.value.toUpperCase();
-let countryVal = country.value.toLowerCase();
-let fromVal = from.value.toUpperCase();
-let toVal = to.value.toUpperCase();
-let cargoVal = cargo.value.toLowerCase();
-
-let risk = "منخفض 🟢";
-let reasons = [];
-
-// 🚫 دول محظورة
-let banned = ["iran","syria","north korea","russia"];
-if(banned.includes(countryVal)){
-risk = "مرفوض ❌";
-reasons.push("🚫 دولة محظورة");
-}
-
-// 🪖 مشغل عسكري
-let military = ["air force","military","army","navy"];
-if(military.some(m => nameVal.includes(m))){
-risk = "مرفوض ❌";
-reasons.push("🪖 مشغل عسكري");
-}
-
-// تسجيل
-if(regVal.startsWith("EP")){
-risk = "مرفوض ❌";
-reasons.push("🚫 تسجيل إيراني");
-}
-
-// إسرائيل
-if(regVal.startsWith("4X")){
-risk = "مراجعة ⚠️";
-reasons.push("✈️ تسجيل إسرائيلي");
-}
-
-// مسار
-let restricted = ["LL","EP","SY","RU"];
-if(restricted.some(r => fromVal.startsWith(r) || toVal.startsWith(r))){
-risk = "مراجعة ⚠️";
-reasons.push("🌍 مسار حساس");
-}
-
-// شحن
-if(cargoVal.includes("battery")){
-risk = "عالي 🔴";
-reasons.push("⚠️ مواد خطرة");
-}
-
-let decision="✔ APPROVE";
-if(risk.includes("❌")) decision="❌ REJECT";
-else if(risk.includes("⚠️")) decision="⚠️ REVIEW";
-
-resultBox.innerHTML = `
-🚨 مستوى الخطورة: ${risk}<br><br>
-👤 المشغل: ${nameVal || "غير معروف"}<br>
-🛩️ التسجيل: ${regVal || "غير معروف"}<br>
-🌍 المسار: ${fromVal} → ${toVal}<br><br>
-📌 الأسباب:<br>
-${reasons.length ? reasons.map(r=>"• "+r).join("<br>") : "• لا يوجد"}<br><br>
-📋 القرار:<br>${decision}
-`;
-
-// ✅ رادار مضبوط
-if(regVal){
-radarFrame.src = "https://www.flightradar24.com/search?q="+regVal;
-}
-
-}
-
-// ✈️ خريطة
-function drawRoute(from,to){
-
-let coords = {
-OJAI:[31.7,35.99],
-HESH:[27.97,34.39],
-OSDI:[33.41,36.52],
-OIII:[35.42,51.15],
-OMSJ:[25.33,55.52],
-OMAL:[24.43,54.65],
-LLBG:[32.0,34.87]
-};
-
-if(!coords[from] || !coords[to]) return;
-
-if(window.map){window.map.remove();}
-
-window.map = L.map('map').setView(coords[from],5);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(window.map);
-
-L.marker(coords[from]).addTo(window.map);
-L.marker(coords[to]).addTo(window.map);
-
-L.polyline([coords[from], coords[to]]).addTo(window.map);
-}
-
-</script>
-
+<div class="sec" id="s-recs">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <span style="font-size:15px;font-weight:800">السجلات (<span id="rcount">0</span>)</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="flt-cat" onchange="drawRecs()" class="fi" style="width:auto;font-size:12px">
+          <option value="all">كل الفئات</option>
+          <option value="ovf">عبور OVF</option>
+          <option value="lnd">هبوط Landing</option>
+        </select>
+        <select id="flt-type" onchange="drawRecs()" class="fi" style="width:auto;font-size:12px">
+          <option value="all">كل الأنواع</option>
+          <option>OP</option><option>OF</option><option>OCC</option>
+          <option>OCP</option><option>OG</option><option>T</option>
+          <option>CC</option><option>CP</option><option>TS</option>
+          <option>GA</option><option>MT</option><option>M</option>
+        </select>
+      </div>
+    </div>
+    <div class="tbl-wrap"><div id="rcont"><div class="emp">لا توجد سجلات بعد.</div></div></div>
+  </div>
+  <button class="bx" onclick="doExport()">📊 تصدير Excel</button>
+</div>
+<div class="sec" id="s-cnts">
+  <div class="card" style="margin-bottom:1rem">
+    <div class="ctitle">🟦 عبور — OVF CHARTER</div>
+    <div class="cg" id="covf"></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">🟧 هبوط / إقلاع — LANDING CHARTER</div>
+    <div class="cg" id="clnd"></div>
+  </div>
+  <div style="font-size:11px;color:#bbb;text-align:center;margin-top:10px">كل نوع مستقل · الأرقام 300–1000</div>
+</div>
+</div>
+<script src="js/config.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
