@@ -426,8 +426,10 @@ function smartParse(txt){
   // Strategy 3: Legs table rows — "24.Jun  OEJN  0450  OJAI  0630"
   const legsRE=/\d{1,2}[.\s]?(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\.?\s+([A-Z]{4})\s+\d{3,4}\s+([A-Z]{4})/gi;
   const legsM=[...t.matchAll(legsRE)];
-  // Strategy 4: fallback — 4-letter ICAO-looking words (extended exclusion list)
-  const EXCL=/^(TYPE|SIGN|NAME|DATE|FROM|CALL|FLIG|REGI|PRIV|CHAR|FERR|OVER|LAND|CARG|DANG|HAZA|MEDC|VITA|ARRI|DEPA|OPER|NUMB|GMBH|VIST|CERT|PERM|NOTI|REMA|SPEC|INST|NOTE|INFO|CHEC|BOOK|WITH|THAT|THIS|HAVE|BEEN|WILL|ALSO|THRO|REQU|APPL|AUTH|AIRP|AIRW|ROUT|DEST|ORIG|STOP|TRAN)/;
+  // Strategy 4: ICAO/CITY format — "OERK/RIYADH" or "LTFE/BODRUM"
+  const slashICAO=[...new Set([...t.matchAll(/\b([A-Z]{4})\/[A-Z]{2,}/g)].map(m=>m[1]))];
+  // Strategy 5: fallback — 4-letter ICAO-looking words (extended exclusion list)
+  const EXCL=/^(TYPE|SIGN|NAME|DATE|FROM|CALL|FLIG|REGI|PRIV|CHAR|FERR|OVER|LAND|CARG|DANG|HAZA|MEDC|VITA|ARRI|DEPA|OPER|NUMB|GMBH|VIST|CERT|PERM|NOTI|REMA|SPEC|INST|NOTE|INFO|CHEC|BOOK|WITH|THAT|THIS|HAVE|BEEN|WILL|ALSO|THRO|REQU|APPL|AUTH|AIRP|AIRW|ROUT|DEST|ORIG|STOP|TRAN|TRIP|LEGS|SECT)/;
   const icaoRE=/\b([A-Z]{4})\b/g;
   const uniqICAO=[...new Set([...t.matchAll(icaoRE)].map(m=>m[1]).filter(c=>
     /^[OHLEKUBCDFGNPRSTVWY]/.test(c) && !EXCL.test(c) && !/^[A-Z]{4}$/.test(c.replace(/[AEIOU]/g,''))
@@ -440,6 +442,7 @@ function smartParse(txt){
     const allLegs=[...new Set(legsM.flatMap(m=>[m[1],m[2]]))];
     if(allLegs.length>2) r.legs=allLegs;
   }
+  else if(slashICAO.length>=2){r.from=slashICAO[0];r.to=slashICAO[slashICAO.length-1];if(slashICAO.length>2)r.legs=slashICAO;}
   else if(uniqICAO.length>=2){r.from=uniqICAO[0];r.to=uniqICAO[uniqICAO.length-1];}
   if(!r.legs&&uniqICAO.length>2) r.legs=uniqICAO;
 
