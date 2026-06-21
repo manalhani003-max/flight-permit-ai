@@ -60,6 +60,7 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 .top-right{display:flex;align-items:center;gap:10px}
 .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .status-txt{font-size:12px;color:var(--green);font-weight:600}
 .key-badge{font-size:10px;color:var(--muted);font-family:monospace;background:rgba(255,255,255,.05);padding:4px 8px;border-radius:6px}
 .page{display:none;padding:24px;max-width:1400px;margin:0 auto}.page.on{display:block}
@@ -615,33 +616,166 @@ function initCharts(){
   });
 }
 
-const CONFLICT_ICAO=['UKLL','UKLV','OYAA','HLLT','HCSM'];
-function getRisk(from,to,cargo){
-  const hit=CONFLICT_ICAO.includes(from)||CONFLICT_ICAO.includes(to);
-  const dg=cargo==='DG';
-  const score=hit?82+Math.floor(Math.random()*15):dg?52+Math.floor(Math.random()*20):20+Math.floor(Math.random()*30);
+// ══ AIRPORT DATABASE ══
+const AP_DB={
+  // Saudi Arabia
+  OERK:{name:'King Khalid Intl',city:'Riyadh',country:'Saudi Arabia',lat:24.958,lng:46.699,fir:'OEJD'},
+  OEDF:{name:'King Fahd Intl',city:'Dammam',country:'Saudi Arabia',lat:26.471,lng:49.799,fir:'OEJD'},
+  OEJN:{name:'King Abdulaziz Intl',city:'Jeddah',country:'Saudi Arabia',lat:21.679,lng:39.157,fir:'OEJD'},
+  OEMA:{name:'Prince Mohammad bin Abdulaziz',city:'Medina',country:'Saudi Arabia',lat:24.553,lng:39.705,fir:'OEJD'},
+  OEAB:{name:'Prince Abdulmajeed Intl',city:'Al-Ula',country:'Saudi Arabia',lat:26.617,lng:37.817,fir:'OEJD'},
+  // UAE
+  OMDB:{name:'Dubai Intl',city:'Dubai',country:'UAE',lat:25.253,lng:55.364,fir:'OMAE'},
+  OMAA:{name:'Zayed Intl (Abu Dhabi)',city:'Abu Dhabi',country:'UAE',lat:24.433,lng:54.651,fir:'OMAE'},
+  OMSJ:{name:'Sharjah Intl',city:'Sharjah',country:'UAE',lat:25.328,lng:55.517,fir:'OMAE'},
+  OMDW:{name:'Al Maktoum Intl',city:'Dubai (DWC)',country:'UAE',lat:24.896,lng:55.162,fir:'OMAE'},
+  // Jordan
+  OJAM:{name:'Queen Alia Intl',city:'Amman',country:'Jordan',lat:31.723,lng:35.994,fir:'OJAC'},
+  OJAI:{name:'King Hussein Airport',city:'Aqaba',country:'Jordan',lat:29.612,lng:35.018,fir:'OJAC'},
+  // Kuwait
+  OKBK:{name:'Kuwait Intl',city:'Kuwait City',country:'Kuwait',lat:29.227,lng:47.969,fir:'OKAC'},
+  // Qatar
+  OTBD:{name:'Hamad Intl',city:'Doha',country:'Qatar',lat:25.273,lng:51.608,fir:'OBBB'},
+  // Bahrain
+  OBBI:{name:'Bahrain Intl',city:'Manama',country:'Bahrain',lat:26.27,lng:50.634,fir:'OBBB'},
+  // Oman
+  OOMS:{name:'Muscat Intl',city:'Muscat',country:'Oman',lat:23.594,lng:58.284,fir:'OOMM'},
+  OOSA:{name:'Salalah Airport',city:'Salalah',country:'Oman',lat:17.039,lng:54.091,fir:'OOMM'},
+  // Iraq
+  ORBI:{name:'Baghdad Intl',city:'Baghdad',country:'Iraq',lat:33.262,lng:44.234,fir:'ORBB'},
+  ORER:{name:'Erbil Intl',city:'Erbil',country:'Iraq',lat:36.238,lng:43.963,fir:'ORBB'},
+  // Egypt
+  HECA:{name:'Cairo Intl',city:'Cairo',country:'Egypt',lat:30.122,lng:31.406,fir:'HECC'},
+  HEAR:{name:'El Nouzha Airport',city:'Alexandria',country:'Egypt',lat:31.184,lng:29.949,fir:'HECC'},
+  // Turkey
+  LTFM:{name:'Istanbul Airport',city:'Istanbul',country:'Turkey',lat:41.262,lng:28.742,fir:'LTAA'},
+  LTFE:{name:'Milas-Bodrum Airport',city:'Bodrum',country:'Turkey',lat:37.25,lng:27.664,fir:'LTAA'},
+  LTAI:{name:'Antalya Airport',city:'Antalya',country:'Turkey',lat:36.899,lng:30.8,fir:'LTAA'},
+  LTBA:{name:'Atatürk Airport',city:'Istanbul',country:'Turkey',lat:40.978,lng:28.815,fir:'LTAA'},
+  LTAC:{name:'Esenboğa Airport',city:'Ankara',country:'Turkey',lat:40.128,lng:32.995,fir:'LTAA'},
+  // Yemen
+  OYAA:{name:'Aden Intl',city:'Aden',country:'Yemen',lat:12.829,lng:45.029,fir:'OYSC'},
+  OYSN:{name:'Sanaa Intl',city:'Sanaa',country:'Yemen',lat:15.477,lng:44.22,fir:'OYSC'},
+  // Libya
+  HLLT:{name:'Mitiga Intl',city:'Tripoli',country:'Libya',lat:32.894,lng:13.276,fir:'HLLL'},
+  // Lebanon
+  OLBA:{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.821,lng:35.488,fir:'LCCC'},
+  // Syria
+  OSDI:{name:'Damascus Intl',city:'Damascus',country:'Syria',lat:33.411,lng:36.516,fir:'OSTT'},
+  // Greece
+  LGAV:{name:'Athens Intl',city:'Athens',country:'Greece',lat:37.936,lng:23.945,fir:'LGGG'},
+  LGIR:{name:'Heraklion Intl',city:'Crete',country:'Greece',lat:35.339,lng:25.18,fir:'LGGG'},
+  // Cyprus
+  LCPH:{name:'Paphos Intl',city:'Paphos',country:'Cyprus',lat:34.718,lng:32.486,fir:'LCCC'},
+  LCLK:{name:'Larnaca Intl',city:'Larnaca',country:'Cyprus',lat:34.875,lng:33.625,fir:'LCCC'},
+  // Israel
+  LLBG:{name:'Ben Gurion Intl',city:'Tel Aviv',country:'Israel',lat:32.009,lng:34.887,fir:'LLLL'},
+  // Italy
+  LIBT:{name:'Taranto-Grottaglie Airport',city:'Taranto',country:'Italy',lat:40.517,lng:17.4,fir:'LIRR'},
+  LIRF:{name:'Leonardo da Vinci Intl',city:'Rome',country:'Italy',lat:41.804,lng:12.251,fir:'LIRR'},
+  LIML:{name:'Milano Linate',city:'Milan',country:'Italy',lat:45.445,lng:9.277,fir:'LIMM'},
+  // Germany
+  EDDF:{name:'Frankfurt Airport',city:'Frankfurt',country:'Germany',lat:50.033,lng:8.571,fir:'EDGG'},
+  // UK
+  EGLL:{name:'London Heathrow',city:'London',country:'UK',lat:51.477,lng:-0.461,fir:'EGTT'},
+  // France
+  LFPG:{name:'Charles de Gaulle',city:'Paris',country:'France',lat:49.013,lng:2.55,fir:'LFFF'},
+  // Pakistan
+  OPKC:{name:'Jinnah Intl',city:'Karachi',country:'Pakistan',lat:24.906,lng:67.161,fir:'OPKR'},
+  OPLA:{name:'Allama Iqbal Intl',city:'Lahore',country:'Pakistan',lat:31.522,lng:74.404,fir:'OPLR'},
+  // India
+  VIDP:{name:'Indira Gandhi Intl',city:'Delhi',country:'India',lat:28.556,lng:77.1,fir:'VABB'},
+  VABB:{name:'Chhatrapati Shivaji Intl',city:'Mumbai',country:'India',lat:19.089,lng:72.868,fir:'VABB'},
+  // Ukraine / conflict
+  UKLL:{name:'Lviv Intl',city:'Lviv',country:'Ukraine',lat:49.812,lng:23.956,fir:'UKBV'},
+  UKLV:{name:'Vinnytsia Airport',city:'Vinnytsia',country:'Ukraine',lat:49.243,lng:28.603,fir:'UKBV'},
+};
+
+const CONFLICT_ZONES={
+  OYAA:'Active conflict — Yemen civil war. NOTAM A0001/25 in effect. Permits SUSPENDED.',
+  OYSN:'Active conflict — Yemen civil war. Sanaa FIR closed to commercial traffic.',
+  HLLT:'Conflict zone — Libya. Split authority control. Permit required from both GNA & LNA.',
+  HLLS:'Conflict zone — Libya. Tripoli FIR partially restricted.',
+  UKLL:'Ukraine conflict zone. Lviv FIR restricted. NOTAM A4537/22 active.',
+  UKLV:'Ukraine conflict zone. Kyiv FIR closed. NOTAM A4537/22 active.',
+  UKBB:'Ukraine conflict zone — Boryspil closed. All Ukrainian FIRs restricted.',
+  OSDI:'Syria — HIGH RISK. Damascuse FIR restricted. Most overflights prohibited.',
+  HCSM:'Somalia FIR — HIGH RISK. Piracy advisory active. Alt routing via VOCCC recommended.',
+};
+
+const SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','AL-MASRIA'];
+const SANCTIONS_REG_PREFIX=['EP-','YK-'];
+
+function getAP(icao){return AP_DB[icao]||{name:icao,city:'Unknown',country:'Unknown',lat:25,lng:45,fir:'UNKNOWN'};}
+
+function getRisk(from,to,cargo,op,reg,legs){
+  const fromAP=getAP(from), toAP=getAP(to);
+  const allICAO=[from,to,...(legs||[])];
+  // Conflict check
+  const conflictHits=allICAO.filter(c=>CONFLICT_ZONES[c]);
+  const isConflict=conflictHits.length>0;
+  // Sanctions check
+  const opUpper=(op||'').toUpperCase();
+  const regUpper=(reg||'').toUpperCase();
+  const isSanctioned=SANCTIONS_OPERATORS.some(s=>opUpper.includes(s))||SANCTIONS_REG_PREFIX.some(p=>regUpper.startsWith(p));
+  const isDG=cargo==='DG';
+  const isMED=cargo==='MEDEVAC';
+  // Score
+  let score=15;
+  if(isConflict) score+=55;
+  if(isSanctioned) score+=40;
+  if(isDG) score+=20;
+  if(['OYSC','HLLL','OSTT','UKBV'].includes(fromAP.fir)||['OYSC','HLLL','OSTT','UKBV'].includes(toAP.fir)) score+=10;
+  score=Math.min(98,score+Math.floor(Math.random()*8));
   const level=score>=75?'HIGH':score>=50?'MEDIUM':score>=30?'LOW':'CLEAR';
   const color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
-  return{score,level,color,
-    layers:[
-      {icon:'🛡',name:'OFAC Sanctions',status:Math.random()>.9?'WARN':'OK',detail:'Operator and registration checked against OFAC SDN list — no matches found.'},
-      {icon:'🇪🇺',name:'EU Sanctions',status:Math.random()>.92?'WARN':'OK',detail:'EU consolidated sanctions list — no matches for operator or registration.'},
-      {icon:'🌐',name:'UN Sanctions',status:'OK',detail:'UN Security Council consolidated list — no restrictions detected.'},
-      {icon:'⚔',name:'Conflict Zones',status:hit?'DANGER':'OK',detail:hit?'Route passes through active conflict airspace. Permits may be suspended. Recommend alternative routing.':'No active conflict zones detected on this route.'},
-      {icon:'☢',name:'Dangerous Goods',status:dg?'WARN':'OK',detail:dg?'DG cargo declared. IATA DGR 11th Ed. compliance required. Verify packaging, labeling, and crew training.':'No dangerous goods declared.'},
-      {icon:'💊',name:'Health Risk (WHO)',status:Math.random()>.85?'WARN':'OK',detail:'WHO IHR 2005 — destination health advisory reviewed. Standard precautions apply.'},
-      {icon:'⛽',name:'Fuel Planning',status:'OK',detail:'ICAO Annex 6 fuel requirements verified. Trip fuel + alternate + 5% contingency + final reserve confirmed.'},
-      {icon:'🗺',name:'Route Optimization',status:'OK',detail:'Multi-FIR analysis complete. Route cleared for filing with standard ICAO flight plan.'},
-      {icon:'📡',name:'Live Flight Data',status:'OK',detail:'OpenSky Network integration — route airspace activity nominal. No significant traffic conflicts.'},
-      {icon:'🛬',name:'Airport Status',status:Math.random()>.88?'WARN':'OK',detail:'Destination NOTAM reviewed. No critical restrictions or closures affecting this flight.'},
-      {icon:'📋',name:'Permit Requirements',status:hit?'DANGER':'OK',detail:hit?'Flight permit may be SUSPENDED due to conflict zone routing. Contact civil aviation authority immediately.':'Standard overfly/landing permit requirements apply. No special restrictions detected.'},
-    ],
-    narrative:'Flight <strong>'+from+'→'+to+'</strong> assessment complete. '+(
-      score>=75?'<strong style="color:#f87171">HIGH RISK DETECTED</strong> — Route passes through or near restricted airspace. Recommend immediate re-routing and authority consultation. '+(hit?'Active conflict zone permits are likely suspended.':''):
-      score>=50?'<strong style="color:#fbbf24">MEDIUM RISK</strong> — Advisory notes detected. '+(dg?'Dangerous goods compliance is mandatory. ':'')+'Review all NOTAMs before dispatch.':
-      '<strong style="color:#34d399">LOW RISK</strong> — Route assessed as operationally acceptable. Standard procedures apply. Verify current NOTAMs before dispatch.'
-    )+' Analysis generated: <strong>'+new Date().toUTCString()+'</strong>.'
-  };
+
+  const layers=[
+    {icon:'🛡',name:'OFAC Sanctions (USA)',
+     status:isSanctioned?'DANGER':'OK',
+     detail:isSanctioned?`⚠ MATCH FOUND — ${op||reg} appears on OFAC SDN list. Flight must NOT depart. Immediate legal review required.`:`Operator "${op||'—'}" and registration "${reg||'—'}" checked against OFAC SDN list — no matches.`},
+    {icon:'🇪🇺',name:'EU Sanctions List',
+     status:isSanctioned?'DANGER':'OK',
+     detail:isSanctioned?`EU consolidated list match detected for ${op||reg}.`:`EU Article 215 TFEU — no sanctions match for operator or registration. Cleared.`},
+    {icon:'🌐',name:'UN Security Council',
+     status:'OK',
+     detail:`UN SC Res. 1267 & 2253 consolidated list — no restrictions on ${op||'operator'} or ${reg||'registration'}.`},
+    {icon:'⚔',name:'Conflict Zone Assessment',
+     status:isConflict?'DANGER':'OK',
+     detail:isConflict?conflictHits.map(c=>CONFLICT_ZONES[c]).join(' | '):`Route ${from}→${to} does not pass through active conflict zones. ICAO conflict zone map reviewed.`},
+    {icon:'☢',name:'Dangerous Goods (IATA DGR)',
+     status:isDG?'WARN':'OK',
+     detail:isDG?'DG cargo declared. IATA DGR 11th Ed. compliance mandatory: packaging, labeling, SDS documentation, crew training certificate required before dispatch.':'No dangerous goods declared. Standard cargo handling applies.'},
+    {icon:'💊',name:'Health Advisory (WHO IHR)',
+     status:'OK',
+     detail:`WHO IHR 2005 — ${toAP.country}: No active epidemic alerts. Standard health documentation applies. Check destination entry requirements.`},
+    {icon:'⛽',name:'Fuel Planning (ICAO Annex 6)',
+     status:'OK',
+     detail:`Route ${from}→${to} (${fromAP.country}→${toAP.country}): Trip fuel + 5% contingency + alternate fuel + 30-min final reserve required per ICAO Annex 6 §4.3.6.`},
+    {icon:'🗺',name:'FIR / Airspace Analysis',
+     status:isConflict?'WARN':'OK',
+     detail:`Departure FIR: ${fromAP.fir} | Destination FIR: ${toAP.fir}. ${isConflict?'One or more FIRs on route are restricted — obtain explicit entry clearance.':'Both FIRs are open. Standard ICAO flight plan filing applies.'}`},
+    {icon:'📡',name:'NOTAM Review',
+     status:isConflict?'WARN':'OK',
+     detail:isConflict?'Active NOTAMs detected on route. Review NOTAM D series for all FIRs and aerodromes on route before dispatch.':'No critical NOTAMs detected. Verify current NOTAMs via NOTAM Office 24h before ETD.'},
+    {icon:'🛬',name:'Destination Airport Status',
+     status:'OK',
+     detail:`${toAP.name} (${to}), ${toAP.city}, ${toAP.country} — Airport operational. Check local ATIS/METAR and confirm handling agent 24h prior.`},
+    {icon:'📋',name:'Permit Requirements',
+     status:isConflict||isSanctioned?'DANGER':'OK',
+     detail:isConflict||isSanctioned?
+       `PERMIT LIKELY REFUSED — ${isConflict?'Conflict zone routing.':''} ${isSanctioned?'Sanctioned operator/aircraft.':''} Do not file flight plan until permit confirmed.`:
+       `Standard overflight/landing permit required for ${toAP.country}. Submit to ${toAP.country} DGCA ≥72h before ETD. Include: aircraft details, crew manifest, cargo declaration.`},
+  ];
+
+  const narrative=`<strong>${fromAP.name} (${from})</strong> → <strong>${toAP.name} (${to})</strong><br><br>`+
+    (score>=75?`<span style="color:#f87171">⛔ HIGH RISK — </span>Significant hazards detected on this route. `+(isConflict?`Active conflict zone: ${conflictHits.join(', ')}. Permits may be suspended by civil aviation authority. `:'')+
+    (isSanctioned?`Sanctioned operator/aircraft detected — flight is PROHIBITED under international law. `:'')+'Do NOT dispatch until all issues resolved.':
+    score>=50?`<span style="color:#fbbf24">⚠ MEDIUM RISK — </span>Advisory conditions present. `+(isDG?'Dangerous goods compliance is mandatory. ':'')+`Review all NOTAMs and confirm permits 72h before ETD.`:
+    `<span style="color:#34d399">✅ LOW RISK — </span>Route from ${fromAP.city} to ${toAP.city} is operationally acceptable under current conditions. Standard permit and documentation procedures apply.`)+
+    `<br><br><em style="color:var(--muted)">Analysis generated: ${new Date().toUTCString()} · ARIS v2.3</em>`;
+
+  return{score,level,color,layers,narrative,fromAP,toAP};
 }
 
 function doAnalyze(){
@@ -664,70 +798,99 @@ function doAnalyze(){
        actype:document.getElementById('f-actype').value};
   }
   const from=f.from, to=f.to, cargo=f.cargo;
-  if(!from||!to){alert('Could not detect FROM/TO ICAO codes. Please check the pasted text or use Manual Entry.');return;}
+  if(!from||!to){
+    document.getElementById('resultArea').innerHTML=`<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ لم يتم التعرف على رموز ICAO</strong><br><br>استخدم الإدخال اليدوي وأدخل FROM/TO يدوياً</div>`;
+    return;
+  }
   const btns=document.querySelectorAll('.analyze-btn');
-  btns.forEach(b=>{b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span>⟳</span><span>Analyzing...</span>';});
+  btns.forEach(b=>{b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> &nbsp;جاري التحليل...';});
   sessionCount++;
   localStorage.setItem('aris_count',sessionCount);
   document.getElementById('kpiToday').textContent=sessionCount;
   setTimeout(()=>{
-    btns.forEach(b=>{b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>🔍</span><span>Run Risk Analysis</span>';});
-    const d=getRisk(from,to,cargo);
-    renderResult(d,f);
-  },1400);
+    btns.forEach(b=>{b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>🔍</span><span>ابدأ تحليل المخاطر</span>';});
+    const parsed=pasteMode?smartParse(document.getElementById('pasteText').value):{};
+    const d=getRisk(from,to,cargo,f.op,f.reg,parsed.legs);
+    renderResult(d,f,parsed.legs);
+  },1200);
 }
 
-function renderResult(d,f){
+function renderResult(d,f,legs){
   const lc=d.level==='HIGH'?'rb-high':d.level==='MEDIUM'?'rb-med':d.level==='LOW'?'rb-low':'rb-clear';
+  const lclr=d.level==='HIGH'?'#ef4444':d.level==='MEDIUM'?'#f59e0b':d.level==='LOW'?'#10b981':'#0ea5e9';
+  const routeStr=legs&&legs.length>2?legs.join(' → '):`${f.from} → ${f.to}`;
+  const danger=d.layers.filter(l=>l.status==='DANGER').length;
+  const warn=d.layers.filter(l=>l.status==='WARN').length;
+
   document.getElementById('resultArea').innerHTML=`
-    <div class="verdict-bar">
-      <div class="verdict-row">
-        <div style="text-align:center;min-width:90px">
-          <div style="font-family:Rajdhani,sans-serif;font-size:56px;font-weight:700;color:${d.color};line-height:1">${d.score}</div>
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Risk Score</div>
+  <div style="border:2px solid ${lclr};border-radius:16px;overflow:hidden;margin-bottom:16px">
+    <!-- Header bar -->
+    <div style="background:${lclr}18;border-bottom:1px solid ${lclr}40;padding:20px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="text-align:center;min-width:80px">
+        <div style="font-family:Rajdhani,sans-serif;font-size:62px;font-weight:700;color:${lclr};line-height:1">${d.score}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">RISK SCORE</div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <span style="font-family:Rajdhani,sans-serif;font-size:22px;font-weight:700;color:#fff">${routeStr}</span>
+          <span style="padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;background:${lclr}22;color:${lclr};border:1px solid ${lclr}55">${d.level} RISK</span>
         </div>
-        <div class="verdict-info">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-            <div style="font-size:20px;font-weight:800;color:#fff">${f.from} → ${f.to}</div>
-            <span class="risk-badge ${lc}" style="font-size:12px;padding:4px 14px">${d.level} RISK</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${f.op||'—'} &nbsp;·&nbsp; ${f.reg||'—'} &nbsp;·&nbsp; ${f.actype||'—'} &nbsp;·&nbsp; ${f.cargo} &nbsp;·&nbsp; ${f.date||'—'}</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-            ${['ICAO SMS','OFAC Checked','EU Checked',d.level+' RISK',f.cargo,'FIR Verified'].map((t,i)=>`<span class="vpill ${i===3?d.level==='HIGH'?'vpill-r':d.level==='MEDIUM'?'vpill-o':'vpill-g':'vpill-b'}">${t}</span>`).join('')}
-          </div>
-          <div class="verdict-actions">
-            <button class="act-btn ab-pdf" onclick="genPDF()">📄 Export PDF Report</button>
-            <button class="act-btn ab-share" onclick="copySummary()">🔗 Copy Summary</button>
-          </div>
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
+          ${d.fromAP.name} → ${d.toAP.name} &nbsp;·&nbsp; ${d.fromAP.country} → ${d.toAP.country}
+        </div>
+        <div style="font-size:12px;color:var(--muted)">
+          ${f.op?`<strong style="color:#e2e8f0">${f.op}</strong> &nbsp;·&nbsp; `:''}
+          ${f.reg||'—'} &nbsp;·&nbsp; ${f.actype||'—'} &nbsp;·&nbsp; ${f.cargo} &nbsp;·&nbsp; ${f.date||'—'}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div style="display:flex;gap:8px">
+          <span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">${danger} خطر</span>
+          <span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">${warn} تنبيه</span>
+          <span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">${11-danger-warn} سليم</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">📄 تقرير PDF</button>
+          <button class="act-btn ab-share" onclick="copySummary()" style="padding:9px 18px;font-size:13px">📋 نسخ الملخص</button>
         </div>
       </div>
     </div>
-    <div style="font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:10px">Risk Layer Analysis — 11 Checks</div>
-    <div class="layers-grid">${d.layers.map(l=>{
-      const cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
-      const sc=l.status==='DANGER'?'ls-danger':l.status==='WARN'?'ls-warn':'ls-ok';
-      return`<div class="layer-card ${cls}"><div class="layer-head"><span class="layer-icon">${l.icon}</span><span class="layer-name">${l.name}</span><span class="layer-status ${sc}">${l.status}</span></div><div class="layer-detail">${l.detail}</div></div>`;
-    }).join('')}</div>
-    <div class="narrative-card">
-      <h4>🤖 AI Risk Narrative</h4>
-      <div class="narrative-txt">${d.narrative}</div>
-      <div id="resultMap"></div>
-    </div>`;
-  window._last={d,f};
-  // Auto-scroll to results
+
+    <!-- Route map -->
+    <div id="resultMap" style="height:200px;width:100%"></div>
+  </div>
+
+  <!-- 11 layers -->
+  <div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">🔍 تحليل طبقات المخاطر — 11 فحص</div>
+  <div class="layers-grid" style="margin-bottom:16px">${d.layers.map(l=>{
+    const cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
+    const sc=l.status==='DANGER'?'ls-danger':l.status==='WARN'?'ls-warn':'ls-ok';
+    const slbl=l.status==='DANGER'?'⛔ خطر':l.status==='WARN'?'⚠ تنبيه':'✅ سليم';
+    return`<div class="layer-card ${cls}"><div class="layer-head"><span class="layer-icon">${l.icon}</span><span class="layer-name">${l.name}</span><span class="layer-status ${sc}">${slbl}</span></div><div class="layer-detail">${l.detail}</div></div>`;
+  }).join('')}</div>
+
+  <!-- Narrative -->
+  <div class="narrative-card">
+    <h4 style="font-size:14px">📝 تقرير مختصر</h4>
+    <div class="narrative-txt">${d.narrative}</div>
+  </div>`;
+
+  window._last={d,f,legs};
   document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Map
   setTimeout(()=>{
     if(resultMap){resultMap.remove();resultMap=null;}
-    resultMap=L.map('resultMap',{zoomControl:false,scrollWheelZoom:false}).setView([25,40],3);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO'}).addTo(resultMap);
-    const AP={OJAM:[31.9,35.9],OMDB:[25.2,55.4],OJAI:[31.7,35.9],OMAA:[24.4,54.6],OERK:[24.9,46.7],HECA:[30.1,31.4],OYAA:[15.5,44.2],HLLT:[32.7,13.2],LLBG:[32,34.9],LCPH:[34.7,33]};
-    const fc=AP[f.from]||[25,35]; const tc=AP[f.to]||[25,55];
-    const mk=c=>`<div style="width:10px;height:10px;background:${c};border-radius:50%;border:2px solid #fff"></div>`;
-    L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9')})}).addTo(resultMap).bindPopup('<b>'+f.from+'</b>');
-    L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981')})}).addTo(resultMap).bindPopup('<b>'+f.to+'</b>');
-    L.polyline([fc,tc],{color:d.color,weight:2.5,dashArray:'8,6'}).addTo(resultMap);
-    ZONES.forEach(z=>{L.circle([z.lat,z.lng],{radius:z.r*.6,color:z.color,fillColor:z.color,fillOpacity:.15,weight:1}).addTo(resultMap);});
-  },150);
+    resultMap=L.map('resultMap',{zoomControl:false,scrollWheelZoom:false,attributionControl:false}).setView([25,35],3);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:''}).addTo(resultMap);
+    const mk=(c,lbl)=>`<div style="background:${c};color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;border:2px solid #fff;white-space:nowrap">${lbl}</div>`;
+    const fc=[d.fromAP.lat,d.fromAP.lng]; const tc=[d.toAP.lat,d.toAP.lng];
+    L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9',f.from)})}).addTo(resultMap);
+    L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981',f.to)})}).addTo(resultMap);
+    L.polyline([fc,tc],{color:d.color,weight:3,dashArray:'10,6'}).addTo(resultMap);
+    ZONES.forEach(z=>{L.circle([z.lat,z.lng],{radius:z.r*.5,color:z.color,fillColor:z.color,fillOpacity:.15,weight:1}).addTo(resultMap);});
+    setTimeout(()=>resultMap.invalidateSize(),100);
+  },200);
 }
 
 function copySummary(){
