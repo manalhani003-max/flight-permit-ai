@@ -278,7 +278,7 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
         <div id="paste-panel">
           <div class="form-group">
             <label class="form-label">Paste Flight Request Text</label>
-            <textarea class="form-input" id="pasteText" rows="8" placeholder="الصق نص الرحلة هنا... مثال:&#10;FLIGHT TYPE: OVERFLIGHT&#10;OPERATOR: ARABWINGS&#10;REG: JY-AWD / A/C TYPE: B737&#10;CALLSIGN: AWS401&#10;ROUTE: OJAM-OMDB&#10;DATE: 25JUN2025&#10;CARGO: PAX" style="resize:vertical;line-height:1.6;font-family:monospace;font-size:12px" oninput="liveparse(this.value)"></textarea>
+            <textarea class="form-input" id="pasteText" rows="10" placeholder="Paste full flight permit request here...&#10;&#10;Example formats supported:&#10;──────────────────────────────&#10;OPERATOR NAME  : VistaJet GmbH&#10;REGISTRATION   : D-ANXA&#10;A/C TYPE       : E35L&#10;CALL SIGN      : VJH772&#10;&#10;24.Jun  OEJN  0450  OJAI  0630&#10;24.Jun  OJAI  0730  LIBT  1100&#10;──────────────────────────────&#10;OR: ROUTE: OJAM-OMDB  DATE: 25JUN2025" style="resize:vertical;line-height:1.6;font-family:monospace;font-size:11px" oninput="liveparse(this.value)"></textarea>
           </div>
           <div id="parse-preview" style="display:none;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:11px">
             <div style="font-weight:700;color:var(--blue);margin-bottom:8px">✅ Extracted automatically:</div>
@@ -402,40 +402,46 @@ function smartParse(txt){
   const yr=new Date().getFullYear();
 
   // ── Operator (keep original case) ──
-  const opM=txt.match(/OPERATOR\s*(?:NAME)?\s*[:\-]\s*(.+)/i);
-  if(opM) r.op=opM[1].trim();
+  const opM=txt.match(/OPERATOR\s*(?:NAME)?\s*[:\-]+\s*(.+)/i);
+  if(opM) r.op=opM[1].replace(/\r/g,'').trim();
 
   // ── Registration: D-ANXA / JY-AWD / 9K-AID / HZ-123 ──
   const regM=t.match(/REG(?:ISTRATION)?\s*[:\-]\s*([A-Z0-9]{1,3}-[A-Z0-9]{2,6})/);
   if(regM) r.reg=regM[1].trim();
 
   // ── Aircraft type ──
-  const acM=t.match(/A\/C\s*TYPE\s*[:\-]\s*([A-Z0-9\- ]+?)(?:\r?\n|CALL|REG|FLIGHT|ROUTE|DATE)/);
+  const acM=t.match(/A\/C\s*TYPE\s*[:\-]+\s*([A-Z0-9\-]+)/);
   if(acM) r.actype=acM[1].trim();
 
   // ── Callsign / Flight Number ──
   const csM=t.match(/(?:CALL\s*SIGN|CALLSIGN|FLIGHT\s*NUMBER)\s*[:\-]\s*([A-Z]{2,3}[0-9]{1,4}[A-Z]?)/);
   if(csM) r.callsign=csM[1].trim();
 
-  // ── ICAO codes — multiple strategies ──
+  // ── ICAO codes — multiple strategies (priority order) ──
   // Strategy 1: explicit ROUTE: OJAM-OMDB
   const routeM=t.match(/ROUTE\s*[:\-]\s*([A-Z]{4})\s*[-\/]\s*([A-Z]{4})/);
   // Strategy 2: FROM: / TO:
   const fromM=t.match(/FROM\s*[:\-]\s*([A-Z]{4})/);
   const toExM=t.match(/\bTO\s*[:\-]\s*([A-Z]{4})/);
-  // Strategy 3: legs table — "24.Jun  OEJN  0450  OJAI  0630"
-  // Extract ALL 4-letter uppercase words that look like ICAO (start with O,H,L,E,K,U,R,V,W,Y,Z,B,C,D,F,G,N,P,S,T)
+  // Strategy 3: Legs table rows — "24.Jun  OEJN  0450  OJAI  0630"
+  const legsRE=/\d{1,2}[.\s]?(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\.?\s+([A-Z]{4})\s+\d{3,4}\s+([A-Z]{4})/gi;
+  const legsM=[...t.matchAll(legsRE)];
+  // Strategy 4: fallback — 4-letter ICAO-looking words (extended exclusion list)
+  const EXCL=/^(TYPE|SIGN|NAME|DATE|FROM|CALL|FLIG|REGI|PRIV|CHAR|FERR|OVER|LAND|CARG|DANG|HAZA|MEDC|VITA|ARRI|DEPA|OPER|NUMB|NUMB|GMBH|VIST|CERT|PERM|NOTI|REMA|SPEC|INST|NOTE|INFO|CHEC|BOOK|WITH|THAT|THIS|HAVE|BEEN|WILL|ALSO|FROM|THRO|REQU|APPL|AUTH|AIRP|AIRW|ROUT|DEST|ORIG|STOP|TRAN)/)
   const icaoRE=/\b([A-Z]{4})\b/g;
-  const icaoCandidates=[...t.matchAll(icaoRE)].map(m=>m[1]).filter(c=>
-    /^[OHLEKURVWYZBCDFGNPST]/.test(c) && !/^(TYPE|SIGN|NAME|DATE|FROM|CALL|FLIG|REGI|PRIV|CHAR|FERR|OVER|LAND|CARG|DANG|HAZA|MEDC|VITA|ARRI|DEPA|OPER)/.test(c)
-  );
-  // Remove duplicates, keep order
-  const uniqICAO=[...new Set(icaoCandidates)];
+  const uniqICAO=[...new Set([...t.matchAll(icaoRE)].map(m=>m[1]).filter(c=>
+    /^[OHLEKUBCDFGNPRSTVWY]/.test(c) && !EXCL.test(c) && !/^[A-Z]{4}$/.test(c.replace(/[AEIOU]/g,''))
+  ))];
 
   if(routeM){r.from=routeM[1];r.to=routeM[2];}
   else if(fromM&&toExM){r.from=fromM[1];r.to=toExM[1];}
+  else if(legsM.length>0){
+    r.from=legsM[0][1]; r.to=legsM[legsM.length-1][2];
+    const allLegs=[...new Set(legsM.flatMap(m=>[m[1],m[2]]))];
+    if(allLegs.length>2) r.legs=allLegs;
+  }
   else if(uniqICAO.length>=2){r.from=uniqICAO[0];r.to=uniqICAO[uniqICAO.length-1];}
-  if(uniqICAO.length>2) r.legs=uniqICAO; // store all legs for display
+  if(!r.legs&&uniqICAO.length>2) r.legs=uniqICAO;
 
   // ── Date — many formats ──
   // 24.Jun / 24JUN / 24JUN2025
@@ -506,6 +512,8 @@ function launch(key){
   document.getElementById('app').classList.add('show');
   document.getElementById('keyBadge').textContent=key.slice(0,9)+'...';
   initApp();
+  // Invalidate map sizes after layout paint
+  setTimeout(()=>{if(dashMap)dashMap.invalidateSize();},300);
 }
 (function(){const k=localStorage.getItem(LIC);if(k&&(KEYS.includes(k)||KEYS.includes(rev(k)))){document.getElementById('keyInp').value=k;launch(k);}})();
 
@@ -531,7 +539,7 @@ function showPage(id,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('page-'+id).classList.add('on');
   if(btn)btn.classList.add('on');
-  if(id==='map'&&!fullMap)setTimeout(initFullMap,100);
+  if(id==='map'){if(!fullMap)setTimeout(initFullMap,100);else setTimeout(()=>fullMap.invalidateSize(),50);}
 }
 
 const ZONES=[
@@ -551,14 +559,16 @@ function addZones(map){ZONES.forEach(z=>{L.circle([z.lat,z.lng],{radius:z.r,colo
 function initDashMap(){
   if(dashMap)return;
   dashMap=L.map('dashMap',{zoomControl:false,scrollWheelZoom:false,dragging:false}).setView([25,30],2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO'}).addTo(dashMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(dashMap);
   addZones(dashMap);
+  setTimeout(()=>dashMap.invalidateSize(),200);
 }
 function initFullMap(){
   if(fullMap)return;
   fullMap=L.map('fullMap').setView([25,30],3);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO'}).addTo(fullMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(fullMap);
   addZones(fullMap);
+  setTimeout(()=>fullMap.invalidateSize(),200);
 }
 function initCharts(){
   new Chart(document.getElementById('riskChart'),{
