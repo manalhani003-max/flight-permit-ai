@@ -266,62 +266,75 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 
   <div class="page" id="page-analyze">
     <div class="dash-header">
-      <div class="dash-title">Flight Risk Analysis</div>
-      <div class="dash-sub">11-layer AI-powered risk assessment</div>
+      <div class="dash-title">✈ Flight Risk Analysis</div>
+      <div class="dash-sub">الصق بيانات الرحلة أو أدخلها يدوياً ← اضغط تحليل ← النتائج تظهر أدناه</div>
     </div>
-    <div class="analyze-layout">
-      <div class="form-card">
-        <div style="display:flex;gap:6px;margin-bottom:16px">
-          <button onclick="switchMode('paste')" id="mode-paste" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:Inter,sans-serif;background:var(--blue);color:#fff;transition:.2s">📋 Smart Paste</button>
-          <button onclick="switchMode('manual')" id="mode-manual" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:Inter,sans-serif;background:rgba(255,255,255,.07);color:var(--muted);transition:.2s">✏️ Manual Entry</button>
-        </div>
-        <div id="paste-panel">
-          <div class="form-group">
-            <label class="form-label">Paste Flight Request Text</label>
-            <textarea class="form-input" id="pasteText" rows="10" placeholder="Paste full flight permit request here...&#10;&#10;Example formats supported:&#10;──────────────────────────────&#10;OPERATOR NAME  : VistaJet GmbH&#10;REGISTRATION   : D-ANXA&#10;A/C TYPE       : E35L&#10;CALL SIGN      : VJH772&#10;&#10;24.Jun  OEJN  0450  OJAI  0630&#10;24.Jun  OJAI  0730  LIBT  1100&#10;──────────────────────────────&#10;OR: ROUTE: OJAM-OMDB  DATE: 25JUN2025" style="resize:vertical;line-height:1.6;font-family:monospace;font-size:11px" oninput="liveparse(this.value)"></textarea>
-          </div>
-          <div id="parse-preview" style="display:none;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:11px">
-            <div style="font-weight:700;color:var(--blue);margin-bottom:8px">✅ Extracted automatically:</div>
-            <div id="parse-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px"></div>
-          </div>
-          <button class="analyze-btn" id="analyzeBtn" onclick="doAnalyze()">
-            <span>🔍</span><span>Run Risk Analysis</span>
-          </button>
-        </div>
-        <div id="manual-panel" style="display:none">
-        <div class="form-title">✈ Flight Parameters</div>
-        <div class="form-group"><label class="form-label">Operator Name</label><input class="form-input" id="f-operator" placeholder="e.g. ARABWINGS"/></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Registration</label><input class="form-input" id="f-reg" placeholder="JY-AWD" oninput="this.value=this.value.toUpperCase()"/></div>
-          <div class="form-group"><label class="form-label">Callsign</label><input class="form-input" id="f-callsign" placeholder="AWS401" oninput="this.value=this.value.toUpperCase()"/></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">FROM (ICAO)</label><input class="form-input" id="f-from" placeholder="OJAM" oninput="this.value=this.value.toUpperCase()"/></div>
-          <div class="form-group"><label class="form-label">TO (ICAO)</label><input class="form-input" id="f-to" placeholder="OMDB" oninput="this.value=this.value.toUpperCase()"/></div>
-        </div>
-        <div class="form-group"><label class="form-label">Flight Date</label><input class="form-input" id="f-date" type="date"/></div>
-        <div class="form-group">
-          <label class="form-label">Cargo / Flight Type</label>
-          <select class="form-select" id="f-cargo">
-            <option value="PAX">Passenger (PAX)</option>
-            <option value="CARGO">Cargo</option>
-            <option value="DG">Dangerous Goods (DG)</option>
-            <option value="FERRY">Ferry Flight</option>
-            <option value="MEDEVAC">MEDEVAC</option>
-            <option value="VIP">VIP Charter</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Aircraft Type</label><input class="form-input" id="f-actype" placeholder="B737 / A320 / Hawker 800..."/></div>
-        <button class="analyze-btn" onclick="doAnalyze()">
-          <span>🔍</span><span>Run Risk Analysis</span>
-        </button>
-        </div><!-- /manual-panel -->
+
+    <!-- Input Card — full width -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px">
+      <div style="display:flex;gap:8px;margin-bottom:18px">
+        <button onclick="switchMode('paste')" id="mode-paste" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:Inter,sans-serif;background:var(--blue);color:#fff;transition:.2s">📋 Smart Paste — الصق النص</button>
+        <button onclick="switchMode('manual')" id="mode-manual" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:Inter,sans-serif;background:rgba(255,255,255,.07);color:var(--muted);transition:.2s">✏️ إدخال يدوي</button>
       </div>
-      <div class="result-area" id="resultArea">
-        <div class="result-placeholder">
-          <div class="big-icon">🛡</div>
-          <p>Enter flight parameters and run analysis<br>to see the full 11-layer risk assessment.</p>
+
+      <!-- PASTE MODE -->
+      <div id="paste-panel">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.15);border-radius:8px;padding:10px">
+          📌 <strong style="color:#e2e8f0">كيف تستخدم Smart Paste:</strong><br>
+          انسخ نص طلب التصريح كاملاً من الإيميل أو الواتساب ثم الصقه في الحقل أدناه — يستخرج البرنامج البيانات تلقائياً.
         </div>
+        <textarea class="form-input" id="pasteText" rows="9"
+          placeholder="الصق نص طلب التصريح هنا...&#10;&#10;مثال:&#10;OPERATOR NAME  : AL ATHEER AVIATION COMPANY&#10;REGISTRATION   : HZATR&#10;A/C TYPE       : B739&#10;CALL SIGN      : HZATR&#10;&#10;ETD 30 JUN/1600 UTC | 30 JUN/1900 LCL    OERK&#10;ETA 30 JUN/1855 UTC | 30 JUN/2155 LCL    LTFE"
+          style="resize:vertical;line-height:1.7;font-family:monospace;font-size:12px;margin-bottom:12px"
+          oninput="liveparse(this.value)"></textarea>
+
+        <div id="parse-preview" style="display:none;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:14px;margin-bottom:14px">
+          <div style="font-weight:700;color:#34d399;margin-bottom:10px;font-size:13px">✅ تم استخراج البيانات تلقائياً:</div>
+          <div id="parse-fields" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px 20px;font-size:13px"></div>
+        </div>
+
+        <button class="analyze-btn" id="analyzeBtn" onclick="doAnalyze()" style="font-size:15px;padding:15px">
+          <span>🔍</span><span>ابدأ تحليل المخاطر</span>
+        </button>
+      </div>
+
+      <!-- MANUAL MODE -->
+      <div id="manual-panel" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+          <div><label class="form-label">اسم المشغل / Operator</label><input class="form-input" id="f-operator" placeholder="AL ATHEER AVIATION"/></div>
+          <div><label class="form-label">التسجيل / Registration</label><input class="form-input" id="f-reg" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label">الكود / Callsign</label><input class="form-input" id="f-callsign" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+          <div><label class="form-label">من / FROM (ICAO)</label><input class="form-input" id="f-from" placeholder="OERK" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label">إلى / TO (ICAO)</label><input class="form-input" id="f-to" placeholder="LTFE" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label">التاريخ / Date</label><input class="form-input" id="f-date" type="date"/></div>
+          <div><label class="form-label">نوع الرحلة / Type</label>
+            <select class="form-select" id="f-cargo">
+              <option value="PAX">Passenger (PAX)</option>
+              <option value="VIP">VIP Charter</option>
+              <option value="CARGO">Cargo</option>
+              <option value="DG">Dangerous Goods</option>
+              <option value="FERRY">Ferry Flight</option>
+              <option value="MEDEVAC">MEDEVAC</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px;margin-bottom:14px">
+          <div><label class="form-label">نوع الطائرة / A/C</label><input class="form-input" id="f-actype" placeholder="B739"/></div>
+        </div>
+        <button class="analyze-btn" onclick="doAnalyze()" style="font-size:15px;padding:15px">
+          <span>🔍</span><span>ابدأ تحليل المخاطر</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results — full width, below form -->
+    <div id="resultArea">
+      <div style="background:var(--bg2);border:2px dashed var(--border);border-radius:14px;padding:60px 24px;text-align:center;color:var(--muted)">
+        <div style="font-size:56px;margin-bottom:16px">🛡</div>
+        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px">النتائج ستظهر هنا</div>
+        <div style="font-size:13px">الصق بيانات الرحلة أعلاه واضغط <strong style="color:var(--blue)">ابدأ تحليل المخاطر</strong></div>
       </div>
     </div>
   </div>
@@ -701,6 +714,8 @@ function renderResult(d,f){
       <div id="resultMap"></div>
     </div>`;
   window._last={d,f};
+  // Auto-scroll to results
+  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
   setTimeout(()=>{
     if(resultMap){resultMap.remove();resultMap=null;}
     resultMap=L.map('resultMap',{zoomControl:false,scrollWheelZoom:false}).setView([25,40],3);
