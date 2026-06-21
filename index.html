@@ -415,46 +415,42 @@ function smartParse(txt){
   const MN={JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12'};
   const yr=new Date().getFullYear();
 
-  // ── Operator (keep original case) ──
-  const opM=txt.match(/OPERATOR\s*(?:NAME)?\s*[:\-]+\s*(.+)/i);
-  if(opM) r.op=opM[1].replace(/\r/g,'').trim();
+  // ── Operator ──
+  for(const p of[/OPERATOR\s*(?:NAME)?\s*[:\-]+\s*(.+)/i,/COMPANY\s*(?:NAME)?\s*[:\-]+\s*(.+)/i,/AIRLINE\s*[:\-]+\s*(.+)/i]){
+    const m=txt.match(p); if(m){r.op=m[1].replace(/\r/g,'').trim();break;}
+  }
 
-  // ── Registration: D-ANXA / JY-AWD / HZATR / 9K-AID ──
-  const regM=t.match(/REG(?:ISTRATION)?\s*[:\-]+\s*([A-Z0-9]{1,3}-[A-Z0-9]{2,6})/)||t.match(/REG(?:ISTRATION)?\s*[:\-]+\s*([A-Z]{2,7})\b/);
-  if(regM) r.reg=regM[1].trim();
+  // ── Registration ──
+  for(const p of[/REG(?:ISTRATION)?\s*[:\-]+\s*([A-Z0-9]{1,3}-[A-Z0-9]{2,6})/,/REG(?:ISTRATION)?\s*[:\-]+\s*([A-Z0-9]{2,7})\b/,/TAIL\s*(?:NO\.?)?\s*[:\-]+\s*([A-Z0-9\-]{3,8})/]){
+    const m=t.match(p); if(m){r.reg=m[1].trim();break;}
+  }
 
   // ── Aircraft type ──
-  const acM=t.match(/A\/C\s*TYPE\s*[:\-]+\s*(.+?)(?:\r?\n|$)/m);
-  if(acM) r.actype=acM[1].trim();
+  const acM=t.match(/A\/C\s*(?:TYPE)?\s*[:\-]+\s*(.+?)[\r\n]/)||t.match(/AIRCRAFT\s*(?:TYPE)?\s*[:\-]+\s*(.+?)[\r\n]/)||t.match(/TYPE\s+OF\s+AIRCRAFT\s*[:\-]+\s*(.+?)[\r\n]/);
+  if(acM) r.actype=acM[1].replace(/\s+/g,' ').trim();
 
-  // ── Callsign / Flight Number ──
-  const csM=t.match(/(?:CALL\s*SIGN|CALLSIGN|FLIGHT\s*NUMBER)\s*[:\-]+\s*([A-Z0-9]{3,8})/);
+  // ── Callsign ──
+  const csM=t.match(/(?:CALL\s*SIGN|CALLSIGN|FLIGHT\s*(?:NUMBER|NO\.?))\s*[:\-]+\s*([A-Z0-9]{2,8})/);
   if(csM) r.callsign=csM[1].trim();
 
-  // ── ICAO codes — multiple strategies (priority order) ──
-  // Strategy 1: explicit ROUTE: OJAM-OMDB
-  const routeM=t.match(/ROUTE\s*[:\-]\s*([A-Z]{4})\s*[-\/]\s*([A-Z]{4})/);
-  // Strategy 2: FROM: / TO:
-  const fromM=t.match(/FROM\s*[:\-]\s*([A-Z]{4})/);
-  const toExM=t.match(/\bTO\s*[:\-]\s*([A-Z]{4})/);
-  // Strategy 3: Legs table rows — "24.Jun  OEJN  0450  OJAI  0630"
+  // ══ ICAO EXTRACTION — SMART: validate against known airport DB ══
+  // All 4-letter words in text
+  const all4=[...t.matchAll(/\b([A-Z]{4})\b/g)].map(m=>m[1]);
+  // Filter: must exist in AP_DB (the ground truth)
+  const knownICAO=[...new Set(all4.filter(c=>AP_DB[c]))];
+
+  // Also try explicit patterns for airports NOT yet in DB (heuristic fallback)
   const legsRE=/\d{1,2}[.\s\/]?(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?:[.\s\/]\d{2,4})?\s+([A-Z]{4})\s+\d{3,4}\s+([A-Z]{4})/gi;
   const legsM=[...t.matchAll(legsRE)];
-  // Strategy 4: ETD/ETA end-of-line — "ETD 30 JUN/1600 UTC | ...   OERK"
-  const etdRE=/^ETD\s+.+\s+([A-Z]{4})\s*$/gm;
-  const etaRE=/^ETA\s+.+\s+([A-Z]{4})\s*$/gm;
-  const etdM=[...t.matchAll(etdRE)].map(m=>m[1]);
-  const etaM=[...t.matchAll(etaRE)].map(m=>m[1]);
-  // Strategy 5: ICAO/CITY format — "OERK/RIYADH" or "LTFE/BODRUM"
-  const slashICAO=[...new Set([...t.matchAll(/\b([A-Z]{4})\/[A-Z]{2,}/g)].map(m=>m[1]))];
-  // Strategy 5: fallback — 4-letter ICAO-looking words (extended exclusion list)
-  const EXCL=/^(TYPE|SIGN|NAME|DATE|FROM|CALL|FLIG|REGI|PRIV|CHAR|FERR|OVER|LAND|CARG|DANG|HAZA|MEDC|VITA|ARRI|DEPA|OPER|NUMB|GMBH|VIST|CERT|PERM|NOTI|REMA|SPEC|INST|NOTE|INFO|CHEC|BOOK|WITH|THAT|THIS|HAVE|BEEN|WILL|ALSO|THRO|REQU|APPL|AUTH|AIRP|AIRW|ROUT|DEST|ORIG|STOP|TRAN|TRIP|LEGS|SECT)/;
-  const icaoRE=/\b([A-Z]{4})\b/g;
-  const uniqICAO=[...new Set([...t.matchAll(icaoRE)].map(m=>m[1]).filter(c=>
-    /^[OHLEKUBCDFGNPRSTVWY]/.test(c) && !EXCL.test(c) && !/^[A-Z]{4}$/.test(c.replace(/[AEIOU]/g,''))
-  ))];
+  const etdM=[...t.matchAll(/^ETD\s+.+\s+([A-Z]{4})\s*$/gm)].map(m=>m[1]);
+  const etaM=[...t.matchAll(/^ETA\s+.+\s+([A-Z]{4})\s*$/gm)].map(m=>m[1]);
+  const routeM=t.match(/ROUTE\s*[:\-]\s*([A-Z]{4})\s*[-\/]\s*([A-Z]{4})/);
+  const fromM=t.match(/(?:^|\s)FROM\s*[:\-]\s*([A-Z]{4})/m);
+  const toExM=t.match(/(?:^|\s)TO\s*[:\-]\s*([A-Z]{4})/m);
+  const slashM=[...new Set([...t.matchAll(/\b([A-Z]{4})\/[A-Z]{2,}/g)].map(m=>m[1]).filter(c=>AP_DB[c]))];
 
-  if(routeM){r.from=routeM[1];r.to=routeM[2];}
+  // Priority: explicit fields → legs table → ETD/ETA → slash format → DB-validated scan
+  if(routeM&&AP_DB[routeM[1]]&&AP_DB[routeM[2]]){r.from=routeM[1];r.to=routeM[2];}
   else if(fromM&&toExM){r.from=fromM[1];r.to=toExM[1];}
   else if(legsM.length>0){
     const firstDep=legsM[0][1], lastArr=legsM[legsM.length-1][2];
@@ -465,25 +461,24 @@ function smartParse(txt){
   }
   else if(etdM.length>0&&etaM.length>0){
     r.from=etdM[0];
-    // Round trip: FROM===TO — use first arrival as destination
     r.to=(etaM[etaM.length-1]===etdM[0]&&etaM.length>1)?etaM[0]:etaM[etaM.length-1];
-    const allLegs=[...new Set([...etdM,...etaM])];
-    if(allLegs.length>2) r.legs=allLegs;
+    const all=[...new Set([...etdM,...etaM])];
+    if(all.length>2) r.legs=all;
   }
-  else if(slashICAO.length>=2){r.from=slashICAO[0];r.to=slashICAO[slashICAO.length-1];if(slashICAO.length>2)r.legs=slashICAO;}
-  else if(uniqICAO.length>=2){r.from=uniqICAO[0];r.to=uniqICAO[uniqICAO.length-1];}
-  if(!r.legs&&uniqICAO.length>2) r.legs=uniqICAO;
+  else if(slashM.length>=2){r.from=slashM[0];r.to=slashM[slashM.length-1];if(slashM.length>2)r.legs=slashM;}
+  else if(knownICAO.length>=2){
+    r.from=knownICAO[0];
+    r.to=knownICAO[knownICAO.length-1]===knownICAO[0]&&knownICAO.length>1?knownICAO[1]:knownICAO[knownICAO.length-1];
+    if(knownICAO.length>2) r.legs=knownICAO;
+  }
 
-  // ── Date — many formats ──
-  // 24.Jun / 24JUN / 24JUN2025
-  const dLegs=t.match(/(\d{1,2})[.\s]?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?:\.?(\d{4}))?/);
+  // ── Date ──
+  const dM=t.match(/(\d{1,2})[.\s\/]?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[.\s\/]?(\d{2,4})?/);
   const dISO=txt.match(/(\d{4}-\d{2}-\d{2})/);
-  const dSlash=txt.match(/(\d{1,2})[\/](\d{1,2})[\/](\d{2,4})/);
-  if(dLegs) r.date=(dLegs[3]||yr)+'-'+MN[dLegs[2]]+'-'+dLegs[1].padStart(2,'0');
+  if(dM) r.date=((dM[3]&&dM[3].length===4)?dM[3]:'20'+(dM[3]||yr.toString().slice(2)))+'-'+MN[dM[2]]+'-'+dM[1].padStart(2,'0');
   else if(dISO) r.date=dISO[1];
-  else if(dSlash) r.date=(dSlash[3].length===2?'20'+dSlash[3]:dSlash[3])+'-'+dSlash[2].padStart(2,'0')+'-'+dSlash[1].padStart(2,'0');
 
-  // ── Cargo / flight type ──
+  // ── Cargo ──
   if(/DANGEROUS\s*GOODS|DGR|\bDG\b|HAZMAT/.test(t)) r.cargo='DG';
   else if(/MEDEVAC|MEDICAL\s*EVAC/.test(t)) r.cargo='MEDEVAC';
   else if(/\bFERRY\b/.test(t)) r.cargo='FERRY';
@@ -687,12 +682,150 @@ const AP_DB={
   // Pakistan
   OPKC:{name:'Jinnah Intl',city:'Karachi',country:'Pakistan',lat:24.906,lng:67.161,fir:'OPKR'},
   OPLA:{name:'Allama Iqbal Intl',city:'Lahore',country:'Pakistan',lat:31.522,lng:74.404,fir:'OPLR'},
+  OPRS:{name:'Benazir Bhutto Intl',city:'Islamabad',country:'Pakistan',lat:33.617,lng:73.099,fir:'OPLR'},
   // India
   VIDP:{name:'Indira Gandhi Intl',city:'Delhi',country:'India',lat:28.556,lng:77.1,fir:'VABB'},
   VABB:{name:'Chhatrapati Shivaji Intl',city:'Mumbai',country:'India',lat:19.089,lng:72.868,fir:'VABB'},
+  VOMM:{name:'Chennai Intl',city:'Chennai',country:'India',lat:12.994,lng:80.179,fir:'VOMF'},
+  VOBL:{name:'Kempegowda Intl',city:'Bengaluru',country:'India',lat:13.198,lng:77.706,fir:'VOMF'},
+  VECC:{name:'Netaji Subhash Bose Intl',city:'Kolkata',country:'India',lat:22.654,lng:88.447,fir:'VECF'},
   // Ukraine / conflict
   UKLL:{name:'Lviv Intl',city:'Lviv',country:'Ukraine',lat:49.812,lng:23.956,fir:'UKBV'},
   UKLV:{name:'Vinnytsia Airport',city:'Vinnytsia',country:'Ukraine',lat:49.243,lng:28.603,fir:'UKBV'},
+  UKBB:{name:'Boryspil Intl',city:'Kyiv',country:'Ukraine',lat:50.345,lng:30.894,fir:'UKBV'},
+  // Russia
+  UUEE:{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.972,lng:37.415,fir:'URRV'},
+  UUDD:{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.41,lng:37.906,fir:'URRV'},
+  URSS:{name:'Sochi Intl',city:'Sochi',country:'Russia',lat:43.449,lng:39.957,fir:'URRV'},
+  // Morocco
+  GMMN:{name:'Mohammed V Intl',city:'Casablanca',country:'Morocco',lat:33.368,lng:-7.59,fir:'GMMM'},
+  GMME:{name:'Rabat-Salé Airport',city:'Rabat',country:'Morocco',lat:34.051,lng:-6.752,fir:'GMMM'},
+  // Tunisia
+  DTTA:{name:'Tunis-Carthage Intl',city:'Tunis',country:'Tunisia',lat:36.851,lng:10.228,fir:'DTTC'},
+  // Algeria
+  DAAG:{name:'Houari Boumediene Airport',city:'Algiers',country:'Algeria',lat:36.691,lng:3.215,fir:'DAAA'},
+  // Nigeria
+  DNMM:{name:'Murtala Muhammed Intl',city:'Lagos',country:'Nigeria',lat:6.577,lng:3.321,fir:'DNKK'},
+  DNAA:{name:'Nnamdi Azikiwe Intl',city:'Abuja',country:'Nigeria',lat:9.007,lng:7.263,fir:'DNKK'},
+  // Ethiopia
+  HAAB:{name:'Addis Ababa Bole Intl',city:'Addis Ababa',country:'Ethiopia',lat:8.978,lng:38.799,fir:'HAAA'},
+  // Kenya
+  HKJK:{name:'Jomo Kenyatta Intl',city:'Nairobi',country:'Kenya',lat:-1.319,lng:36.927,fir:'HKNA'},
+  // South Africa
+  FAOR:{name:'OR Tambo Intl',city:'Johannesburg',country:'South Africa',lat:-26.139,lng:28.246,fir:'FAJA'},
+  FACT:{name:'Cape Town Intl',city:'Cape Town',country:'South Africa',lat:-33.965,lng:18.602,fir:'FAJA'},
+  // Spain
+  LEMD:{name:'Adolfo Suárez Madrid-Barajas',city:'Madrid',country:'Spain',lat:40.472,lng:-3.561,fir:'LECM'},
+  LEBL:{name:'Barcelona El Prat',city:'Barcelona',country:'Spain',lat:41.297,lng:2.083,fir:'LECM'},
+  LEMG:{name:'Málaga Costa del Sol',city:'Málaga',country:'Spain',lat:36.675,lng:-4.499,fir:'LECM'},
+  // Portugal
+  LPPT:{name:'Lisbon Humberto Delgado',city:'Lisbon',country:'Portugal',lat:38.774,lng:-9.135,fir:'LPPC'},
+  // Netherlands
+  EHAM:{name:'Amsterdam Schiphol',city:'Amsterdam',country:'Netherlands',lat:52.31,lng:4.768,fir:'EHAA'},
+  // Belgium
+  EBBR:{name:'Brussels Airport',city:'Brussels',country:'Belgium',lat:50.902,lng:4.484,fir:'EBBU'},
+  // Switzerland
+  LSZH:{name:'Zürich Airport',city:'Zürich',country:'Switzerland',lat:47.464,lng:8.549,fir:'LSAZ'},
+  LSGG:{name:'Geneva Airport',city:'Geneva',country:'Switzerland',lat:46.238,lng:6.109,fir:'LSAZ'},
+  // Austria
+  LOWW:{name:'Vienna Intl Airport',city:'Vienna',country:'Austria',lat:48.11,lng:16.57,fir:'LOVV'},
+  // Poland
+  EPWA:{name:'Warsaw Chopin Airport',city:'Warsaw',country:'Poland',lat:52.166,lng:20.967,fir:'EPWW'},
+  // Czech Republic
+  LKPR:{name:'Václav Havel Airport',city:'Prague',country:'Czech Republic',lat:50.101,lng:14.26,fir:'LKAA'},
+  // Hungary
+  LHBP:{name:'Budapest Liszt Ferenc Intl',city:'Budapest',country:'Hungary',lat:47.439,lng:19.261,fir:'LHCC'},
+  // Romania
+  LROP:{name:'Henri Coandă Intl',city:'Bucharest',country:'Romania',lat:44.572,lng:26.102,fir:'LRBB'},
+  // Sweden
+  ESSA:{name:'Stockholm Arlanda',city:'Stockholm',country:'Sweden',lat:59.652,lng:17.919,fir:'ESAA'},
+  // Denmark
+  EKCH:{name:'Copenhagen Airport',city:'Copenhagen',country:'Denmark',lat:55.618,lng:12.656,fir:'EKDK'},
+  // Norway
+  ENGM:{name:'Oslo Gardermoen',city:'Oslo',country:'Norway',lat:60.194,lng:11.1,fir:'ENOR'},
+  // Finland
+  EFHK:{name:'Helsinki-Vantaa Airport',city:'Helsinki',country:'Finland',lat:60.317,lng:24.963,fir:'EFIN'},
+  // Ireland
+  EIDW:{name:'Dublin Airport',city:'Dublin',country:'Ireland',lat:53.421,lng:-6.27,fir:'EISN'},
+  // USA
+  KJFK:{name:'John F. Kennedy Intl',city:'New York',country:'USA',lat:40.64,lng:-73.778,fir:'KZNY'},
+  KLAX:{name:'Los Angeles Intl',city:'Los Angeles',country:'USA',lat:33.943,lng:-118.408,fir:'KZLA'},
+  KORD:{name:"O'Hare Intl",city:'Chicago',country:'USA',lat:41.978,lng:-87.905,fir:'KZAU'},
+  KDFW:{name:'Dallas/Fort Worth Intl',city:'Dallas',country:'USA',lat:32.897,lng:-97.038,fir:'KZFW'},
+  KMIA:{name:'Miami Intl',city:'Miami',country:'USA',lat:25.796,lng:-80.287,fir:'KZMA'},
+  KIAD:{name:'Washington Dulles Intl',city:'Washington DC',country:'USA',lat:38.944,lng:-77.456,fir:'KZDC'},
+  // Canada
+  CYYZ:{name:'Toronto Pearson Intl',city:'Toronto',country:'Canada',lat:43.677,lng:-79.631,fir:'CZYZ'},
+  CYVR:{name:'Vancouver Intl',city:'Vancouver',country:'Canada',lat:49.195,lng:-123.184,fir:'CZVR'},
+  // China
+  ZBAA:{name:'Beijing Capital Intl',city:'Beijing',country:'China',lat:40.08,lng:116.585,fir:'ZBPE'},
+  ZSPD:{name:'Shanghai Pudong Intl',city:'Shanghai',country:'China',lat:31.143,lng:121.805,fir:'ZSHA'},
+  ZGGG:{name:'Guangzhou Baiyun Intl',city:'Guangzhou',country:'China',lat:23.392,lng:113.299,fir:'ZGZU'},
+  // Japan
+  RJTT:{name:'Tokyo Haneda',city:'Tokyo',country:'Japan',lat:35.552,lng:139.78,fir:'RJTG'},
+  RJAA:{name:'Narita Intl',city:'Tokyo',country:'Japan',lat:35.765,lng:140.386,fir:'RJTG'},
+  RJBB:{name:'Osaka Kansai Intl',city:'Osaka',country:'Japan',lat:34.427,lng:135.244,fir:'RJJJ'},
+  // South Korea
+  RKSI:{name:'Incheon Intl',city:'Seoul',country:'South Korea',lat:37.469,lng:126.451,fir:'RKRR'},
+  // Singapore
+  WSSS:{name:'Changi Airport',city:'Singapore',country:'Singapore',lat:1.359,lng:103.989,fir:'WSJC'},
+  // Thailand
+  VTBS:{name:'Suvarnabhumi Airport',city:'Bangkok',country:'Thailand',lat:13.681,lng:100.747,fir:'VTBB'},
+  VTBD:{name:'Don Mueang Intl',city:'Bangkok',country:'Thailand',lat:13.913,lng:100.607,fir:'VTBB'},
+  // Malaysia
+  WMKK:{name:'Kuala Lumpur Intl',city:'Kuala Lumpur',country:'Malaysia',lat:2.745,lng:101.71,fir:'WMFC'},
+  // Indonesia
+  WIII:{name:'Soekarno-Hatta Intl',city:'Jakarta',country:'Indonesia',lat:-6.126,lng:106.656,fir:'WSJC'},
+  // Philippines
+  RPLL:{name:'Ninoy Aquino Intl',city:'Manila',country:'Philippines',lat:14.508,lng:121.019,fir:'RPPV'},
+  // Hong Kong
+  VHHH:{name:'Hong Kong Intl',city:'Hong Kong',country:'China',lat:22.308,lng:113.915,fir:'VHHK'},
+  // Maldives
+  VRMM:{name:'Velana Intl',city:'Malé',country:'Maldives',lat:4.192,lng:73.529,fir:'VRMF'},
+  // Sri Lanka
+  VCBI:{name:'Bandaranaike Intl',city:'Colombo',country:'Sri Lanka',lat:7.18,lng:79.884,fir:'VCCF'},
+  // Bangladesh
+  VGZR:{name:'Shahjalal Intl',city:'Dhaka',country:'Bangladesh',lat:23.843,lng:90.398,fir:'VGFR'},
+  // Nepal
+  VNKT:{name:'Tribhuvan Intl',city:'Kathmandu',country:'Nepal',lat:27.697,lng:85.36,fir:'VNKT'},
+  // Iran (sanctioned)
+  OIII:{name:'Mehrabad Intl',city:'Tehran',country:'Iran',lat:35.689,lng:51.314,fir:'OIIX'},
+  OIKB:{name:'Bandar Abbas Intl',city:'Bandar Abbas',country:'Iran',lat:27.218,lng:56.378,fir:'OIIX'},
+  // Azerbaijan
+  UBBB:{name:'Heydar Aliyev Intl',city:'Baku',country:'Azerbaijan',lat:40.467,lng:50.047,fir:'UBBA'},
+  // Georgia
+  UGTB:{name:'Tbilisi Intl',city:'Tbilisi',country:'Georgia',lat:41.669,lng:44.955,fir:'UGGG'},
+  // Armenia
+  UDYZ:{name:'Zvartnots Intl',city:'Yerevan',country:'Armenia',lat:40.147,lng:44.396,fir:'UDDD'},
+  // Kazakhstan
+  UAAA:{name:'Almaty Intl',city:'Almaty',country:'Kazakhstan',lat:43.353,lng:77.041,fir:'UAAA'},
+  UACC:{name:'Nursultan Nazarbayev Intl',city:'Nur-Sultan',country:'Kazakhstan',lat:51.023,lng:71.467,fir:'UAAA'},
+  // Afghanistan
+  OAKB:{name:'Kabul Intl',city:'Kabul',country:'Afghanistan',lat:34.566,lng:69.212,fir:'OAKX'},
+  // Sudan
+  HSSS:{name:'Khartoum Intl',city:'Khartoum',country:'Sudan',lat:15.589,lng:32.553,fir:'HSSS'},
+  // Djibouti
+  HDAM:{name:'Djibouti-Ambouli Intl',city:'Djibouti',country:'Djibouti',lat:11.547,lng:43.159,fir:'HDAM'},
+  // Eritrea
+  HHAS:{name:'Asmara Intl',city:'Asmara',country:'Eritrea',lat:15.292,lng:38.91,fir:'HHAS'},
+  // Tanzania
+  HTDA:{name:'Julius Nyerere Intl',city:'Dar es Salaam',country:'Tanzania',lat:-6.878,lng:39.203,fir:'HTDC'},
+  // Ghana
+  DGAA:{name:'Kotoka Intl',city:'Accra',country:'Ghana',lat:5.605,lng:-0.167,fir:'DGAC'},
+  // Senegal
+  GOBD:{name:'Blaise Diagne Intl',city:'Dakar',country:'Senegal',lat:14.67,lng:-17.073,fir:'GOOO'},
+  // Brazil
+  SBGR:{name:'São Paulo/Guarulhos Intl',city:'São Paulo',country:'Brazil',lat:-23.432,lng:-46.469,fir:'SBBS'},
+  SBBR:{name:'Brasília Intl',city:'Brasília',country:'Brazil',lat:-15.871,lng:-47.919,fir:'SBBS'},
+  // Argentina
+  SAEZ:{name:'Ministro Pistarini Intl',city:'Buenos Aires',country:'Argentina',lat:-34.822,lng:-58.536,fir:'SAEF'},
+  // Mexico
+  MMMX:{name:'Benito Juárez Intl',city:'Mexico City',country:'Mexico',lat:19.436,lng:-99.072,fir:'MMEX'},
+  // Australia
+  YSSY:{name:'Sydney Kingsford Smith',city:'Sydney',country:'Australia',lat:-33.947,lng:151.177,fir:'YMMM'},
+  YMML:{name:'Melbourne Airport',city:'Melbourne',country:'Australia',lat:-37.673,lng:144.843,fir:'YMMM'},
+  // New Zealand
+  NZAA:{name:'Auckland Airport',city:'Auckland',country:'New Zealand',lat:-37.008,lng:174.792,fir:'NZZC'},
 };
 
 const CONFLICT_ZONES={
