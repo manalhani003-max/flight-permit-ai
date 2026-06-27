@@ -161,8 +161,9 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 .ab-pdf:hover{background:var(--red);color:#fff}
 .ab-del:hover{background:rgba(239,68,68,.1);color:#f87171}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}.dash-grid,.dash-grid-3{grid-template-columns:1fr}}
-@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.top-nav{display:none}}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}.dash-grid,.dash-grid-3{grid-template-columns:1fr}.layer-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.top-nav{display:none}.layer-grid{grid-template-columns:1fr!important}}
+@media(max-width:480px){.gate-content{padding:12px}.gate-card{padding:20px}.gate-brand-name{font-size:30px}}
 
 /* ── TICKER ── */
 .ticker-bar{background:rgba(239,68,68,.08);border-bottom:1px solid rgba(239,68,68,.2);height:32px;overflow:hidden;display:flex;align-items:center;gap:0}
@@ -374,10 +375,13 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
             <select class="form-select" id="f-cargo">
               <option value="PAX">Passenger (PAX)</option>
               <option value="VIP">VIP Charter</option>
-              <option value="CARGO">Cargo</option>
-              <option value="DG">Dangerous Goods</option>
+              <option value="CARGO">Cargo / Freight</option>
+              <option value="DG">Dangerous Goods (DGR)</option>
               <option value="FERRY">Ferry Flight</option>
-              <option value="MEDEVAC">MEDEVAC</option>
+              <option value="MEDEVAC">MEDEVAC / Air Ambulance</option>
+              <option value="MILITARY-PAX">Military Personnel</option>
+              <option value="MILITARY-WPN">Military / Weapons / Munitions</option>
+              <option value="MILITARY">Military Aircraft (General)</option>
             </select>
           </div>
         </div>
@@ -1148,7 +1152,7 @@ var AP_DB={
   OMDM:{name:'Al Minhad AB',city:'Al Minhad',country:'UAE',lat:25.027,lng:55.366,fir:'OMAE',military:true},
   OMAZ:{name:'Al Bateen AB',city:'Abu Dhabi',country:'UAE',lat:24.428,lng:54.458,fir:'OMAE',military:true},
   ORSU:{name:'Balad AB (Joint)',city:'Balad',country:'Iraq',lat:33.94,lng:44.361,fir:'ORBB',military:true},
-  HECA2:{name:'Cairo West AB',city:'Cairo',country:'Egypt',lat:30.116,lng:30.915,fir:'HECC',military:true},
+  HECW:{name:'Cairo West AB',city:'Cairo',country:'Egypt',lat:30.116,lng:30.915,fir:'HECC',military:true},
   LTCC:{name:'Incirlik AB',city:'Adana',country:'Turkey',lat:37.002,lng:35.426,fir:'LTAA',military:true},
   LGKV:{name:'Kavala AB',city:'Kavala',country:'Greece',lat:40.913,lng:24.342,fir:'LGGG',military:true},
   UARR:{name:'Ayaguz AB',city:'Ayaguz',country:'Kazakhstan',lat:47.966,lng:80.432,fir:'UAAA',military:true},
@@ -1213,8 +1217,7 @@ var PERMIT_RULES={
   'USA':{lead:'72h',authority:'FAA / TSA / CBP',tel:'+1-202-366-4000',notes:'GA: FAA Part 129 approval. Charter: CBP APIS manifest required. State aircraft: diplomatic note via State Dept.'},
   'Morocco':{lead:'48h',authority:'ONDA Morocco',tel:'+212-5-37-71-96-02',notes:'Standard procedures. Advance slot required for Casablanca.'},
   'Algeria':{lead:'72h',authority:'EGSA Algeria',tel:'+213-21-50-91-90',notes:'All non-scheduled flights require advance approval.'},
-  'Tunisia':{lead:'48h',authority:'OACA Tunisia',tel:'+216-71-755-000',notes:''},
-  'Egypt':{lead:'72h',authority:'ECAA',tel:'+20-2-2267-4808',notes:'DG cargo requires advance ECAA approval.'},
+  'Tunisia':{lead:'48h',authority:'OACA Tunisia',tel:'+216-71-755-000',notes:'Standard ICAO procedures. Advance slot required for Tunis peak hours.'},
   'Nigeria':{lead:'72h',authority:'NCAA Nigeria',tel:'+234-1-493-2165',notes:'All foreign operators: NCAA advance clearance. Security surcharge applies.'},
   'Ethiopia':{lead:'72h',authority:'ECAA Ethiopia',tel:'+251-11-665-5140',notes:''},
   'Kenya':{lead:'48h',authority:'KCAA',tel:'+254-20-827-474',notes:''},
@@ -1251,8 +1254,8 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var score=15;
   if(isConflict) score+=55;
   if(isSanctioned) score+=40;
-  if(isIranianReg) score+=10; // OFAC SDN amplifier
-  if(isRussianReg&&(fromCountry==='Russia'||destCountry==='Russia')) score+=8;
+  if(isIranianReg&&!isSanctioned) score+=10; // Extra OFAC weight if not already sanctioned
+  if(isRussianReg&&!isSanctioned&&(fromCountry==='Russia'||destCountry==='Russia')) score+=8;
   if(isDG) score+=20;
   if(isMilWpn) score+=35;
   if(isMilPax||isMilitary) score+=15;
@@ -1260,7 +1263,7 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   if(destMilitary||fromMilitary) score+=10;
   if(isHighRiskCountry&&!isConflict) score+=20; // Non-conflict but high risk country
   if(isMedRiskCountry&&!isSanctioned) score+=10;
-  var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HRYR'];
+  var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HSSS'];
   if(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0) score+=12;
   // Leg count risk: more legs = more permit exposure
   if((legs||[]).length>=2) score+=5;
@@ -1369,32 +1372,49 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
 function doAnalyze(){
   var pasteMode=document.getElementById('paste-panel').style.display!=='none';
   var f={};
+  var parsed={};
   if(pasteMode){
     var txt=document.getElementById('pasteText').value;
     if(txt.trim().length<5){alert('Please paste flight information first.');return;}
-    var p=smartParse(txt);
-    f={op:p.op||'',reg:p.reg||'',callsign:p.callsign||'',from:p.from||'',to:p.to||'',cargo:p.cargo||'PAX',date:p.date||'',actype:p.actype||''};
+    parsed=smartParse(txt);
+    f={op:parsed.op||'',reg:parsed.reg||'',callsign:parsed.callsign||'',from:parsed.from||'',to:parsed.to||'',cargo:parsed.cargo||'PAX',date:parsed.date||'',actype:parsed.actype||''};
   } else {
+    var cargo=document.getElementById('f-cargo').value;
     f={op:document.getElementById('f-operator').value,reg:document.getElementById('f-reg').value,
        callsign:document.getElementById('f-callsign').value,
        from:document.getElementById('f-from').value.trim().toUpperCase(),
        to:document.getElementById('f-to').value.trim().toUpperCase(),
-       cargo:document.getElementById('f-cargo').value,
+       cargo:cargo,
        date:document.getElementById('f-date').value,
        actype:document.getElementById('f-actype').value};
+    // Derive military flags from cargo type in manual mode
+    parsed.military=(cargo==='MILITARY-PAX'||cargo==='MILITARY-WPN'||cargo==='MILITARY');
+    parsed.stateAircraft=false;
+    parsed.legs=[];
   }
   if(!f.from||!f.to){
-    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ لم يتم التعرف على رموز ICAO</strong><br><br>تحقق من صحة رمزي المطار (FROM / TO) أو استخدم الإدخال اليدوي</div>';
+    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ ICAO codes missing</strong><br><br>Please enter valid FROM and TO airport ICAO codes (4 letters, e.g. OERK, OMDB).</div>';
     return;
   }
+  if(f.from.length!==4||f.to.length!==4){
+    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ Invalid ICAO format</strong><br><br>ICAO codes must be exactly 4 letters (e.g. <strong>OERK</strong>, <strong>OMDB</strong>, <strong>KJFK</strong>).</div>';
+    return;
+  }
+  var fromKnown=!!AP_DB[f.from], toKnown=!!AP_DB[f.to];
+  if(!fromKnown||!toKnown){
+    var unknown=[];
+    if(!fromKnown) unknown.push('FROM: <strong>'+f.from+'</strong>');
+    if(!toKnown) unknown.push('TO: <strong>'+f.to+'</strong>');
+    document.getElementById('resultArea').innerHTML='<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:20px;text-align:center;color:#fbbf24"><strong>⚠ Airport not in database: '+unknown.join(' · ')+'</strong><br><br>Analysis will proceed with limited data. Verify ICAO codes and review results carefully.</div>';
+    // Still proceed with analysis — getAP falls back gracefully
+  }
   var btns=document.querySelectorAll('.analyze-btn');
-  btns.forEach(function(b){b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">⟳</span> &nbsp;جاري التحليل...';});
+  btns.forEach(function(b){b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">&#8635;</span> &nbsp;Analyzing...';});
   sessionCount++;
   localStorage.setItem('aris_count',sessionCount);
   document.getElementById('kpiToday').textContent=sessionCount;
   setTimeout(function(){
-    btns.forEach(function(b){b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>🔍</span><span>ابدأ تحليل المخاطر</span>';});
-    var parsed=pasteMode?smartParse(document.getElementById('pasteText').value):{};
+    btns.forEach(function(b){b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>&#128269;</span><span>ابدأ تحليل المخاطر</span>';});
     var d=getRisk(f.from,f.to,f.cargo,f.op,f.reg,parsed.legs,parsed.military||false,parsed.stateAircraft||false);
     saveHistory(d,f);
     renderResult(d,f,parsed.legs);
@@ -1436,9 +1456,9 @@ function renderResult(d,f,legs){
       '</div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">'+
         '<div style="display:flex;gap:8px">'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' خطر</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' تنبيه</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(12-danger-warn)+' سليم</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' DANGER</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' WARN</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(12-danger-warn)+' OK</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px;margin-top:4px">'+
           '<button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">📄 تقرير PDF</button>'+
@@ -1448,12 +1468,12 @@ function renderResult(d,f,legs){
     '</div>'+
     '<div id="resultMap" style="height:200px;width:100%"></div>'+
   '</div>'+
-  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">🔍 تحليل طبقات المخاطر — 12 فحص</div>'+
-  '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
+  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">&#128269; Risk Layer Analysis — 12 checks</div>'+
+  '<div class="layer-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
   d.layers.map(function(l){
     var cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
     var sc=l.status==='DANGER'?'ls-danger':l.status==='WARN'?'ls-warn':'ls-ok';
-    var slbl=l.status==='DANGER'?'⛔ خطر':l.status==='WARN'?'⚠ تنبيه':'✅ سليم';
+    var slbl=l.status==='DANGER'?'DANGER':l.status==='WARN'?'WARN':'OK';
     return '<div class="layer-card '+cls+'"><div class="layer-head"><span class="layer-icon">'+l.icon+'</span><span class="layer-name">'+l.name+'</span><span class="layer-status '+sc+'">'+slbl+'</span></div><div class="layer-detail">'+l.detail+'</div></div>';
   }).join('')+
   '</div>'+
@@ -1519,14 +1539,15 @@ function genPDF(){
   doc.setFontSize(8);doc.setTextColor(100,116,139);doc.text('— '+d.level+' RISK',90,sy+10);
   // Layers header
   var ly=sy+22;
-  doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text('11-LAYER RISK ANALYSIS',14,ly);
+  doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text('12-LAYER RISK ANALYSIS',14,ly);
   doc.setDrawColor(14,165,233);doc.line(14,ly+2,196,ly+2);
   // Layers
   d.layers.forEach(function(l,i){
     var y=ly+8+i*9;
     var sc2=l.status==='DANGER'?[239,68,68]:l.status==='WARN'?[245,158,11]:[16,185,129];
     doc.setFontSize(8);doc.setTextColor(226,232,240);doc.setFont('helvetica','normal');
-    doc.text(l.icon+' '+l.name,16,y);
+    var pdfName=l.name.replace(/[^\x00-\x7F]/g,'').replace(/^\s+/,'');
+    doc.text('['+String(i+1)+'] '+pdfName,16,y);
     doc.setFillColor(sc2[0],sc2[1],sc2[2]);doc.roundedRect(118,y-3.5,22,5,1.5,1.5,'F');
     doc.setTextColor(255,255,255);doc.setFontSize(6.5);doc.setFont('helvetica','bold');doc.text(l.status,129,y,{align:'center'});
     doc.setFontSize(6.5);doc.setTextColor(100,116,139);doc.setFont('helvetica','normal');
