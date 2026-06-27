@@ -466,12 +466,39 @@ function smartParse(txt){
   if(dM){var yy=dM[3]?(dM[3].length===4?dM[3]:'20'+dM[3]):''+yr;r.date=yy+'-'+MN[dM[2]]+'-'+dM[1].padStart(2,'0');}
   else if(dISO) r.date=dISO[1];
 
-  // Cargo
-  if(/DANGEROUS\s*GOODS|DGR|\bDG\b|HAZMAT/.test(t)) r.cargo='DG';
+  // ── Military / State aircraft detection ──
+  var MIL_KW=/STATE\s*AIRCRAFT|MILITARY\s*AIRCRAFT|GOVT?\s*AIRCRAFT|GOVERNMENT\s*AIRCRAFT|HEAD\s*OF\s*STATE|DIPLOMATIC\s*FLIGHT|ROYAL\s*FLIGHT|PRESIDENTIAL\s*FLIGHT|EXEMPT\s*CUSTOMS|ICAO\s*STATUS\s*[:\-]+\s*[MS]/i;
+  var STATE_KW=/STATE\s*AIRCRAFT|HEAD\s*OF\s*STATE|GOVERNMENT\s*FLIGHT|ROYAL\s*FLIGHT|PRESIDENTIAL/i;
+  var MIL_CS=/\b(RCH|SAM|REACH|VENUS|JAKE|SPAR|ATLAS|SWORD|TALON|COYOTE|MUSEL)\d{1,4}\b/i;
+  if(MIL_KW.test(txt)) r.military=true;
+  if(STATE_KW.test(txt)) r.stateAircraft=true;
+  if(!r.callsign){var mcm=txt.match(MIL_CS);if(mcm){r.callsign=mcm[0].toUpperCase();r.military=true;}}
+
+  // ── Purpose of flight ──
+  var purpM=txt.match(/(?:PURPOSE|NATURE\s*OF\s*FLIGHT|FLIGHT\s*TYPE|MISSION\s*TYPE)\s*[:\-]+\s*(.+)/i);
+  if(purpM) r.purpose=purpM[1].replace(/\r/g,'').trim();
+
+  // ── Persons on Board ──
+  var pobM=txt.match(/(?:POB|PERSONS?\s*ON\s*BOARD|PAX\s*COUNT|SOULS)\s*[:\-]+\s*(\d+)/i);
+  if(pobM) r.pob=pobM[1];
+
+  // ── Cargo weight ──
+  var wgtM=txt.match(/(?:TOTAL\s*WEIGHT|CARGO\s*WEIGHT|GROSS\s*WEIGHT|GWT)\s*[:\-]+\s*([\d,\.]+\s*(?:KG|LBS|MT|T\b))/i);
+  if(wgtM) r.weight=wgtM[1].trim();
+
+  // ── Crew nationality ──
+  var crewNM=txt.match(/(?:CREW\s*NATIONALITY|NATIONALITY\s*OF\s*CREW)\s*[:\-]+\s*(.+)/i);
+  if(crewNM) r.crewNat=crewNM[1].replace(/\r/g,'').trim();
+
+  // ── Cargo / mission type ──
+  if(/WEAPON|AMMUNITION|ARMS\b|ARMAMENT|MUNITION|EXPLOSIVE|ORDNANCE/.test(t)){r.cargo='MILITARY-WPN';r.military=true;}
+  else if(/TROOPS|SOLDIERS|ARMED\s*FORCES|MILITARY\s*PERSONNEL/.test(t)){r.cargo='MILITARY-PAX';r.military=true;}
+  else if(/DANGEROUS\s*GOODS|DGR|\bDG\b|HAZMAT/.test(t)) r.cargo='DG';
   else if(/MEDEVAC|MEDICAL\s*EVAC/.test(t)) r.cargo='MEDEVAC';
   else if(/\bFERRY\b/.test(t)) r.cargo='FERRY';
   else if(/\bVIP\b|\bPRIVATE\b/.test(t)) r.cargo='VIP';
   else if(/\bCARGO\b|\bFREIGHT\b/.test(t)) r.cargo='CARGO';
+  else if(r.military) r.cargo='MILITARY';
   else r.cargo='PAX';
 
   return r;
@@ -480,10 +507,13 @@ function smartParse(txt){
 function liveparse(txt){
   if(txt.trim().length<10){document.getElementById('parse-preview').style.display='none';return;}
   var r=smartParse(txt);
-  var fields=[['Operator',r.op],['Registration',r.reg],['Aircraft',r.actype],['Callsign',r.callsign],['FROM',r.from],['TO',r.to],['Date',r.date],['Cargo',r.cargo]].filter(function(x){return x[1];});
+  var milTag=r.military?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.4)">⚔ MILITARY/STATE</span> ':''
+             +(r.stateAircraft?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)">🏛 STATE A/C</span> ':'');
+  var fields=[['Operator',r.op],['Registration',r.reg],['Aircraft',r.actype],['Callsign',r.callsign],['FROM',r.from],['TO',r.to],['Date',r.date],['Cargo',r.cargo],['POB',r.pob],['Purpose',r.purpose],['Weight',r.weight],['Crew Nat.',r.crewNat]].filter(function(x){return x[1];});
   if(!fields.length){document.getElementById('parse-preview').style.display='none';return;}
   var html=fields.map(function(kv){return '<div style="color:var(--muted)">'+kv[0]+': <strong style="color:#e2e8f0">'+kv[1]+'</strong></div>';}).join('');
   if(r.legs&&r.legs.length>2) html+='<div style="grid-column:1/-1;margin-top:6px;color:var(--muted)">Route: <strong style="color:#38bdf8">'+r.legs.join(' → ')+'</strong></div>';
+  if(milTag) html='<div style="grid-column:1/-1;margin-bottom:8px">'+milTag+'</div>'+html;
   document.getElementById('parse-fields').innerHTML=html;
   document.getElementById('parse-preview').style.display='block';
 }
@@ -1029,6 +1059,20 @@ var AP_DB={
   MPTO:{name:'Tocumen Intl',city:'Panama City',country:'Panama',lat:9.071,lng:-79.383,fir:'MPTO'},
   // ── DOMINICAN REPUBLIC ──
   MDPP:{name:'Punta Cana Intl',city:'Punta Cana',country:'Dominican Republic',lat:18.567,lng:-68.363,fir:'MDCS'},
+  // ── MILITARY / STATE / JOINT USE ──
+  OEDR:{name:'King Abdulaziz AB (Dhahran)',city:'Dhahran',country:'Saudi Arabia',lat:26.265,lng:50.152,fir:'OEJD',military:true},
+  OEAS:{name:'Prince Sultan AB',city:'Al Kharj',country:'Saudi Arabia',lat:24.063,lng:47.581,fir:'OEJD',military:true},
+  OEDM:{name:'King Fahd Military City',city:'Hafr Al-Batin',country:'Saudi Arabia',lat:27.9,lng:45.527,fir:'OEJD',military:true},
+  OKAJ:{name:'Ali Al Salem AB',city:'Al Jaber',country:'Kuwait',lat:29.346,lng:47.521,fir:'OKAC',military:true},
+  OBBS:{name:'Shaikh Isa AB',city:'Isa Town',country:'Bahrain',lat:26.016,lng:50.591,fir:'OBBB',military:true},
+  OTBH:{name:'Al Udeid AB',city:'Al Udeid',country:'Qatar',lat:25.117,lng:51.316,fir:'OBBB',military:true},
+  OMDM:{name:'Al Minhad AB',city:'Al Minhad',country:'UAE',lat:25.027,lng:55.366,fir:'OMAE',military:true},
+  OMAZ:{name:'Al Bateen AB',city:'Abu Dhabi',country:'UAE',lat:24.428,lng:54.458,fir:'OMAE',military:true},
+  ORSU:{name:'Balad AB (Joint)',city:'Balad',country:'Iraq',lat:33.94,lng:44.361,fir:'ORBB',military:true},
+  HECA2:{name:'Cairo West AB',city:'Cairo',country:'Egypt',lat:30.116,lng:30.915,fir:'HECC',military:true},
+  LTCC:{name:'Incirlik AB',city:'Adana',country:'Turkey',lat:37.002,lng:35.426,fir:'LTAA',military:true},
+  LGKV:{name:'Kavala AB',city:'Kavala',country:'Greece',lat:40.913,lng:24.342,fir:'LGGG',military:true},
+  UARR:{name:'Ayaguz AB',city:'Ayaguz',country:'Kazakhstan',lat:47.966,lng:80.432,fir:'UAAA',military:true},
 };
 </script>
 <script>
@@ -1096,7 +1140,7 @@ var PERMIT_RULES={
 
 function getAP(icao){return AP_DB[icao]||{name:icao,city:'Unknown',country:'Unknown',lat:25,lng:45,fir:'UNKNOWN'};}
 
-function getRisk(from,to,cargo,op,reg,legs){
+function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var fromAP=getAP(from), toAP=getAP(to);
   var allICAO=[from,to].concat(legs||[]);
   var conflictHits=allICAO.filter(function(c){return CONFLICT_ZONES[c];});
@@ -1105,12 +1149,19 @@ function getRisk(from,to,cargo,op,reg,legs){
   var regUpper=(reg||'').toUpperCase();
   var isSanctioned=SANCTIONS_OPERATORS.some(function(s){return opUpper.indexOf(s)>=0;})||SANCTIONS_REG_PREFIX.some(function(p){return regUpper.indexOf(p)===0;});
   var isDG=cargo==='DG';
-  var isMED=cargo==='MEDEVAC';
+  var isMilWpn=(cargo==='MILITARY-WPN');
+  var isMilPax=(cargo==='MILITARY-PAX')||isMilitary;
+  var destMilitary=toAP.military||false;
+  var fromMilitary=fromAP.military||false;
 
   var score=15;
   if(isConflict) score+=55;
   if(isSanctioned) score+=40;
   if(isDG) score+=20;
+  if(isMilWpn) score+=35;
+  if(isMilPax||isMilitary) score+=15;
+  if(isStateAC) score+=8;
+  if(destMilitary||fromMilitary) score+=10;
   var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX'];
   if(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0) score+=10;
   score=Math.min(98,score+Math.floor(Math.random()*6));
@@ -1118,56 +1169,69 @@ function getRisk(from,to,cargo,op,reg,legs){
   var color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
 
   var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.'};
-  var permitStatus=(isConflict||isSanctioned||pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?'DANGER':pr.lead==='96h'?'WARN':'OK';
+  var permitStatus=(isConflict||isSanctioned||pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?'DANGER':(pr.lead==='96h'||isMilWpn||isStateAC)?'WARN':'OK';
+
+  // Military layer detail
+  var milDetail='';
+  if(isMilWpn) milDetail='⚔ WEAPONS/MUNITIONS declared. End-User Certificate (EUC) required. Arms export license from origin country mandatory. Transit country approval required. Customs Form 302 (NATO) or equivalent needed. Coordinate with MoD of all transit states.';
+  else if(isMilPax||isMilitary) milDetail='⚔ Military personnel/aircraft detected. ICAO Annex 2 §3.3 exemption may apply if state aircraft. Diplomatic clearance (DipClear) required for all overflight states. Ministry of Defence coordination mandatory.';
+  else if(isStateAC) milDetail='🏛 State aircraft operation. Chicago Convention Article 3 applies — commercial ICAO rules do NOT automatically apply. Diplomatic note (verbal note) required from origin state MFA to each overflown/destination state.';
+  else milDetail='No military or state aircraft indicators detected. Standard civil aviation rules apply per ICAO Annex 2.';
+  var milStatus=isMilWpn?'DANGER':(isMilPax||isMilitary||isStateAC)?'WARN':'OK';
 
   var layers=[
     {icon:'🛡',name:'OFAC Sanctions (USA)',
      status:isSanctioned?'DANGER':'OK',
-     detail:isSanctioned?'⚠ MATCH FOUND — '+( op||reg)+' appears on OFAC SDN list. Flight PROHIBITED. Immediate legal review required.':'Operator "'+( op||'—')+'" and registration "'+( reg||'—')+'" checked against OFAC SDN — no matches found.'},
+     detail:isSanctioned?'⚠ MATCH — '+( op||reg)+' on OFAC SDN list. Flight PROHIBITED. Immediate legal review required.':'Operator "'+( op||'—')+'" & reg "'+( reg||'—')+'" checked against OFAC SDN — no matches.'},
     {icon:'🇪🇺',name:'EU Consolidated Sanctions',
      status:isSanctioned?'DANGER':'OK',
-     detail:isSanctioned?'EU consolidated list match detected for '+( op||reg)+'. EU Regulation 269/2014 applies.':'EU Art. 215 TFEU — no sanctions match for operator or registration. Cleared.'},
+     detail:isSanctioned?'EU consolidated list match for '+( op||reg)+'. EU Regulation 269/2014 applies.':'EU Art. 215 TFEU — no sanctions match. Cleared.'},
     {icon:'🌐',name:'UN Security Council List',
      status:'OK',
-     detail:'UN SC Res. 1267 & 2253 consolidated list — no restrictions on '+(op||'operator')+' or '+(reg||'registration')+'.'},
+     detail:'UN SC Res. 1267 & 2253 — no restrictions on '+(op||'operator')+' or '+(reg||'registration')+'.'},
     {icon:'⚔',name:'Conflict Zone Assessment',
      status:isConflict?'DANGER':'OK',
-     detail:isConflict?conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):'Route '+from+'→'+to+' does not pass through active conflict zones per current ICAO conflict zone map.'},
+     detail:isConflict?conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):'Route '+from+'→'+to+' clear of active conflict zones per ICAO conflict zone map.'},
+    {icon:'⚔️',name:'Military / State Aircraft',
+     status:milStatus,
+     detail:milDetail},
     {icon:'☢',name:'Dangerous Goods (IATA DGR)',
-     status:isDG?'WARN':'OK',
-     detail:isDG?'DG cargo declared. IATA DGR 64th Ed. (2023) compliance mandatory: correct packaging, labeling, SDS documentation, and certified crew training required before dispatch.':'No dangerous goods declared. Standard cargo handling applies (IATA RP 1600).'},
+     status:isDG||isMilWpn?'WARN':'OK',
+     detail:isDG?'DG cargo declared. IATA DGR 64th Ed. compliance mandatory.':isMilWpn?'Military weapons/munitions declared — not subject to IATA DGR but require separate arms export authorization per national law and transit state MoD approval.':'No dangerous goods declared.'},
     {icon:'💊',name:'Health Advisory (WHO IHR 2005)',
      status:'OK',
-     detail:'WHO IHR 2005 — '+toAP.country+': No active epidemic alerts per WHO PHEIC notifications. Verify destination entry/health requirements for crew and passengers.'},
+     detail:'WHO IHR 2005 — '+toAP.country+': No active PHEIC alerts. Verify entry health requirements for crew and passengers.'},
     {icon:'⛽',name:'Fuel Planning (ICAO Annex 6)',
      status:'OK',
-     detail:'Route '+from+'→'+to+' ('+fromAP.country+'→'+toAP.country+'): Trip fuel + 5% contingency + alternate fuel + 30-min final reserve required per ICAO Annex 6 §4.3.6. Verify current fuel availability at destination.'},
+     detail:'Route '+from+'→'+to+': Trip fuel + 5% contingency + alternate + 30-min final reserve per ICAO Annex 6 §4.3.6. Verify fuel availability at '+(destMilitary?'military airfield — civil fuel availability NOT guaranteed.':'destination.')},
     {icon:'🗺',name:'FIR / Airspace Analysis',
      status:isConflict?'WARN':'OK',
-     detail:'Departure FIR: '+fromAP.fir+' | Destination FIR: '+toAP.fir+'. '+(isConflict?'One or more FIRs on route are restricted — obtain explicit entry clearance per ICAO Doc 7030.':'Both FIRs are open. Standard ICAO flight plan filing (ICAO Doc 4444) applies.')},
+     detail:'Dep FIR: '+fromAP.fir+' | Dest FIR: '+toAP.fir+'.'+(fromMilitary?' DEP is military airfield.':'')+(destMilitary?' DEST is military airfield — civil handler may not be available.':'')+(isConflict?' Restricted FIR detected — explicit entry clearance required.':' Both FIRs open.')},
     {icon:'📡',name:'NOTAM Review',
      status:isConflict?'WARN':'OK',
-     detail:isConflict?'Active NOTAMs detected on route. Review NOTAM D-series for all FIRs and aerodromes. Use ICAO NOTAM A-series (PIB) via official AIS.':'No critical NOTAMs flagged. Verify current NOTAMs via official NOTAM Office 24h before ETD (ICAO Annex 15).'},
+     detail:isConflict?'Active NOTAMs detected. Review NOTAM D-series for all FIRs and aerodromes before dispatch.':'No critical NOTAMs flagged. Verify 24h before ETD via official NOTAM Office (ICAO Annex 15).'},
     {icon:'🛬',name:'Destination Airport Status',
-     status:'OK',
-     detail:toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+' — Airport operational. FIR: '+toAP.fir+'. Confirm handling agent, slot, and local ATIS/METAR 24h prior to ETD.'},
+     status:destMilitary?'WARN':'OK',
+     detail:toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+(destMilitary?' — ⚠ MILITARY AIRFIELD. Coordination with base commander or MOD liaison required prior to arrival. Civil handling may be unavailable.':' — Operational. Confirm handling agent and slot 24h prior.')},
     {icon:'📋',name:'Permit Requirements',
      status:permitStatus,
      detail:(pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?
        '🚫 PERMIT STATUS: '+pr.lead+' — '+pr.notes+' Authority: '+pr.authority+' ('+pr.tel+')':
-       (isConflict||isSanctioned)?'⛔ PERMIT LIKELY REFUSED — '+(isConflict?'Conflict zone routing. ':'')+( isSanctioned?'Sanctioned operator/aircraft. ':'')+'Contact: '+pr.authority+' '+pr.tel:
-       'Lead time: '+pr.lead+' | Authority: '+pr.authority+' | Tel: '+pr.tel+'.'+(pr.notes?' Note: '+pr.notes:'')},
+       (isConflict||isSanctioned)?'⛔ PERMIT LIKELY REFUSED — '+(isConflict?'Conflict zone. ':'')+( isSanctioned?'Sanctioned op/aircraft. ':'')+'Contact: '+pr.authority+' '+pr.tel:
+       (isStateAC||isMilitary)?'🏛 STATE/MILITARY: Diplomatic clearance required IN ADDITION to standard permit. Lead time: '+pr.lead+'+. Authority: '+pr.authority+' '+pr.tel:
+       'Lead time: '+pr.lead+' | Authority: '+pr.authority+' | Tel: '+pr.tel+'.'+(pr.notes?' '+pr.notes:'')},
   ];
 
-  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> → <strong>'+toAP.name+' ('+to+')</strong><br><br>'+
-    (score>=75?'<span style="color:#f87171">⛔ HIGH RISK — </span>Critical hazards detected on this route. '+
-    (isConflict?'Active conflict zone(s): '+conflictHits.join(', ')+'. Overflight/landing permits may be suspended. ':'')+
-    (isSanctioned?'Sanctioned operator/aircraft detected — flight is PROHIBITED under OFAC/EU/UN law. ':'')+'DO NOT DISPATCH until all hazards are resolved and legal clearance obtained.':
-    score>=50?'<span style="color:#fbbf24">⚠ MEDIUM RISK — </span>Advisory conditions present on this route. '+
-    (isDG?'Dangerous goods compliance (IATA DGR) is mandatory. ':'')+
-    'Review all NOTAMs, confirm permits '+pr.lead+' before ETD, and coordinate with '+pr.authority+'.':
-    '<span style="color:#34d399">✅ LOW RISK — </span>Route from '+fromAP.city+' ('+fromAP.country+') to '+toAP.city+' ('+toAP.country+') is operationally acceptable under current conditions. Standard permit procedure applies: submit to '+pr.authority+' with '+pr.lead+' lead time.')+
-    '<br><br><em style="color:var(--muted)">Analysis generated: '+new Date().toUTCString()+' · ARIS v3.0 · For authorized use only</em>';
+  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> → <strong>'+toAP.name+' ('+to+')</strong>'+(isMilitary||isStateAC?' &nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa">⚔ '+(isStateAC?'STATE AIRCRAFT':'MILITARY')+'</span>':'')+'<br><br>'+
+    (score>=75?'<span style="color:#f87171">⛔ HIGH RISK — </span>Critical hazards on this route. '+
+    (isMilWpn?'Weapons/munitions declared — multi-state authorization required. ':'')+
+    (isConflict?'Active conflict zone(s): '+conflictHits.join(', ')+'. ':'')+
+    (isSanctioned?'Sanctioned operator/aircraft — flight PROHIBITED. ':'')+'DO NOT DISPATCH without full authorization.':
+    score>=50?'<span style="color:#fbbf24">⚠ MEDIUM RISK — </span>Advisory conditions present. '+
+    (isMilitary||isStateAC?'Military/state aircraft — diplomatic clearance required in addition to standard permits. ':'')+
+    (isDG?'Dangerous goods compliance mandatory. ':'')+'Confirm permits '+pr.lead+' before ETD with '+pr.authority+'.':
+    '<span style="color:#34d399">✅ LOW RISK — </span>Route '+fromAP.city+' → '+toAP.city+' acceptable under current conditions. Submit permit to '+pr.authority+' with '+pr.lead+' lead time.')+
+    '<br><br><em style="color:var(--muted)">ARIS v3.1 · '+new Date().toUTCString()+' · For authorized use only</em>';
 
   return{score:score,level:level,color:color,layers:layers,narrative:narrative,fromAP:fromAP,toAP:toAP,pr:pr};
 }
@@ -1201,7 +1265,7 @@ function doAnalyze(){
   setTimeout(function(){
     btns.forEach(function(b){b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>🔍</span><span>ابدأ تحليل المخاطر</span>';});
     var parsed=pasteMode?smartParse(document.getElementById('pasteText').value):{};
-    var d=getRisk(f.from,f.to,f.cargo,f.op,f.reg,parsed.legs);
+    var d=getRisk(f.from,f.to,f.cargo,f.op,f.reg,parsed.legs,parsed.military||false,parsed.stateAircraft||false);
     saveHistory(d,f);
     renderResult(d,f,parsed.legs);
   },1000);
@@ -1244,7 +1308,7 @@ function renderResult(d,f,legs){
         '<div style="display:flex;gap:8px">'+
           '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' خطر</span>'+
           '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' تنبيه</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(11-danger-warn)+' سليم</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(12-danger-warn)+' سليم</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px;margin-top:4px">'+
           '<button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">📄 تقرير PDF</button>'+
@@ -1254,7 +1318,7 @@ function renderResult(d,f,legs){
     '</div>'+
     '<div id="resultMap" style="height:200px;width:100%"></div>'+
   '</div>'+
-  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">🔍 تحليل طبقات المخاطر — 11 فحص</div>'+
+  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">🔍 تحليل طبقات المخاطر — 12 فحص</div>'+
   '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
   d.layers.map(function(l){
     var cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
