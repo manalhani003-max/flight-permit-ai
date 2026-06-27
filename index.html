@@ -129,6 +129,37 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
 @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}.dash-grid,.dash-grid-3{grid-template-columns:1fr}}
 @media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.top-nav{display:none}}
+
+/* ── TICKER ── */
+.ticker-bar{background:rgba(239,68,68,.08);border-bottom:1px solid rgba(239,68,68,.2);height:32px;overflow:hidden;display:flex;align-items:center;gap:0}
+.ticker-label{flex-shrink:0;padding:0 14px;font-size:10px;font-weight:800;color:#f87171;letter-spacing:1.5px;text-transform:uppercase;border-right:1px solid rgba(239,68,68,.25);height:100%;display:flex;align-items:center;background:rgba(239,68,68,.12);white-space:nowrap}
+.ticker-track{flex:1;overflow:hidden;position:relative;height:100%}
+.ticker-inner{display:flex;align-items:center;height:100%;white-space:nowrap;animation:tickerMove 60s linear infinite}
+.ticker-inner:hover{animation-play-state:paused}
+@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{font-size:11px;color:#cbd5e1;padding:0 32px;display:inline-flex;align-items:center;gap:8px}
+.ticker-item .t-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* ── UTC CLOCK ── */
+.utc-clock{font-family:monospace;font-size:12px;color:var(--blue);font-weight:700;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:6px;padding:4px 10px;letter-spacing:.5px}
+
+/* ── KPI ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kpiGlow{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px rgba(14,165,233,.15)}}
+.kpi{animation:fadeUp .5s ease both}
+.kpi:nth-child(1){animation-delay:.05s}
+.kpi:nth-child(2){animation-delay:.12s}
+.kpi:nth-child(3){animation-delay:.19s}
+.kpi:nth-child(4){animation-delay:.26s;animation:fadeUp .5s ease .26s both,kpiGlow 3s ease 1s infinite}
+.card{animation:fadeUp .5s ease .3s both}
+
+/* ── RISK LIST PULSE ── */
+@keyframes riskPulse{0%,100%{background:transparent}50%{background:rgba(239,68,68,.05)}}
+.risk-item.high-risk{animation:riskPulse 2.5s ease infinite}
+.risk-dot-live{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+.rdl-high{background:#ef4444;box-shadow:0 0 6px #ef4444;animation:pulse 1.5s infinite}
+.rdl-med{background:#f59e0b;box-shadow:0 0 6px #f59e0b;animation:pulse 2.5s infinite}
+.rdl-low{background:#10b981}
 </style>
 </head>
 <body>
@@ -190,6 +221,13 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 </div>
 
 <div id="app">
+  <!-- Ticker bar -->
+  <div class="ticker-bar" id="tickerBar">
+    <div class="ticker-label">⚠ LIVE ALERTS</div>
+    <div class="ticker-track">
+      <div class="ticker-inner" id="tickerInner"></div>
+    </div>
+  </div>
   <div class="topbar">
     <div class="top-logo">
       <svg viewBox="0 0 44 44" fill="none" width="32" height="32">
@@ -206,6 +244,7 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
       <button class="nav-btn" onclick="showPage('reports',this)">Reports</button>
     </div>
     <div class="top-right">
+      <div class="utc-clock" id="utcClock">00:00:00 UTC</div>
       <div class="status-dot"></div>
       <div class="status-txt">LIVE</div>
       <div class="key-badge" id="keyBadge"></div>
@@ -218,25 +257,25 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
       <div class="dash-sub">Real-time intelligence · <span id="dashDate"></span></div>
     </div>
     <div class="kpi-row">
-      <div class="kpi kpi-blue"><div class="kpi-label">Airports Monitored</div><div class="kpi-val">520</div><div class="kpi-sub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
-      <div class="kpi kpi-red"><div class="kpi-label">Active Conflict Zones</div><div class="kpi-val">19</div><div class="kpi-sub">Updated daily</div><div class="kpi-icon">⚠</div></div>
-      <div class="kpi kpi-gold"><div class="kpi-label">Sanctions Lists</div><div class="kpi-val">3</div><div class="kpi-sub">OFAC · EU · UN</div><div class="kpi-icon">🛡</div></div>
-      <div class="kpi kpi-green"><div class="kpi-label">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub">Run an analysis</div><div class="kpi-icon">📊</div></div>
+      <div class="kpi kpi-blue"><div class="kpi-label">Airports Monitored</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-sub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
+      <div class="kpi kpi-red"><div class="kpi-label">Active Conflict Zones</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub">Updated daily</div><div class="kpi-icon">⚠</div></div>
+      <div class="kpi kpi-gold"><div class="kpi-label">Permit Databases</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-sub">Countries covered</div><div class="kpi-icon">🛡</div></div>
+      <div class="kpi kpi-green"><div class="kpi-label">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub" id="kpiSub">Run an analysis</div><div class="kpi-icon">📊</div></div>
     </div>
     <div class="dash-grid-3">
-      <div class="card"><div class="card-title"><span class="dot"></span>Global Risk Map</div><div id="dashMap"></div></div>
+      <div class="card"><div class="card-title"><span class="dot"></span>Global Risk Map <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:auto" id="mapTime"></span></div><div id="dashMap"></div></div>
       <div class="card">
-        <div class="card-title"><span class="dot" style="background:var(--red)"></span>High-Risk Regions</div>
+        <div class="card-title"><span class="dot" style="background:var(--red)"></span>High-Risk Regions <span class="rdl-high" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:auto;background:#ef4444;box-shadow:0 0 6px #ef4444;animation:pulse 1.5s infinite"></span></div>
         <ul class="risk-list">
-          <li class="risk-item"><span>Eastern Ukraine / Black Sea</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span>Gaza / Israel Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span>Yemen FIR</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span>Libya Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span>Syria Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span>Somalia / Gulf of Aden</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span>Iraq Northern FIR</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span>Sudan Conflict Areas</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span>Afghanistan Airspace</span><span class="risk-badge rb-med">MED</span></li>
+          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Eastern Ukraine / Black Sea</span><span class="risk-badge rb-high">HIGH</span></li>
+          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Gaza / Israel Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
+          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Yemen FIR</span><span class="risk-badge rb-high">HIGH</span></li>
+          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Libya Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
+          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Syria Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
+          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Somalia / Gulf of Aden</span><span class="risk-badge rb-med">MED</span></li>
+          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Iraq Northern FIR</span><span class="risk-badge rb-med">MED</span></li>
+          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Sudan Conflict Areas</span><span class="risk-badge rb-med">MED</span></li>
+          <li class="risk-item"><span><span class="risk-dot-live rdl-low"></span>Afghanistan Airspace</span><span class="risk-badge rb-med">MED</span></li>
         </ul>
       </div>
     </div>
@@ -490,12 +529,75 @@ function payPP(){window.open('https://paypal.me/arisaviation','_blank');}
 function payCQ(){alert('CliQ:\n\nAlias: ARISAVIATION\nAmount: $97\n\nSend screenshot to WhatsApp after payment.');}
 
 var sessionCount=0, dashMap=null, fullMap=null, resultMap=null;
+
+var TICKER_ALERTS=[
+  {dot:'#ef4444',text:'OYSC / OYAA — Yemen FIR CLOSED. All commercial permits SUSPENDED. ICAO NOTAM A0001/25.'},
+  {dot:'#ef4444',text:'HLLL — Libya airspace: split authority in effect. GNA + LNA dual permit required.'},
+  {dot:'#ef4444',text:'OSTT — Syria FIR restricted. Diplomatic permit mandatory. Most operators cannot comply.'},
+  {dot:'#ef4444',text:'UKBV — Ukrainian FIRs CLOSED per NOTAM A4537/22. No overflights permitted.'},
+  {dot:'#f59e0b',text:'HCSM — Somalia FIR HIGH RISK. Piracy advisory active. Min. overflight altitude 25,000ft.'},
+  {dot:'#f59e0b',text:'OAKX — Afghanistan airspace: Taliban-controlled. No recognized permit authority operational.'},
+  {dot:'#f59e0b',text:'EP- / YK- registrations: OFAC SDN-listed. Flights PROHIBITED for US-nexus operators.'},
+  {dot:'#f59e0b',text:'Sudan SCAA: Khartoum airport closed due to conflict. Alternate: Port Sudan (HSPN).'},
+  {dot:'#0ea5e9',text:'GACA Saudi Arabia: e-permit portal updated. Lead time remains 72h for non-scheduled ops.'},
+  {dot:'#0ea5e9',text:'GCAA UAE: Slot coordination mandatory at OMDB/OMAA during peak periods. Submit 48h.'},
+  {dot:'#0ea5e9',text:'EU operators: Russian airspace (UUWV/URMM) prohibited per Regulation (EU) 2022/334.'},
+  {dot:'#10b981',text:'ICAA Iraq: Security pre-clearance required for all non-scheduled flights. Contact Baghdad ACC.'},
+  {dot:'#10b981',text:'ECAA Egypt: DG cargo and charter flights require advance written approval. Lead time: 72h.'},
+];
+
+function initTicker(){
+  var inner=document.getElementById('tickerInner');
+  if(!inner) return;
+  var html='';
+  // Duplicate for seamless loop
+  for(var r=0;r<2;r++){
+    TICKER_ALERTS.forEach(function(a){
+      html+='<span class="ticker-item"><span class="t-dot" style="background:'+a.dot+';box-shadow:0 0 5px '+a.dot+'"></span>'+a.text+'</span>';
+    });
+  }
+  inner.innerHTML=html;
+}
+
+function initUTCClock(){
+  function tick(){
+    var el=document.getElementById('utcClock');
+    if(!el) return;
+    var now=new Date();
+    var h=String(now.getUTCHours()).padStart(2,'0');
+    var m=String(now.getUTCMinutes()).padStart(2,'0');
+    var s=String(now.getUTCSeconds()).padStart(2,'0');
+    el.textContent=h+':'+m+':'+s+' UTC';
+    var mapTime=document.getElementById('mapTime');
+    if(mapTime) mapTime.textContent='Updated '+h+':'+m+' UTC';
+  }
+  tick();
+  setInterval(tick,1000);
+}
+
+function animateCounter(id,target,duration){
+  var el=document.getElementById(id);
+  if(!el) return;
+  var start=0, step=Math.ceil(target/(duration/16));
+  var timer=setInterval(function(){
+    start=Math.min(start+step,target);
+    el.textContent=start;
+    if(start>=target) clearInterval(timer);
+  },16);
+}
+
 function initApp(){
   sessionCount=parseInt(localStorage.getItem('aris_count')||'0');
   document.getElementById('kpiToday').textContent=sessionCount;
+  if(sessionCount>0) document.getElementById('kpiSub').textContent=sessionCount+' total analyses';
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   var fdate=document.getElementById('f-date');
   if(fdate) fdate.value=new Date().toISOString().split('T')[0];
+  initTicker();
+  initUTCClock();
+  setTimeout(function(){animateCounter('kpi1',520,1200);},200);
+  setTimeout(function(){animateCounter('kpi2',19,900);},350);
+  setTimeout(function(){animateCounter('kpi3',40,700);},500);
   setTimeout(initDashMap,100);
   setTimeout(initCharts,200);
 }
