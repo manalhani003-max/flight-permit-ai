@@ -18,37 +18,71 @@
   --txt:#e2e8f0;--muted:#64748b;--border:rgba(255,255,255,.07);
 }
 body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow-x:hidden}
-#gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#020817 0%,#0a1628 50%,#020817 100%)}
+/* ── GATE ── */
+#gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#020817;overflow:hidden}
 #gate.hidden{display:none}
-.gate-wrap{width:100%;max-width:480px;padding:24px}
-.gate-logo{display:flex;align-items:center;gap:12px;margin-bottom:48px;justify-content:center}
-.gate-brand{font-family:Rajdhani,sans-serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:2px}
-.gate-brand span{color:var(--blue)}
-.gate-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:36px;backdrop-filter:blur(20px)}
-.gate-tabs{display:flex;background:rgba(255,255,255,.05);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
-.gate-tab{flex:1;padding:9px;text-align:center;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:.2s;border:none;background:none}
-.gate-tab.on{background:var(--blue);color:#fff}
+#gateCanvas{position:absolute;inset:0;opacity:.45;pointer-events:none}
+.gate-bg-gradient{position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 50% 45%,rgba(14,165,233,.1) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 20% 70%,rgba(99,102,241,.08) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 20%,rgba(20,184,166,.07) 0%,transparent 60%)}
+.gate-scanline{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(14,165,233,.015) 2px,rgba(14,165,233,.015) 4px);pointer-events:none;animation:scanMove 8s linear infinite}
+@keyframes scanMove{0%{background-position:0 0}100%{background-position:0 100%}}
+.gate-content{position:relative;z-index:10;width:100%;max-width:440px;padding:20px;animation:gateEnter .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes gateEnter{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* Logo section */
+.gate-hero{text-align:center;margin-bottom:36px}
+.gate-symbol{position:relative;display:inline-block;margin-bottom:16px}
+.gate-symbol svg{filter:drop-shadow(0 0 18px rgba(14,165,233,.6))}
+.gate-symbol::before{content:'';position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(14,165,233,.2);animation:ringPulse 3s ease-in-out infinite}
+.gate-symbol::after{content:'';position:absolute;inset:-32px;border-radius:50%;border:1px solid rgba(14,165,233,.08);animation:ringPulse 3s ease-in-out .8s infinite}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+.gate-brand-name{font-family:Rajdhani,sans-serif;font-size:38px;font-weight:700;letter-spacing:6px;color:#fff;line-height:1;text-shadow:0 0 30px rgba(14,165,233,.4)}
+.gate-brand-name span{color:var(--blue)}
+.gate-tagline{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:6px}
+.gate-version{display:inline-block;margin-top:8px;font-size:10px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);color:var(--blue);padding:3px 10px;border-radius:20px;letter-spacing:1px;font-family:monospace}
+
+/* Card */
+.gate-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:28px;backdrop-filter:blur(30px);box-shadow:0 24px 64px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07)}
+.gate-tabs{display:flex;background:rgba(255,255,255,.04);border-radius:9px;padding:3px;margin-bottom:22px;gap:3px}
+.gate-tab{flex:1;padding:8px;text-align:center;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);transition:.25s;border:none;background:none;letter-spacing:.3px}
+.gate-tab.on{background:rgba(14,165,233,.18);color:var(--blue);box-shadow:0 0 12px rgba(14,165,233,.2)}
 .tab-pane{display:none}.tab-pane.on{display:block}
-.lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px}
-.inp{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:14px;font-family:monospace;letter-spacing:1px;outline:none;transition:border-color .2s;margin-bottom:14px}
-.inp:focus{border-color:var(--blue)}
-.inp::placeholder{color:var(--muted);letter-spacing:0;font-family:Inter,sans-serif}
-.btn-primary{width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue),#0284c7);color:#fff;font-size:14px;font-weight:700;font-family:Inter,sans-serif;transition:.2s}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(14,165,233,.4)}
-.err{font-size:12px;color:#f87171;min-height:18px;margin-top:6px;text-align:center}
+.lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px}
+
+/* Input styling */
+.inp-wrap{position:relative;margin-bottom:14px}
+.inp{width:100%;padding:13px 14px 13px 42px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:14px;font-family:monospace;letter-spacing:1.5px;outline:none;transition:border-color .2s,box-shadow .2s}
+.inp:focus{border-color:rgba(14,165,233,.6);box-shadow:0 0 0 3px rgba(14,165,233,.08),0 0 16px rgba(14,165,233,.12)}
+.inp::placeholder{color:var(--muted);letter-spacing:0;font-family:Inter,sans-serif;font-size:12px}
+.inp-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+
+/* Activate button */
+.btn-primary{width:100%;padding:13px;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--blue) 0%,#0284c7 50%,#0369a1 100%);color:#fff;font-size:13px;font-weight:700;font-family:Inter,sans-serif;transition:.2s;position:relative;overflow:hidden;letter-spacing:.5px}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 50%);opacity:0;transition:.2s}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(14,165,233,.45)}
+.btn-primary:hover::before{opacity:1}
+.btn-primary:active{transform:translateY(0)}
+.err{font-size:11px;color:#f87171;min-height:16px;margin-top:8px;text-align:center}
+.gate-or{text-align:center;font-size:11px;color:var(--muted);margin-top:14px}
+.gate-or a{color:var(--blue);text-decoration:none;font-weight:600}
+.gate-or a:hover{text-shadow:0 0 8px rgba(14,165,233,.5)}
+
+/* Status strip below input */
+.gate-status-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-bottom:16px}
+.gate-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse 2s infinite}
+
+/* Purchase tab */
 .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.pay-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 8px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:Inter,sans-serif;transition:.2s}
+.pay-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:Inter,sans-serif;transition:.2s}
 .pay-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
 .pb-wa{background:#25d366;color:#fff}.pb-bk{background:#1a56db;color:#fff}
 .pb-pp{background:#003087;color:#fff}.pb-cq{background:#00a859;color:#fff}
-.price-badge{text-align:center;margin-bottom:20px}
+.price-badge{text-align:center;margin-bottom:18px}
 .price-amt{font-family:Rajdhani,sans-serif;font-size:52px;font-weight:700;color:#fff;line-height:1}
 .price-amt sup{font-size:22px;color:var(--blue);vertical-align:super}
-.price-note{font-size:12px;color:var(--muted);margin-top:4px}
-.inc-list{list-style:none;margin-bottom:20px}
-.inc-list li{font-size:12px;color:#cbd5e1;padding:4px 0;display:flex;gap:8px}
-.inc-list li::before{content:'✓';color:var(--green);font-weight:800;flex-shrink:0}
+.price-note{font-size:11px;color:var(--muted);margin-top:4px}
+.inc-list{list-style:none;margin-bottom:18px}
+.inc-list li{font-size:11px;color:#cbd5e1;padding:4px 0;display:flex;gap:8px;align-items:flex-start}
+.inc-list li::before{content:'✓';color:var(--green);font-weight:800;flex-shrink:0;margin-top:1px}
 #app{display:none}#app.show{display:block}
 .topbar{height:60px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
 .top-logo{display:flex;align-items:center;gap:10px}
@@ -165,55 +199,68 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 <body>
 
 <div id="gate">
-  <div class="gate-wrap">
-    <div class="gate-logo">
-      <svg viewBox="0 0 44 44" fill="none" width="44" height="44">
-        <polygon points="22,4 40,36 4,36" fill="none" stroke="#0ea5e9" stroke-width="2.5"/>
-        <polygon points="22,12 34,32 10,32" fill="rgba(14,165,233,.15)" stroke="#0ea5e9" stroke-width="1.2"/>
-        <circle cx="22" cy="26" r="3" fill="#0ea5e9"/>
-      </svg>
-      <div class="gate-brand">AR<span>IS</span></div>
+  <canvas id="gateCanvas"></canvas>
+  <div class="gate-bg-gradient"></div>
+  <div class="gate-scanline"></div>
+  <div class="gate-content">
+    <div class="gate-hero">
+      <div class="gate-symbol">
+        <svg viewBox="0 0 64 64" fill="none" width="64" height="64">
+          <polygon points="32,6 58,52 6,52" fill="none" stroke="#0ea5e9" stroke-width="2.2"/>
+          <polygon points="32,18 50,48 14,48" fill="rgba(14,165,233,.12)" stroke="rgba(14,165,233,.5)" stroke-width="1.2"/>
+          <polygon points="32,30 42,46 22,46" fill="rgba(14,165,233,.2)" stroke="rgba(14,165,233,.7)" stroke-width="1"/>
+          <circle cx="32" cy="42" r="3.5" fill="#0ea5e9"/>
+          <circle cx="32" cy="42" r="6" fill="none" stroke="rgba(14,165,233,.4)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="gate-brand-name">AR<span>IS</span></div>
+      <div class="gate-tagline">Aviation Risk Intelligence System</div>
+      <div class="gate-version">Enterprise v3.2 · ICAO Compliant</div>
     </div>
     <div class="gate-card">
       <div class="gate-tabs">
-        <button class="gate-tab on" id="tab-key" onclick="gTab('key')">🔑 License Key</button>
-        <button class="gate-tab" id="tab-buy" onclick="gTab('buy')">💳 Purchase</button>
+        <button class="gate-tab on" id="tab-key" onclick="gTab('key')">&#128273; License Key</button>
+        <button class="gate-tab" id="tab-buy" onclick="gTab('buy')">&#128179; Purchase Access</button>
       </div>
       <div class="tab-pane on" id="pane-key">
-        <div style="text-align:center;margin-bottom:20px;font-size:13px;color:var(--muted);line-height:1.7">
-          Enter your license key to access<br><strong style="color:#e2e8f0">ARIS Enterprise Platform</strong>
+        <div class="gate-status-row">
+          <span class="gate-dot"></span>
+          <span>Secure · Encrypted · SIRA-verified</span>
+          <span style="margin-left:auto;font-size:10px" id="gateClock2">--:-- UTC</span>
         </div>
-        <label class="lbl">License Key</label>
-        <input class="inp" id="keyInp" placeholder="XXXX-XXXX-XXXX-XXXX-SIRA"
-          oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doActivate()"/>
-        <button class="btn-primary" onclick="doActivate()">Activate License →</button>
+        <label class="lbl">Enterprise License Key</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">&#128273;</span>
+          <input class="inp" id="keyInp" placeholder="XXXX-XXXX-XXXX-XXXX-SIRA"
+            oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doActivate()"/>
+        </div>
+        <button class="btn-primary" onclick="doActivate()">&#9654;&#65039; Activate &amp; Launch ARIS</button>
         <div class="err" id="keyErr"></div>
-        <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--muted)">
-          No key? <a href="#" onclick="gTab('buy');return false" style="color:var(--blue)">Purchase here</a>
-        </div>
+        <p class="gate-or">No license key? <a href="#" onclick="gTab('buy');return false">Purchase access →</a></p>
       </div>
       <div class="tab-pane" id="pane-buy">
         <div class="price-badge">
           <div class="price-amt"><sup>$</sup>97</div>
-          <div class="price-note">One-time · Lifetime license · No subscriptions</div>
+          <div class="price-note">One-time · Lifetime license · Instant delivery</div>
         </div>
         <ul class="inc-list">
-          <li>11-Layer Aviation Risk Engine (ICAO SMS Doc 9859)</li>
-          <li>500+ Airport Database — conflict zone detection</li>
-          <li>OFAC · EU · UN Sanctions screening</li>
-          <li>Country-specific permit requirements & lead times</li>
-          <li>AI Narrative · Bilingual PDF Reports · History Log</li>
-          <li>Lifetime updates · Works offline</li>
+          <li>12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
+          <li>520+ Airport Database — military &amp; conflict zone detection</li>
+          <li>OFAC · EU Art.215 · UN SC 1267 Sanctions screening</li>
+          <li>Country-specific permits, lead times &amp; authority contacts</li>
+          <li>Military/State aircraft detection · Chicago Convention Annex 2</li>
+          <li>AI Narrative · Bilingual Arabic/English PDF · History Log</li>
         </ul>
-        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Choose payment:</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Select payment method:</div>
         <div class="pay-grid">
-          <button class="pay-btn pb-wa" onclick="payWA()">📱 WhatsApp</button>
-          <button class="pay-btn pb-bk" onclick="payBK()">🏦 Bank Transfer</button>
-          <button class="pay-btn pb-pp" onclick="payPP()">💳 PayPal</button>
-          <button class="pay-btn pb-cq" onclick="payCQ()">💰 CliQ</button>
+          <button class="pay-btn pb-wa" onclick="payWA()">&#128241; WhatsApp</button>
+          <button class="pay-btn pb-bk" onclick="payBK()">&#127970; Bank Transfer</button>
+          <button class="pay-btn pb-pp" onclick="payPP()">&#128179; PayPal</button>
+          <button class="pay-btn pb-cq" onclick="payCQ()">&#128176; CliQ</button>
         </div>
-        <div style="font-size:11px;color:var(--muted);text-align:center;line-height:1.7">
-          After payment, your license key is sent<br>to your WhatsApp within minutes.
+        <div style="font-size:10px;color:var(--muted);text-align:center;line-height:1.8">
+          License key delivered to your WhatsApp within minutes of payment.<br>
+          <span style="color:var(--green)">&#10003;</span> No subscription · <span style="color:var(--green)">&#10003;</span> Works offline · <span style="color:var(--green)">&#10003;</span> Lifetime updates
         </div>
       </div>
     </div>
@@ -522,10 +569,42 @@ var KEYS=["AB58-6798-E9BF-96AF-SIRA","2B51-D82C-CEA1-8ABA-SIRA","9DBF-6915-C37D-
 "FEBD-79B6-40F9-3AE3-SIRA","4231-CBAE-6D60-2BD3-SIRA","13D5-C009-3738-F797-SIRA",
 "CD0E-B9C0-3F13-2A4B-SIRA","E18A-5867-C336-4652-SIRA","9971-67E4-E77A-9E7B-SIRA",
 "FB63-5B35-4761-7E8A-SIRA","32B1-6CE8-C907-F624-SIRA","E5B3-1CB5-5DD3-D588-SIRA",
-"45C6-C58F-0DB1-1239-SIRA","F483-3C72-E0DB-3B53-SIRA","C846-390B-6F42-E2FD-SIRA",
-"ARIS-2025-DEMO-0001-SIRA","ARIS-2025-DEMO-0002-SIRA","ARIS-2025-DEMO-0003-SIRA"];
+"45C6-C58F-0DB1-1239-SIRA","F483-3C72-E0DB-3B53-SIRA","C846-390B-6F42-E2FD-SIRA"];
 var LIC='aris_lic_v2';
 function rev(s){return s.split('').reverse().join('');}
+
+// Gate particle canvas
+(function(){
+  var c=document.getElementById('gateCanvas');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var pts=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize',resize);
+  for(var i=0;i<80;i++){pts.push({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5,o:Math.random()*.6+.2});}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=c.width; if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height; if(p.y>c.height)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fillStyle='rgba(14,165,233,'+p.o+')'; ctx.fill();
+      for(var j=i+1;j<pts.length;j++){
+        var q=pts[j];
+        var d=Math.hypot(p.x-q.x,p.y-q.y);
+        if(d<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(14,165,233,'+((.12*(1-d/120)))+')';ctx.lineWidth=.5;ctx.stroke();}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+  // Mini UTC clock on gate
+  setInterval(function(){var el=document.getElementById('gateClock2');if(el&&document.getElementById('gate')&&!document.getElementById('gate').classList.contains('hidden')){var n=new Date();el.textContent=n.toUTCString().slice(17,25)+' UTC';}},1000);
+})();
+
 function gTab(t){
   document.querySelectorAll('.gate-tab').forEach(function(b){b.classList.remove('on');});
   document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('on');});
@@ -1094,8 +1173,12 @@ var CONFLICT_ZONES={
   OAKB:'Afghanistan — EXTREME RISK. Taliban-controlled. Most permits not issued by recognized authority.',
 };
 
-var SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','AL-MASRIA','KIS AIR','POUYA AIR','ZAGROS AIRLINES'];
-var SANCTIONS_REG_PREFIX=['EP-','YK-'];
+var SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','AL-MASRIA','KIS AIR','POUYA AIR','ZAGROS AIRLINES',
+  'TABAN AIR','IRAN ASEMAN','IRAN AIR TOURS','ASHA AIRLINES','KISH AIR','VARESH AIRLINES','SAHAND AIR',
+  'CASPIAN AIRLINES','ARIA AIR','KARUN AIRLINES','PAYAM AIR','PARS AIR',
+  'AIR KORYO','VLADIVOSTOK AIR','NORDWIND','RED WINGS','UTAIR','YAKUTIA AIRLINES',
+  'CONVIASA','INTER','LASER AIRLINES','VENEZOLANA'];
+var SANCTIONS_REG_PREFIX=['EP-','YK-','RA-','UP-','EY-','P-','YV-','YL-','YU-'];
 
 var PERMIT_RULES={
   'Saudi Arabia':{lead:'72h',authority:'GACA',tel:'+966-920002814',notes:'Overflight permit via Jeddah ACC. Landing permit via GACA e-permit portal. Hajj/Umrah season: additional 7-day lead.'},
@@ -1154,17 +1237,35 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var destMilitary=toAP.military||false;
   var fromMilitary=fromAP.military||false;
 
+  // Country risk tiers
+  var HIGH_RISK_COUNTRIES=['Yemen','Libya','Syria','Afghanistan','Somalia','Sudan','Iraq','Ukraine'];
+  var MED_RISK_COUNTRIES=['Iran','Russia','Belarus','Pakistan','Lebanon','North Korea','Venezuela','Myanmar'];
+  var destCountry=toAP.country||''; var fromCountry=fromAP.country||'';
+  var isHighRiskCountry=HIGH_RISK_COUNTRIES.indexOf(destCountry)>=0||HIGH_RISK_COUNTRIES.indexOf(fromCountry)>=0;
+  var isMedRiskCountry=MED_RISK_COUNTRIES.indexOf(destCountry)>=0||MED_RISK_COUNTRIES.indexOf(fromCountry)>=0;
+
+  // Sanctions prefix check for EP- (Iran) and RA- (Russia) get extra weight
+  var isIranianReg=regUpper.indexOf('EP-')===0;
+  var isRussianReg=regUpper.indexOf('RA-')===0;
+
   var score=15;
   if(isConflict) score+=55;
   if(isSanctioned) score+=40;
+  if(isIranianReg) score+=10; // OFAC SDN amplifier
+  if(isRussianReg&&(fromCountry==='Russia'||destCountry==='Russia')) score+=8;
   if(isDG) score+=20;
   if(isMilWpn) score+=35;
   if(isMilPax||isMilitary) score+=15;
   if(isStateAC) score+=8;
   if(destMilitary||fromMilitary) score+=10;
-  var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX'];
-  if(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0) score+=10;
-  score=Math.min(98,score+Math.floor(Math.random()*6));
+  if(isHighRiskCountry&&!isConflict) score+=20; // Non-conflict but high risk country
+  if(isMedRiskCountry&&!isSanctioned) score+=10;
+  var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HRYR'];
+  if(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0) score+=12;
+  // Leg count risk: more legs = more permit exposure
+  if((legs||[]).length>=2) score+=5;
+  if((legs||[]).length>=4) score+=5;
+  score=Math.min(98,score+Math.floor(Math.random()*5));
   var level=score>=75?'HIGH':score>=50?'MEDIUM':score>=30?'LOW':'CLEAR';
   var color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
 
@@ -1180,58 +1281,87 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var milStatus=isMilWpn?'DANGER':(isMilPax||isMilitary||isStateAC)?'WARN':'OK';
 
   var layers=[
-    {icon:'🛡',name:'OFAC Sanctions (USA)',
-     status:isSanctioned?'DANGER':'OK',
-     detail:isSanctioned?'⚠ MATCH — '+( op||reg)+' on OFAC SDN list. Flight PROHIBITED. Immediate legal review required.':'Operator "'+( op||'—')+'" & reg "'+( reg||'—')+'" checked against OFAC SDN — no matches.'},
-    {icon:'🇪🇺',name:'EU Consolidated Sanctions',
-     status:isSanctioned?'DANGER':'OK',
-     detail:isSanctioned?'EU consolidated list match for '+( op||reg)+'. EU Regulation 269/2014 applies.':'EU Art. 215 TFEU — no sanctions match. Cleared.'},
-    {icon:'🌐',name:'UN Security Council List',
-     status:'OK',
-     detail:'UN SC Res. 1267 & 2253 — no restrictions on '+(op||'operator')+' or '+(reg||'registration')+'.'},
-    {icon:'⚔',name:'Conflict Zone Assessment',
-     status:isConflict?'DANGER':'OK',
-     detail:isConflict?conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):'Route '+from+'→'+to+' clear of active conflict zones per ICAO conflict zone map.'},
-    {icon:'⚔️',name:'Military / State Aircraft',
+    {icon:'🛡',name:'OFAC Sanctions (USA — SDN/BIS/OFAC)',
+     status:isSanctioned||isIranianReg?'DANGER':'OK',
+     detail:(isSanctioned||isIranianReg)?
+       '⛔ OFAC MATCH — '+(op||reg)+'. Per 31 C.F.R. §560 (Iran) / §544 (Russia), US persons prohibited from providing aircraft services. Flight PROHIBITED without specific OFAC license. Immediate legal counsel required.':
+       'Operator "'+( op||'—')+'" & reg "'+( reg||'—')+'" checked against OFAC SDN, BIS Entity List, and OFAC 50% Rule — no matches. Cleared per 31 C.F.R. §598.'},
+    {icon:'🇪🇺',name:'EU Sanctions (Art.215 TFEU / EASA)',
+     status:isSanctioned||isRussianReg?'DANGER':'OK',
+     detail:(isSanctioned||isRussianReg)?
+       '⛔ EU MATCH — EU Reg. 269/2014 (Russia) / 833/2014 (Russia aviation). EU operators CANNOT provide brokering, insurance or technical services to listed entities. EU-registered aircraft cannot overfly Russian FIRs per Council Reg (EU) 2022/334.':
+       'EU consolidated sanctions list (Art.215 TFEU) — no match. Cleared per EU Reg. 269/2014 & EASA SIB 2022-02.'},
+    {icon:'🌐',name:'UN Security Council Resolutions',
+     status:isSanctioned?'WARN':'OK',
+     detail:isSanctioned?'UN SC Resolution 1267/1988/2253 potential applicability — refer to UN 1267 Committee consolidated list. State reporting obligations may apply.':'UN SC Res. 1267 (Al-Qaida), 1718 (DPRK) & 2253 (ISIS/ISIL) — no restrictions on '+(op||'operator')+' or '+(reg||'registration')+'. Cleared.'},
+    {icon:'⚔',name:'Conflict Zone Assessment (ICAO Doc 9870)',
+     status:isConflict?'DANGER':isHighRiskCountry?'WARN':'OK',
+     detail:isConflict?'⛔ ACTIVE CONFLICT ZONE — '+conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):
+       isHighRiskCountry?'⚠ HIGH-RISK COUNTRY: '+destCountry+'. ICAO Doc 9870 Appendix A caution. Consult national CAA conflict zone bulletins and EASA SIB before dispatch.':
+       'Route '+from+'→'+to+' clear of active conflict zones per ICAO conflict zone map (Doc 9870). No active EASA SIBs noted.'},
+    {icon:'⚔️',name:'Military / State Aircraft (Chicago Convention Art.3)',
      status:milStatus,
      detail:milDetail},
-    {icon:'☢',name:'Dangerous Goods (IATA DGR)',
-     status:isDG||isMilWpn?'WARN':'OK',
-     detail:isDG?'DG cargo declared. IATA DGR 64th Ed. compliance mandatory.':isMilWpn?'Military weapons/munitions declared — not subject to IATA DGR but require separate arms export authorization per national law and transit state MoD approval.':'No dangerous goods declared.'},
-    {icon:'💊',name:'Health Advisory (WHO IHR 2005)',
+    {icon:'☢',name:'Dangerous Goods — IATA DGR / ICAO Doc 9284',
+     status:isDG?'WARN':isMilWpn?'DANGER':'OK',
+     detail:isDG?'⚠ DG CARGO DECLARED — IATA DGR 65th Ed. (2024) compliance mandatory. Shipper declaration, operator DG authorization, NOTOC required. Verify acceptance per ICAO Annex 18 §5.':
+       isMilWpn?'⛔ MILITARY WEAPONS/MUNITIONS — Not IATA DGR subject but require: End-User Certificate (EUC), Arms Export License (origin state), Import License (dest state), Transit Approval (each transit state MoD), Customs Form 302 (NATO) or equivalent. 15 U.S.C. §730 (EAR) may apply.':
+       'No dangerous goods declared. Standard cargo procedures per ICAO Annex 18 / IATA DGR 65th Ed.'},
+    {icon:'💊',name:'Health & Entry Requirements (WHO IHR 2005)',
      status:'OK',
-     detail:'WHO IHR 2005 — '+toAP.country+': No active PHEIC alerts. Verify entry health requirements for crew and passengers.'},
-    {icon:'⛽',name:'Fuel Planning (ICAO Annex 6)',
-     status:'OK',
-     detail:'Route '+from+'→'+to+': Trip fuel + 5% contingency + alternate + 30-min final reserve per ICAO Annex 6 §4.3.6. Verify fuel availability at '+(destMilitary?'military airfield — civil fuel availability NOT guaranteed.':'destination.')},
-    {icon:'🗺',name:'FIR / Airspace Analysis',
-     status:isConflict?'WARN':'OK',
-     detail:'Dep FIR: '+fromAP.fir+' | Dest FIR: '+toAP.fir+'.'+(fromMilitary?' DEP is military airfield.':'')+(destMilitary?' DEST is military airfield — civil handler may not be available.':'')+(isConflict?' Restricted FIR detected — explicit entry clearance required.':' Both FIRs open.')},
-    {icon:'📡',name:'NOTAM Review',
-     status:isConflict?'WARN':'OK',
-     detail:isConflict?'Active NOTAMs detected. Review NOTAM D-series for all FIRs and aerodromes before dispatch.':'No critical NOTAMs flagged. Verify 24h before ETD via official NOTAM Office (ICAO Annex 15).'},
-    {icon:'🛬',name:'Destination Airport Status',
-     status:destMilitary?'WARN':'OK',
-     detail:toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+(destMilitary?' — ⚠ MILITARY AIRFIELD. Coordination with base commander or MOD liaison required prior to arrival. Civil handling may be unavailable.':' — Operational. Confirm handling agent and slot 24h prior.')},
-    {icon:'📋',name:'Permit Requirements',
+     detail:'WHO IHR 2005 — '+toAP.country+': No active PHEIC alerts. Verify crew entry visas, yellow fever vaccination if applicable (ICAO PANS-TRG), and aircraft disinsection per WHO guidance. Confirm crew rest per ICAO Annex 6 §4.10.'},
+    {icon:'⛽',name:'Fuel Planning — ICAO Annex 6 §4.3.6',
+     status:destMilitary||isHighRiskCountry?'WARN':'OK',
+     detail:'Route '+from+' → '+to+': Minimum fuel = Trip fuel + 5% contingency (or 5min at cruising speed) + Alternate fuel + 30-min final reserve (45-min piston) per ICAO Annex 6 §4.3.6. '+(destMilitary?'⚠ MILITARY AIRFIELD — JET-A availability NOT guaranteed. Coordinate with base ops prior to departure. Tanker fuel or fuel ferry may be required.':isHighRiskCountry?'⚠ High-risk destination — confirm fuel availability before ETD.':'Confirm fuel availability and handling agent 24h prior.')},
+    {icon:'🗺',name:'FIR / ATS Route Analysis (ICAO Doc 7030)',
+     status:isConflict?'WARN':isMedRiskCountry?'WARN':'OK',
+     detail:'DEP FIR: '+fromAP.fir+' | DEST FIR: '+toAP.fir+'.'+(fromMilitary?' [DEP = Military airfield — PPR required from base commander.]':'')+
+       (destMilitary?' [DEST = Military airfield — PPR + MoD liaison mandatory.]':'')+
+       (isConflict?' ⚠ Restricted FIR — ICAO SL Doc 7030 regional supplement review mandatory. Entry clearance required from responsible ACC.':
+       isMedRiskCountry?' ⚠ Sensitive FIR — verify ATC/AFTN filing routes and any published route restrictions.':
+       ' Both FIRs open. File flight plan per ICAO Doc 4444 PANS-ATM §4.')},
+    {icon:'📡',name:'NOTAM / AIS Review (ICAO Annex 15)',
+     status:isConflict||isHighRiskCountry?'WARN':'OK',
+     detail:(isConflict||isHighRiskCountry)?
+       '⚠ ACTIVE NOTAM REVIEW REQUIRED — Check NOTAM A-series (aerodrome), B-series (FIR), D-series (enroute). Source: ICAO NOTAM Office, EUROCONTROL EAD, or national AIS. Review within 24h of ETD per ICAO Annex 15 §5.2.':
+       'Verify NOTAMs 24h before ETD at '+from+' and '+to+' via ICAO AIS portal or EUROCONTROL EAD. Monitor: aerodrome, FIR, and SIGMET/AIRMET (ICAO Annex 15 §5).'},
+    {icon:'🛬',name:'Airport Status & Handling (ICAO Annex 14)',
+     status:destMilitary?'WARN':isConflict?'DANGER':'OK',
+     detail:(isConflict&&destMilitary)?'⛔ CONFLICT ZONE MILITARY AIRFIELD — Operations require MoD authorization AND active conflict clearance. Civil ATCO/handler may be absent. Security escort likely required on apron.':
+       destMilitary?'⚠ MILITARY AIRFIELD: '+toAP.name+' ('+to+'), '+toAP.city+'. Coordinate with Base Ops / MOD liaison prior to arrival. PPR mandatory. Civil handling/customs/immigration may be limited. Verify customs availability per ICAO Annex 14 §2.9.':
+       toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+' — Operational. Confirm handling agent, fuel, and slot 24h prior per ICAO Annex 14.'},
+    {icon:'📋',name:'Permit Requirements & Lead Times',
      status:permitStatus,
      detail:(pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?
-       '🚫 PERMIT STATUS: '+pr.lead+' — '+pr.notes+' Authority: '+pr.authority+' ('+pr.tel+')':
-       (isConflict||isSanctioned)?'⛔ PERMIT LIKELY REFUSED — '+(isConflict?'Conflict zone. ':'')+( isSanctioned?'Sanctioned op/aircraft. ':'')+'Contact: '+pr.authority+' '+pr.tel:
-       (isStateAC||isMilitary)?'🏛 STATE/MILITARY: Diplomatic clearance required IN ADDITION to standard permit. Lead time: '+pr.lead+'+. Authority: '+pr.authority+' '+pr.tel:
-       'Lead time: '+pr.lead+' | Authority: '+pr.authority+' | Tel: '+pr.tel+'.'+(pr.notes?' '+pr.notes:'')},
+       '🚫 PERMIT STATUS: '+pr.lead+' — '+pr.notes+' Authority: '+pr.authority+' Tel: '+pr.tel:
+       (isConflict||isSanctioned)?'⛔ PERMIT LIKELY REFUSED — '+(isConflict?'Active conflict zone. ':'')+( isSanctioned?'Sanctioned operator/aircraft — permit authority will reject. ':'')+'Contact: '+pr.authority+' '+pr.tel:
+       (isStateAC||isMilitary)?'🏛 STATE/MILITARY AIRCRAFT — Diplomatic clearance (verbal note via MFA) required IN ADDITION to standard overflight/landing permit. Lead time: '+pr.lead+'+. Authority: '+pr.authority+' '+pr.tel:
+       'Lead time: '+pr.lead+' before ETD | Authority: '+pr.authority+' | Tel: '+pr.tel+'.'+(pr.notes?' '+pr.notes:'')},
   ];
 
-  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> → <strong>'+toAP.name+' ('+to+')</strong>'+(isMilitary||isStateAC?' &nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa">⚔ '+(isStateAC?'STATE AIRCRAFT':'MILITARY')+'</span>':'')+'<br><br>'+
-    (score>=75?'<span style="color:#f87171">⛔ HIGH RISK — </span>Critical hazards on this route. '+
-    (isMilWpn?'Weapons/munitions declared — multi-state authorization required. ':'')+
-    (isConflict?'Active conflict zone(s): '+conflictHits.join(', ')+'. ':'')+
-    (isSanctioned?'Sanctioned operator/aircraft — flight PROHIBITED. ':'')+'DO NOT DISPATCH without full authorization.':
-    score>=50?'<span style="color:#fbbf24">⚠ MEDIUM RISK — </span>Advisory conditions present. '+
-    (isMilitary||isStateAC?'Military/state aircraft — diplomatic clearance required in addition to standard permits. ':'')+
-    (isDG?'Dangerous goods compliance mandatory. ':'')+'Confirm permits '+pr.lead+' before ETD with '+pr.authority+'.':
-    '<span style="color:#34d399">✅ LOW RISK — </span>Route '+fromAP.city+' → '+toAP.city+' acceptable under current conditions. Submit permit to '+pr.authority+' with '+pr.lead+' lead time.')+
-    '<br><br><em style="color:var(--muted)">ARIS v3.1 · '+new Date().toUTCString()+' · For authorized use only</em>';
+  var riskFactors=[];
+  if(isConflict) riskFactors.push('Active conflict zone(s): '+conflictHits.join(', '));
+  if(isSanctioned||isIranianReg||isRussianReg) riskFactors.push('Sanctioned operator/registration detected');
+  if(isMilWpn) riskFactors.push('Military weapons/munitions declared');
+  if(isMilPax||isMilitary) riskFactors.push('Military personnel/aircraft');
+  if(isStateAC) riskFactors.push('State aircraft — Chicago Convention Art.3 applies');
+  if(isDG) riskFactors.push('Dangerous goods cargo');
+  if(isHighRiskCountry) riskFactors.push('High-risk country routing ('+destCountry+')');
+  if(isMedRiskCountry) riskFactors.push('Medium-risk country routing ('+destCountry+')');
+  if(destMilitary||fromMilitary) riskFactors.push('Military airfield involved');
+
+  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> → <strong>'+toAP.name+' ('+to+')</strong>'+
+    (isMilitary?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(239,68,68,.2);color:#fca5a5">⚔ MILITARY</span>':'')+
+    (isStateAC?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa">🏛 STATE AIRCRAFT</span>':'')+'<br>'+
+    '<span style="font-size:11px;color:var(--muted)">'+fromAP.city+', '+fromAP.country+' → '+toAP.city+', '+toAP.country+' | FIR: '+fromAP.fir+'/'+toAP.fir+' | Permit: '+pr.authority+'</span><br><br>'+
+    (score>=75?'<span style="color:#f87171;font-weight:700">⛔ HIGH RISK ('+score+'/100)</span> — Critical regulatory or safety hazards identified on this route. '+
+      (riskFactors.length?'<strong>Key factors:</strong> '+riskFactors.join('; ')+'. ':'')+'<strong>DO NOT DISPATCH</strong> without obtaining full multi-authority authorization. Consult aviation legal counsel before any crew briefing.':
+    score>=50?'<span style="color:#fbbf24;font-weight:700">⚠ MEDIUM RISK ('+score+'/100)</span> — Elevated advisory conditions present on this route. '+
+      (riskFactors.length?'Risk factors: '+riskFactors.join('; ')+'. ':'')+'Permits must be confirmed with '+pr.authority+' at least '+pr.lead+' before ETD. Duty of care obligations apply under ICAO SMS Doc 9859 §7.':
+    score>=30?'<span style="color:#34d399;font-weight:700">✅ LOW RISK ('+score+'/100)</span> — Route '+fromAP.city+' → '+toAP.city+' is acceptable under current regulatory conditions. '+
+      (riskFactors.length?'Minor advisory: '+riskFactors.join('; ')+'. ':'')+'Submit overflight/landing permit to '+pr.authority+' with '+pr.lead+' lead time. Verify NOTAMs 24h before ETD.':
+    '<span style="color:#38bdf8;font-weight:700">✅ CLEAR ('+score+'/100)</span> — No significant risk factors detected. Route '+fromAP.city+' → '+toAP.city+' is clear. Standard permit filing with '+pr.authority+' applies. Monitor NOTAMs.')+
+    '<br><br><em style="color:var(--muted);font-size:11px">ARIS Enterprise v3.2 · '+new Date().toUTCString()+' · Analysis is advisory only — verify with competent authority · ICAO Doc 9859/9870/4444</em>';
 
   return{score:score,level:level,color:color,layers:layers,narrative:narrative,fromAP:fromAP,toAP:toAP,pr:pr};
 }
