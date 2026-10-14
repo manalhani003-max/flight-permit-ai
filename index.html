@@ -246,11 +246,11 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
         </div>
         <ul class="inc-list">
           <li>12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
-          <li>520+ Airport Database — military &amp; conflict zone detection</li>
+          <li>270+ Airport Database — military &amp; conflict zone detection</li>
           <li>OFAC · EU Art.215 · UN SC 1267 Sanctions screening</li>
           <li>Country-specific permits, lead times &amp; authority contacts</li>
           <li>Military/State aircraft detection · Chicago Convention Annex 2</li>
-          <li>AI Narrative · Bilingual Arabic/English PDF · History Log</li>
+          <li>Risk Narrative · Score Breakdown · PDF Report · History Log</li>
         </ul>
         <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Select payment method:</div>
         <div class="pay-grid">
@@ -306,7 +306,7 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
     </div>
     <div class="kpi-row">
       <div class="kpi kpi-blue"><div class="kpi-label">Airports Monitored</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-sub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
-      <div class="kpi kpi-red"><div class="kpi-label">Active Conflict Zones</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub">Updated daily</div><div class="kpi-icon">⚠</div></div>
+      <div class="kpi kpi-red"><div class="kpi-label">Conflict-Zone Airports</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub">Updated daily</div><div class="kpi-icon">⚠</div></div>
       <div class="kpi kpi-gold"><div class="kpi-label">Permit Databases</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-sub">Countries covered</div><div class="kpi-icon">🛡</div></div>
       <div class="kpi kpi-green"><div class="kpi-label">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub" id="kpiSub">Run an analysis</div><div class="kpi-icon">📊</div></div>
     </div>
@@ -512,10 +512,11 @@ function smartParse(txt){
   }
 
   // Date
-  var dM=t.match(/(\d{1,2})[.\s\/]?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[.\s\/]?(\d{2,4})?/);
-  var dISO=txt.match(/(\d{4}-\d{2}-\d{2})/);
-  if(dM){var yy=dM[3]?(dM[3].length===4?dM[3]:'20'+dM[3]):''+yr;r.date=yy+'-'+MN[dM[2]]+'-'+dM[1].padStart(2,'0');}
-  else if(dISO) r.date=dISO[1];
+  // Year is only taken when it is clearly a year (20xx, or 2 digits not followed by a time like /1600)
+  var dM=t.match(/\b(\d{1,2})[.\s\/-]?(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?:[A-Z]*)(?:[.\s\/-]?(20\d{2}|\d{2})(?!\d))?/);
+  var dISO=txt.match(/\b(20\d{2}-[01]\d-[0-3]\d)\b/);
+  if(dISO) r.date=dISO[1];
+  else if(dM&&+dM[1]>=1&&+dM[1]<=31){var yy=dM[3]?(dM[3].length===4?dM[3]:'20'+dM[3]):''+yr;r.date=yy+'-'+MN[dM[2]]+'-'+dM[1].padStart(2,'0');}
 
   // ── Military / State aircraft detection ──
   var MIL_KW=/STATE\s*AIRCRAFT|MILITARY\s*AIRCRAFT|GOVT?\s*AIRCRAFT|GOVERNMENT\s*AIRCRAFT|HEAD\s*OF\s*STATE|DIPLOMATIC\s*FLIGHT|ROYAL\s*FLIGHT|PRESIDENTIAL\s*FLIGHT|EXEMPT\s*CUSTOMS|ICAO\s*STATUS\s*[:\-]+\s*[MS]/i;
@@ -562,7 +563,7 @@ function liveparse(txt){
              +(r.stateAircraft?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)">🏛 STATE A/C</span> ':'');
   var fields=[['Operator',r.op],['Registration',r.reg],['Aircraft',r.actype],['Callsign',r.callsign],['FROM',r.from],['TO',r.to],['Date',r.date],['Cargo',r.cargo],['POB',r.pob],['Purpose',r.purpose],['Weight',r.weight],['Crew Nat.',r.crewNat]].filter(function(x){return x[1];});
   if(!fields.length){document.getElementById('parse-preview').style.display='none';return;}
-  var html=fields.map(function(kv){return '<div style="color:var(--muted)">'+kv[0]+': <strong style="color:#e2e8f0">'+kv[1]+'</strong></div>';}).join('');
+  var html=fields.map(function(kv){return '<div style="color:var(--muted)">'+kv[0]+': <strong style="color:#e2e8f0">'+escHTML(kv[1])+'</strong></div>';}).join('');
   if(r.legs&&r.legs.length>2) html+='<div style="grid-column:1/-1;margin-top:6px;color:var(--muted)">Route: <strong style="color:#38bdf8">'+r.legs.join(' → ')+'</strong></div>';
   if(milTag) html='<div style="grid-column:1/-1;margin-bottom:8px">'+milTag+'</div>'+html;
   document.getElementById('parse-fields').innerHTML=html;
@@ -632,7 +633,8 @@ function launch(key){
   initApp();
   setTimeout(function(){if(dashMap)dashMap.invalidateSize();},300);
 }
-(function(){var k=localStorage.getItem(LIC);if(k&&(KEYS.indexOf(k)>=0||KEYS.indexOf(rev(k))>=0)){document.getElementById('keyInp').value=k;launch(k);}})();
+// Auto-launch for returning users — deferred until every script block has run (ZONES, TICKER_ALERTS, AP_DB...)
+window.addEventListener('DOMContentLoaded',function(){var k=localStorage.getItem(LIC);if(k&&(KEYS.indexOf(k)>=0||KEYS.indexOf(rev(k))>=0)){document.getElementById('keyInp').value=k;launch(k);}});
 
 var WA='962790000000';
 var MSG=encodeURIComponent('Hello, I want to purchase ARIS Enterprise ($97). Please send payment details.');
@@ -708,9 +710,9 @@ function initApp(){
   if(fdate) fdate.value=new Date().toISOString().split('T')[0];
   initTicker();
   initUTCClock();
-  setTimeout(function(){animateCounter('kpi1',520,1200);},200);
-  setTimeout(function(){animateCounter('kpi2',19,900);},350);
-  setTimeout(function(){animateCounter('kpi3',40,700);},500);
+  setTimeout(function(){animateCounter('kpi1',Object.keys(AP_DB).length,1200);},200);
+  setTimeout(function(){animateCounter('kpi2',Object.keys(CONFLICT_ZONES).length,900);},350);
+  setTimeout(function(){animateCounter('kpi3',Object.keys(PERMIT_RULES).length,700);},500);
   setTimeout(initDashMap,100);
   setTimeout(initCharts,200);
 }
@@ -858,6 +860,7 @@ var AP_DB={
   OSDI:{name:'Damascus Intl',city:'Damascus',country:'Syria',lat:33.411,lng:36.516,fir:'OSTT'},
   OSAP:{name:'Aleppo Intl',city:'Aleppo',country:'Syria',lat:36.181,lng:37.224,fir:'OSTT'},
   // ── IRAN ──
+  OIIE:{name:'Imam Khomeini Intl',city:'Tehran',country:'Iran',lat:35.416,lng:51.152,fir:'OIIX'},
   OIII:{name:'Mehrabad Intl',city:'Tehran',country:'Iran',lat:35.689,lng:51.314,fir:'OIIX'},
   OIKB:{name:'Bandar Abbas Intl',city:'Bandar Abbas',country:'Iran',lat:27.218,lng:56.378,fir:'OIIX'},
   OISS:{name:'Shiraz Intl',city:'Shiraz',country:'Iran',lat:29.539,lng:52.589,fir:'OIIX'},
@@ -948,7 +951,7 @@ var AP_DB={
   ULLI:{name:'Pulkovo Airport',city:'St Petersburg',country:'Russia',lat:59.8,lng:30.262,fir:'ULLL'},
   // ── UKRAINE ──
   UKLL:{name:'Lviv Intl',city:'Lviv',country:'Ukraine',lat:49.812,lng:23.956,fir:'UKBV'},
-  UKLV:{name:'Vinnytsia Airport',city:'Vinnytsia',country:'Ukraine',lat:49.243,lng:28.603,fir:'UKBV'},
+  UKWW:{name:'Vinnytsia Airport',city:'Vinnytsia',country:'Ukraine',lat:49.243,lng:28.603,fir:'UKBV'},
   UKBB:{name:'Boryspil Intl',city:'Kyiv',country:'Ukraine',lat:50.345,lng:30.894,fir:'UKBV'},
   UKOO:{name:'Odessa Intl',city:'Odessa',country:'Ukraine',lat:46.427,lng:30.676,fir:'UKBV'},
   // ── BELARUS ──
@@ -1144,18 +1147,16 @@ var AP_DB={
   MDPP:{name:'Punta Cana Intl',city:'Punta Cana',country:'Dominican Republic',lat:18.567,lng:-68.363,fir:'MDCS'},
   // ── MILITARY / STATE / JOINT USE ──
   OEDR:{name:'King Abdulaziz AB (Dhahran)',city:'Dhahran',country:'Saudi Arabia',lat:26.265,lng:50.152,fir:'OEJD',military:true},
-  OEAS:{name:'Prince Sultan AB',city:'Al Kharj',country:'Saudi Arabia',lat:24.063,lng:47.581,fir:'OEJD',military:true},
-  OEDM:{name:'King Fahd Military City',city:'Hafr Al-Batin',country:'Saudi Arabia',lat:27.9,lng:45.527,fir:'OEJD',military:true},
-  OKAJ:{name:'Ali Al Salem AB',city:'Al Jaber',country:'Kuwait',lat:29.346,lng:47.521,fir:'OKAC',military:true},
+  OEPS:{name:'Prince Sultan AB',city:'Al Kharj',country:'Saudi Arabia',lat:24.063,lng:47.581,fir:'OEJD',military:true},
+  OEKK:{name:'King Khalid Military City',city:'Hafr Al-Batin',country:'Saudi Arabia',lat:27.901,lng:45.528,fir:'OEJD',military:true},
+  OKAS:{name:'Ali Al Salem AB',city:'Al Jahra',country:'Kuwait',lat:29.347,lng:47.521,fir:'OKAC',military:true},
   OBBS:{name:'Shaikh Isa AB',city:'Isa Town',country:'Bahrain',lat:26.016,lng:50.591,fir:'OBBB',military:true},
   OTBH:{name:'Al Udeid AB',city:'Al Udeid',country:'Qatar',lat:25.117,lng:51.316,fir:'OBBB',military:true},
   OMDM:{name:'Al Minhad AB',city:'Al Minhad',country:'UAE',lat:25.027,lng:55.366,fir:'OMAE',military:true},
-  OMAZ:{name:'Al Bateen AB',city:'Abu Dhabi',country:'UAE',lat:24.428,lng:54.458,fir:'OMAE',military:true},
-  ORSU:{name:'Balad AB (Joint)',city:'Balad',country:'Iraq',lat:33.94,lng:44.361,fir:'ORBB',military:true},
+  ORBD:{name:'Balad AB (Joint)',city:'Balad',country:'Iraq',lat:33.94,lng:44.361,fir:'ORBB',military:true},
   HECW:{name:'Cairo West AB',city:'Cairo',country:'Egypt',lat:30.116,lng:30.915,fir:'HECC',military:true},
-  LTCC:{name:'Incirlik AB',city:'Adana',country:'Turkey',lat:37.002,lng:35.426,fir:'LTAA',military:true},
-  LGKV:{name:'Kavala AB',city:'Kavala',country:'Greece',lat:40.913,lng:24.342,fir:'LGGG',military:true},
-  UARR:{name:'Ayaguz AB',city:'Ayaguz',country:'Kazakhstan',lat:47.966,lng:80.432,fir:'UAAA',military:true},
+  LTAG:{name:'Incirlik AB',city:'Adana',country:'Turkey',lat:37.002,lng:35.426,fir:'LTAA',military:true},
+  LGKV:{name:'Kavala Intl (Megas Alexandros)',city:'Kavala',country:'Greece',lat:40.913,lng:24.619,fir:'LGGG'},
 };
 </script>
 <script>
@@ -1168,7 +1169,7 @@ var CONFLICT_ZONES={
   HLLS:'Conflict zone — Libya (Sebha). Restricted airspace. NOTAMs active.',
   HLMB:'Conflict zone — Libya (Misrata). Periodic shelling reported.',
   UKLL:'Ukraine conflict zone. Lviv FIR restricted per NOTAM A4537/22.',
-  UKLV:'Ukraine conflict zone. Kyiv FIR closed per NOTAM A4537/22.',
+  UKWW:'Ukraine conflict zone — Vinnytsia closed. All Ukrainian FIRs closed to civil traffic.',
   UKBB:'Ukraine conflict zone — Boryspil closed. All Ukrainian FIRs restricted.',
   UKOO:'Ukraine conflict zone — Odessa FIR restricted.',
   OSDI:'Syria — HIGH RISK. Damascus FIR restricted. Most overflights prohibited.',
@@ -1181,8 +1182,32 @@ var SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','
   'TABAN AIR','IRAN ASEMAN','IRAN AIR TOURS','ASHA AIRLINES','KISH AIR','VARESH AIRLINES','SAHAND AIR',
   'CASPIAN AIRLINES','ARIA AIR','KARUN AIRLINES','PAYAM AIR','PARS AIR',
   'AIR KORYO','VLADIVOSTOK AIR','NORDWIND','RED WINGS','UTAIR','YAKUTIA AIRLINES',
-  'CONVIASA','INTER','LASER AIRLINES','VENEZOLANA'];
-var SANCTIONS_REG_PREFIX=['EP-','YK-','RA-','UP-','EY-','P-','YV-','YL-','YU-'];
+  'CONVIASA','LASER AIRLINES','VENEZOLANA'];
+// Nationality marks under broad sanctions/bans: EP Iran, YK Syria, RA Russia, EW Belarus, P DPRK
+var SANCTIONS_REG_PREFIX=['EP','YK','RA','EW','P'];
+
+function escHTML(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+// Nationality mark of a registration, with or without the hyphen (EP-ABC / EPABC)
+function regPrefix(reg){
+  var r=(reg||'').toUpperCase().replace(/\s+/g,'');
+  if(!r) return '';
+  if(r.indexOf('-')>0) return r.split('-')[0];
+  for(var i=0;i<SANCTIONS_REG_PREFIX.length;i++){
+    var px=SANCTIONS_REG_PREFIX[i];
+    // Single-letter mark (P) only counts when followed by a hyphen, to avoid PK-/PH- false hits
+    if(px.length>1&&r.indexOf(px)===0&&r.length>=px.length+3) return px;
+  }
+  return '';
+}
+function matchSanctionedOperator(op){
+  var o=' '+(op||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ')+' ';
+  for(var i=0;i<SANCTIONS_OPERATORS.length;i++){
+    var n=' '+SANCTIONS_OPERATORS[i].replace(/[^A-Z0-9]+/g,' ')+' ';
+    if(o.indexOf(n)>=0) return SANCTIONS_OPERATORS[i];
+  }
+  return '';
+}
 
 var PERMIT_RULES={
   'Saudi Arabia':{lead:'72h',authority:'GACA',tel:'+966-920002814',notes:'Overflight permit via Jeddah ACC. Landing permit via GACA e-permit portal. Hajj/Umrah season: additional 7-day lead.'},
@@ -1231,9 +1256,9 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var allICAO=[from,to].concat(legs||[]);
   var conflictHits=allICAO.filter(function(c){return CONFLICT_ZONES[c];});
   var isConflict=conflictHits.length>0;
-  var opUpper=(op||'').toUpperCase();
-  var regUpper=(reg||'').toUpperCase();
-  var isSanctioned=SANCTIONS_OPERATORS.some(function(s){return opUpper.indexOf(s)>=0;})||SANCTIONS_REG_PREFIX.some(function(p){return regUpper.indexOf(p)===0;});
+  var regPx=regPrefix(reg);
+  var sanctionedOp=matchSanctionedOperator(op);
+  var isSanctioned=!!sanctionedOp||SANCTIONS_REG_PREFIX.indexOf(regPx)>=0;
   var isDG=cargo==='DG';
   var isMilWpn=(cargo==='MILITARY-WPN');
   var isMilPax=(cargo==='MILITARY-PAX')||isMilitary;
@@ -1242,37 +1267,45 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
 
   // Country risk tiers
   var HIGH_RISK_COUNTRIES=['Yemen','Libya','Syria','Afghanistan','Somalia','Sudan','Iraq','Ukraine'];
-  var MED_RISK_COUNTRIES=['Iran','Russia','Belarus','Pakistan','Lebanon','North Korea','Venezuela','Myanmar'];
+  var MED_RISK_COUNTRIES=['Iran','Russia','Belarus','Pakistan','Lebanon','Israel','North Korea','Venezuela','Myanmar'];
   var destCountry=toAP.country||''; var fromCountry=fromAP.country||'';
   var isHighRiskCountry=HIGH_RISK_COUNTRIES.indexOf(destCountry)>=0||HIGH_RISK_COUNTRIES.indexOf(fromCountry)>=0;
   var isMedRiskCountry=MED_RISK_COUNTRIES.indexOf(destCountry)>=0||MED_RISK_COUNTRIES.indexOf(fromCountry)>=0;
 
   // Sanctions prefix check for EP- (Iran) and RA- (Russia) get extra weight
-  var isIranianReg=regUpper.indexOf('EP-')===0;
-  var isRussianReg=regUpper.indexOf('RA-')===0;
-
-  var score=15;
-  if(isConflict) score+=55;
-  if(isSanctioned) score+=40;
-  if(isIranianReg&&!isSanctioned) score+=10; // Extra OFAC weight if not already sanctioned
-  if(isRussianReg&&!isSanctioned&&(fromCountry==='Russia'||destCountry==='Russia')) score+=8;
-  if(isDG) score+=20;
-  if(isMilWpn) score+=35;
-  if(isMilPax||isMilitary) score+=15;
-  if(isStateAC) score+=8;
-  if(destMilitary||fromMilitary) score+=10;
-  if(isHighRiskCountry&&!isConflict) score+=20; // Non-conflict but high risk country
-  if(isMedRiskCountry&&!isSanctioned) score+=10;
+  // Deterministic score: the same flight always gets the same score, and every point is explained
+  var breakdown=[{label:'Baseline operational risk',pts:15}];
+  function add(cond,pts,label){if(cond) breakdown.push({label:label,pts:pts});}
+  add(isConflict,55,'Active conflict zone airport ('+conflictHits.join(', ')+')');
+  add(isSanctioned,40,'Sanctions match ('+(sanctionedOp||('registration '+regPx+'-'))+')');
+  add(isDG,20,'Dangerous goods cargo');
+  add(isMilWpn,35,'Weapons / munitions declared');
+  add(isMilPax||isMilitary,15,'Military personnel / aircraft');
+  add(isStateAC,8,'State aircraft');
+  add(destMilitary||fromMilitary,10,'Military airfield');
+  add(isHighRiskCountry&&!isConflict,20,'High-risk country');
+  add(isMedRiskCountry&&!isSanctioned,10,'Medium-risk country');
   var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HSSS'];
-  if(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0) score+=12;
-  // Leg count risk: more legs = more permit exposure
-  if((legs||[]).length>=2) score+=5;
-  if((legs||[]).length>=4) score+=5;
-  score=Math.min(98,score+Math.floor(Math.random()*5));
+  add(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0,12,'Restricted FIR ('+(conflictFIRs.indexOf(toAP.fir)>=0?toAP.fir:fromAP.fir)+')');
+  // Multi-leg routing: legs lists every airport, so 3+ airports means at least one intermediate stop
+  var nLegs=(legs||[]).length;
+  add(nLegs>=3,5,'Multi-leg routing ('+nLegs+' airports)');
+  add(nLegs>=5,5,'Extended multi-leg routing');
+  add(!AP_DB[from]||!AP_DB[to],10,'Airport not in database — data unverified');
+  var score=breakdown.reduce(function(a,b){return a+b.pts;},0);
+  var rawScore=score;
+  score=Math.min(100,score);
+  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.'};
+  // Hard stops (ICAO Doc 9859 risk matrix: catastrophic severity = intolerable) — never rated below HIGH
+  var hardStops=[];
+  if(isSanctioned) hardStops.push('Sanctioned operator/aircraft');
+  if(isConflict) hardStops.push('Active conflict zone');
+  if(isMilWpn) hardStops.push('Weapons/munitions cargo');
+  if(pr.lead==='SUSPENDED'||pr.lead==='CLOSED'||pr.lead==='RESTRICTED') hardStops.push('Destination permits '+pr.lead);
+  if(hardStops.length&&score<75){breakdown.push({label:'Hard-stop floor: '+hardStops.join(', '),pts:75-score});score=75;}
   var level=score>=75?'HIGH':score>=50?'MEDIUM':score>=30?'LOW':'CLEAR';
   var color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
 
-  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.'};
   var permitStatus=(isConflict||isSanctioned||pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?'DANGER':(pr.lead==='96h'||isMilWpn||isStateAC)?'WARN':'OK';
 
   // Military layer detail
@@ -1285,18 +1318,18 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
 
   var layers=[
     {icon:'🛡',name:'OFAC Sanctions (USA — SDN/BIS/OFAC)',
-     status:isSanctioned||isIranianReg?'DANGER':'OK',
-     detail:(isSanctioned||isIranianReg)?
-       '⛔ OFAC MATCH — '+(op||reg)+'. Per 31 C.F.R. §560 (Iran) / §544 (Russia), US persons prohibited from providing aircraft services. Flight PROHIBITED without specific OFAC license. Immediate legal counsel required.':
-       'Operator "'+( op||'—')+'" & reg "'+( reg||'—')+'" checked against OFAC SDN, BIS Entity List, and OFAC 50% Rule — no matches. Cleared per 31 C.F.R. §598.'},
+     status:isSanctioned?'DANGER':'OK',
+     detail:isSanctioned?
+       '⛔ OFAC MATCH — '+escHTML(sanctionedOp||reg)+'. Per 31 C.F.R. §560 (Iran) / §544 (Russia), US persons prohibited from providing aircraft services. Flight PROHIBITED without specific OFAC license. Immediate legal counsel required.':
+       'Operator "'+escHTML(op||'—')+'" & reg "'+escHTML(reg||'—')+'" — no match in the ARIS built-in watchlist. Confirm against the official OFAC SDN list (sanctionssearch.ofac.treas.gov) before dispatch.'},
     {icon:'🇪🇺',name:'EU Sanctions (Art.215 TFEU / EASA)',
-     status:isSanctioned||isRussianReg?'DANGER':'OK',
-     detail:(isSanctioned||isRussianReg)?
+     status:isSanctioned?'DANGER':'OK',
+     detail:isSanctioned?
        '⛔ EU MATCH — EU Reg. 269/2014 (Russia) / 833/2014 (Russia aviation). EU operators CANNOT provide brokering, insurance or technical services to listed entities. EU-registered aircraft cannot overfly Russian FIRs per Council Reg (EU) 2022/334.':
-       'EU consolidated sanctions list (Art.215 TFEU) — no match. Cleared per EU Reg. 269/2014 & EASA SIB 2022-02.'},
+       'No match in the ARIS built-in watchlist. Confirm against the EU Financial Sanctions consolidated list before dispatch.'},
     {icon:'🌐',name:'UN Security Council Resolutions',
      status:isSanctioned?'WARN':'OK',
-     detail:isSanctioned?'UN SC Resolution 1267/1988/2253 potential applicability — refer to UN 1267 Committee consolidated list. State reporting obligations may apply.':'UN SC Res. 1267 (Al-Qaida), 1718 (DPRK) & 2253 (ISIS/ISIL) — no restrictions on '+(op||'operator')+' or '+(reg||'registration')+'. Cleared.'},
+     detail:isSanctioned?'UN SC Resolution 1267/1988/2253 potential applicability — refer to UN 1267 Committee consolidated list. State reporting obligations may apply.':'No match in the ARIS built-in watchlist for '+escHTML(op||'operator')+' / '+escHTML(reg||'registration')+'. Confirm against the UN SC consolidated list (1267/1718/2253).'},
     {icon:'⚔',name:'Conflict Zone Assessment (ICAO Doc 9870)',
      status:isConflict?'DANGER':isHighRiskCountry?'WARN':'OK',
      detail:isConflict?'⛔ ACTIVE CONFLICT ZONE — '+conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):
@@ -1344,7 +1377,7 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
 
   var riskFactors=[];
   if(isConflict) riskFactors.push('Active conflict zone(s): '+conflictHits.join(', '));
-  if(isSanctioned||isIranianReg||isRussianReg) riskFactors.push('Sanctioned operator/registration detected');
+  if(isSanctioned) riskFactors.push('Sanctioned operator/registration detected');
   if(isMilWpn) riskFactors.push('Military weapons/munitions declared');
   if(isMilPax||isMilitary) riskFactors.push('Military personnel/aircraft');
   if(isStateAC) riskFactors.push('State aircraft — Chicago Convention Art.3 applies');
@@ -1366,7 +1399,7 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
     '<span style="color:#38bdf8;font-weight:700">✅ CLEAR ('+score+'/100)</span> — No significant risk factors detected. Route '+fromAP.city+' → '+toAP.city+' is clear. Standard permit filing with '+pr.authority+' applies. Monitor NOTAMs.')+
     '<br><br><em style="color:var(--muted);font-size:11px">ARIS Enterprise v3.2 · '+new Date().toUTCString()+' · Analysis is advisory only — verify with competent authority · ICAO Doc 9859/9870/4444</em>';
 
-  return{score:score,level:level,color:color,layers:layers,narrative:narrative,fromAP:fromAP,toAP:toAP,pr:pr};
+  return{score:score,rawScore:rawScore,breakdown:breakdown,level:level,color:color,layers:layers,narrative:narrative,fromAP:fromAP,toAP:toAP,pr:pr};
 }
 
 function doAnalyze(){
@@ -1396,11 +1429,14 @@ function doAnalyze(){
     document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ ICAO codes missing</strong><br><br>Please enter valid FROM and TO airport ICAO codes (4 letters, e.g. OERK, OMDB).</div>';
     return;
   }
-  if(f.from.length!==4||f.to.length!==4){
+  if(!/^[A-Z]{4}$/.test(f.from)||!/^[A-Z]{4}$/.test(f.to)){
     document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ Invalid ICAO format</strong><br><br>ICAO codes must be exactly 4 letters (e.g. <strong>OERK</strong>, <strong>OMDB</strong>, <strong>KJFK</strong>).</div>';
     return;
   }
   var fromKnown=!!AP_DB[f.from], toKnown=!!AP_DB[f.to];
+  f.unknown=[];
+  if(!fromKnown) f.unknown.push(f.from);
+  if(!toKnown) f.unknown.push(f.to);
   if(!fromKnown||!toKnown){
     var unknown=[];
     if(!fromKnown) unknown.push('FROM: <strong>'+f.from+'</strong>');
@@ -1450,15 +1486,15 @@ function renderResult(d,f,legs){
         '</div>'+
         '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">'+d.fromAP.name+' → '+d.toAP.name+' &nbsp;·&nbsp; '+d.fromAP.country+' → '+d.toAP.country+'</div>'+
         '<div style="font-size:12px;color:var(--muted)">'+
-          (f.op?'<strong style="color:#e2e8f0">'+f.op+'</strong> &nbsp;·&nbsp; ':'')+
-          (f.reg||'—')+' &nbsp;·&nbsp; '+(f.actype||'—')+' &nbsp;·&nbsp; '+f.cargo+' &nbsp;·&nbsp; '+(f.date||'—')+
+          (f.op?'<strong style="color:#e2e8f0">'+escHTML(f.op)+'</strong> &nbsp;·&nbsp; ':'')+
+          escHTML(f.reg||'—')+' &nbsp;·&nbsp; '+escHTML(f.actype||'—')+' &nbsp;·&nbsp; '+escHTML(f.cargo)+' &nbsp;·&nbsp; '+escHTML(f.date||'—')+
         '</div>'+
       '</div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">'+
         '<div style="display:flex;gap:8px">'+
           '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' DANGER</span>'+
           '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' WARN</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(12-danger-warn)+' OK</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(d.layers.length-danger-warn)+' OK</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px;margin-top:4px">'+
           '<button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">📄 تقرير PDF</button>'+
@@ -1468,7 +1504,14 @@ function renderResult(d,f,legs){
     '</div>'+
     '<div id="resultMap" style="height:200px;width:100%"></div>'+
   '</div>'+
-  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">&#128269; Risk Layer Analysis — 12 checks</div>'+
+  ((f.unknown&&f.unknown.length)?'<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px;color:#fbbf24;font-size:13px">⚠ مطار غير موجود في قاعدة البيانات: <strong>'+f.unknown.join(' · ')+'</strong> — النتيجة تقديرية، تحقق من الرموز ومن حالة المطار يدوياً.</div>':'')+
+  '<div class="narrative-card" style="margin-bottom:16px"><h4 style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px">🧮 تفصيل درجة الخطر / Score Breakdown</h4>'+
+    '<table style="width:100%;font-size:12px;border-collapse:collapse">'+
+    d.breakdown.map(function(b){return '<tr><td style="padding:5px 0;color:#94a3b8;border-bottom:1px solid var(--border)">'+escHTML(b.label)+'</td><td style="padding:5px 0;text-align:right;font-weight:700;color:#e2e8f0;border-bottom:1px solid var(--border)">+'+b.pts+'</td></tr>';}).join('')+
+    '<tr><td style="padding:7px 0;font-weight:700;color:#e2e8f0">Total'+(d.rawScore>100?' (capped at 100 from '+d.rawScore+')':'')+'</td><td style="padding:7px 0;text-align:right;font-weight:800;color:'+lclr+'">'+d.score+'/100</td></tr>'+
+    '</table>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px">0–29 CLEAR · 30–49 LOW · 50–74 MEDIUM · 75–100 HIGH</div></div>'+
+  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">&#128269; Risk Layer Analysis — '+d.layers.length+' checks</div>'+
   '<div class="layer-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
   d.layers.map(function(l){
     var cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
@@ -1488,9 +1531,10 @@ function renderResult(d,f,legs){
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:''}).addTo(resultMap);
     function mk(c,lbl){return '<div style="background:'+c+';color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;border:2px solid #fff;white-space:nowrap">'+lbl+'</div>';}
     var fc=[d.fromAP.lat,d.fromAP.lng], tc=[d.toAP.lat,d.toAP.lng];
-    L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9',f.from)})}).addTo(resultMap);
-    L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981',f.to)})}).addTo(resultMap);
-    L.polyline([fc,tc],{color:d.color,weight:3,dashArray:'10,6'}).addTo(resultMap);
+    var fOK=!!AP_DB[f.from], tOK=!!AP_DB[f.to];
+    if(fOK) L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9',f.from)})}).addTo(resultMap);
+    if(tOK) L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981',f.to)})}).addTo(resultMap);
+    if(fOK&&tOK){L.polyline([fc,tc],{color:d.color,weight:3,dashArray:'10,6'}).addTo(resultMap);resultMap.fitBounds([fc,tc],{padding:[30,30],maxZoom:6});}
     ZONES.forEach(function(z){L.circle([z.lat,z.lng],{radius:z.r*.5,color:z.color,fillColor:z.color,fillOpacity:.15,weight:1}).addTo(resultMap);});
     setTimeout(function(){resultMap.invalidateSize();},100);
   },200);
@@ -1503,6 +1547,10 @@ function copySummary(){
   navigator.clipboard.writeText(txt).then(function(){alert('Summary copied!');}).catch(function(){alert(txt);});
 }
 
+function pdfSafe(v){
+  return String(v==null?'':v).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/[→]/g,'->').replace(/[—–]/g,'-').replace(/[·]/g,'|').replace(/§/g,'S.').replace(/[^\x20-\x7E]/g,'').replace(/\s{2,}/g,' ').trim();
+}
 function genPDF(){
   if(!window._last){alert('Run an analysis first.');return;}
   var d=window._last.d, f=window._last.f;
@@ -1514,11 +1562,11 @@ function genPDF(){
   // Logo area
   doc.setTextColor(14,165,233);doc.setFontSize(24);doc.setFont('helvetica','bold');doc.text('ARIS',14,18);
   doc.setTextColor(255,255,255);doc.setFontSize(10);doc.text('Aviation Risk Intelligence System',14,26);
-  doc.setTextColor(100,116,139);doc.setFontSize(8);doc.text('FLIGHT RISK ASSESSMENT REPORT — CONFIDENTIAL',14,34);
+  doc.setTextColor(100,116,139);doc.setFontSize(8);doc.text('FLIGHT RISK ASSESSMENT REPORT - CONFIDENTIAL',14,34);
   doc.text(new Date().toUTCString(),196,34,{align:'right'});
   // Route title
   doc.setTextColor(255,255,255);doc.setFontSize(18);doc.setFont('helvetica','bold');
-  doc.text(f.from+' → '+f.to,14,56);
+  doc.text(f.from+' -> '+f.to,14,56);
   var rc=d.level==='HIGH'?[239,68,68]:d.level==='MEDIUM'?[245,158,11]:d.level==='LOW'?[16,185,129]:[14,165,233];
   doc.setFillColor(rc[0],rc[1],rc[2]);doc.roundedRect(148,48,48,12,3,3,'F');
   doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');
@@ -1529,7 +1577,7 @@ function genPDF(){
   det.forEach(function(item,i){
     var col=i%2===0?14:105;var row=Math.floor(i/2);var y=68+(row*7);
     doc.setTextColor(100,116,139);doc.text(item[0]+': ',col,y);
-    doc.setTextColor(226,232,240);doc.text(String(item[1]),col+30,y);
+    doc.setTextColor(226,232,240);doc.text(pdfSafe(item[1])||'-',col+30,y);
   });
   // Score bar
   var sy=68+Math.ceil(det.length/2)*7+4;
@@ -1539,7 +1587,7 @@ function genPDF(){
   doc.setFontSize(8);doc.setTextColor(100,116,139);doc.text('— '+d.level+' RISK',90,sy+10);
   // Layers header
   var ly=sy+22;
-  doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text('12-LAYER RISK ANALYSIS',14,ly);
+  doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text(d.layers.length+'-LAYER RISK ANALYSIS',14,ly);
   doc.setDrawColor(14,165,233);doc.line(14,ly+2,196,ly+2);
   // Layers
   d.layers.forEach(function(l,i){
@@ -1551,7 +1599,7 @@ function genPDF(){
     doc.setFillColor(sc2[0],sc2[1],sc2[2]);doc.roundedRect(118,y-3.5,22,5,1.5,1.5,'F');
     doc.setTextColor(255,255,255);doc.setFontSize(6.5);doc.setFont('helvetica','bold');doc.text(l.status,129,y,{align:'center'});
     doc.setFontSize(6.5);doc.setTextColor(100,116,139);doc.setFont('helvetica','normal');
-    var det2=l.detail.replace(/<[^>]+>/g,'');
+    var det2=pdfSafe(l.detail);
     doc.text(det2.length>90?det2.slice(0,90)+'...':det2,16,y+4);
   });
   // Narrative
@@ -1560,7 +1608,7 @@ function genPDF(){
     doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text('AI RISK NARRATIVE',14,ny);
     doc.setDrawColor(14,165,234);doc.line(14,ny+2,196,ny+2);
     doc.setFontSize(7.5);doc.setTextColor(148,163,184);doc.setFont('helvetica','normal');
-    var plain=d.narrative.replace(/<[^>]+>/g,'');
+    var plain=pdfSafe(d.narrative);
     var lines=doc.splitTextToSize(plain,178);
     var maxLines=Math.floor((275-ny-4)/4);
     doc.text(lines.slice(0,maxLines),14,ny+8);
@@ -1568,7 +1616,7 @@ function genPDF(){
   // Footer
   doc.setFillColor(10,22,55);doc.rect(0,285,210,12,'F');
   doc.setFontSize(6.5);doc.setTextColor(100,116,139);
-  doc.text('ARIS — Aviation Risk Intelligence System · Confidential · For authorized aviation use only · '+new Date().getFullYear(),105,292,{align:'center'});
+  doc.text('ARIS - Aviation Risk Intelligence System | Confidential | Advisory only - verify with competent authority | '+new Date().getFullYear(),105,292,{align:'center'});
   doc.save('ARIS_Report_'+f.from+'_'+f.to+'_'+(f.date||'today')+'.pdf');
 }
 
@@ -1591,8 +1639,8 @@ function showReports(){
     return '<tr>'+
       '<td style="color:var(--muted)">'+new Date(h.timestamp).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'+
       '<td><strong style="color:#e2e8f0">'+h.from+' → '+h.to+'</strong></td>'+
-      '<td style="color:#94a3b8">'+(h.op||'—')+'</td>'+
-      '<td style="color:#94a3b8;font-family:monospace">'+(h.reg||'—')+'</td>'+
+      '<td style="color:#94a3b8">'+escHTML(h.op||'—')+'</td>'+
+      '<td style="color:#94a3b8;font-family:monospace">'+escHTML(h.reg||'—')+'</td>'+
       '<td><span style="padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;background:'+lbg+';color:'+lclr+'">'+h.level+'</span></td>'+
       '<td style="color:'+lclr+';font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700">'+h.score+'</td>'+
       '<td><button class="act-btn ab-del" onclick="deleteHistEntry('+idx+')" title="Delete">🗑</button></td>'+
