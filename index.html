@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@600;700&family=Cairo:wght@400;500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0a0f1e;--bg2:#0f1729;--bg3:#141f35;--bg4:#1a2845;
@@ -109,13 +109,13 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
 .kpi-val{font-family:Rajdhani,sans-serif;font-size:36px;font-weight:700;color:#fff;line-height:1}
 .kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
-.kpi-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.2}
+.kpi-icon{position:absolute;inset-inline-end:16px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.2}
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .dash-grid-3{display:grid;grid-template-columns:2fr 1fr;gap:14px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
 .card-title{font-size:13px;font-weight:700;color:#e2e8f0;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .card-title .dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
-#dashMap{height:280px;border-radius:10px;overflow:hidden}
+#dashMap{height:340px;border-radius:10px;overflow:hidden}
 .risk-list{list-style:none}
 .risk-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
 .risk-item:last-child{border-bottom:none}
@@ -147,12 +147,12 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 .narrative-txt{font-size:13px;color:#94a3b8;line-height:1.8}
 .narrative-txt strong{color:#e2e8f0}
 #fullMapWrap{height:calc(100vh - 60px - 100px);border-radius:14px;overflow:hidden;border:1px solid var(--border);position:relative}
-.map-legend{position:absolute;bottom:20px;right:20px;z-index:1000;background:rgba(10,15,30,.9);border:1px solid var(--border);border-radius:10px;padding:14px;backdrop-filter:blur(10px)}
+.map-legend{position:absolute;bottom:30px;right:14px;z-index:1000;background:rgba(10,15,30,.9);border:1px solid var(--border);border-radius:10px;padding:14px;backdrop-filter:blur(10px)}
 .legend-item{display:flex;align-items:center;gap:8px;font-size:11px;color:#e2e8f0;margin-bottom:6px}
 .legend-item:last-child{margin-bottom:0}
 .legend-dot{width:12px;height:12px;border-radius:50%}
 .hist-table{width:100%;border-collapse:collapse;font-size:12px}
-.hist-table th{text-align:left;padding:10px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+.hist-table th{text-align:start;padding:10px 12px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
 .hist-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
 .hist-table tr:hover td{background:rgba(255,255,255,.02)}
 .act-btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:700;font-family:Inter,sans-serif;transition:.2s}
@@ -195,6 +195,27 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 .rdl-high{background:#ef4444;box-shadow:0 0 6px #ef4444;animation:pulse 1.5s infinite}
 .rdl-med{background:#f59e0b;box-shadow:0 0 6px #f59e0b;animation:pulse 2.5s infinite}
 .rdl-low{background:#10b981}
+
+/* ── Language / RTL ── */
+body.lang-ar{font-family:Cairo,Inter,sans-serif}
+body.lang-ar button,body.lang-ar input,body.lang-ar select,body.lang-ar textarea{font-family:Cairo,Inter,sans-serif}
+body.lang-ar .inp{font-family:monospace}
+body.lang-ar .gate-version{font-family:Cairo,Inter,sans-serif}
+body.lang-ar :not(.gate-brand-name):not(.top-brand):not(.inp){letter-spacing:normal!important}
+body.lang-ar .kpi-label,body.lang-ar .gate-tagline,body.lang-ar .lbl{text-transform:none}
+body.lang-ar .layer-detail,body.lang-ar .narrative-txt{line-height:1.9}
+.lang-btn{padding:6px 12px;border-radius:8px;border:1px solid rgba(14,165,233,.4);background:rgba(14,165,233,.12);color:#e2e8f0;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:Cairo,Inter,sans-serif;transition:.2s}
+.lang-btn:hover{background:rgba(14,165,233,.25)}
+.lang-btn-gate{position:absolute;top:18px;inset-inline-end:18px;z-index:5}
+.ticker-track{direction:ltr}
+.ticker-item{unicode-bidi:plaintext}
+.leaflet-container{direction:ltr;font-family:Cairo,Inter,sans-serif}
+.leaflet-popup-content{font-size:13px}
+.zone-label{background:rgba(255,255,255,.92);border:2px solid #ef4444;color:#111827;font-weight:800;font-size:12px;padding:3px 8px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.25);font-family:Cairo,Inter,sans-serif}
+.zone-label.zl-MED{border-color:#f59e0b}
+.zone-label.zl-LOW{border-color:#10b981}
+.zone-label:before{display:none}
+.map-legend{color:#e2e8f0}
 </style>
 </head>
 <body>
@@ -203,6 +224,7 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
   <canvas id="gateCanvas"></canvas>
   <div class="gate-bg-gradient"></div>
   <div class="gate-scanline"></div>
+  <button class="lang-btn lang-btn-gate" onclick="setLang(LANG==='ar'?'en':'ar')">🌐 English</button>
   <div class="gate-content">
     <div class="gate-hero">
       <div class="gate-symbol">
@@ -214,55 +236,52 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
           <circle cx="32" cy="42" r="6" fill="none" stroke="rgba(14,165,233,.4)" stroke-width="1"/>
         </svg>
       </div>
-      <div class="gate-brand-name">AR<span>IS</span></div>
-      <div class="gate-tagline">Aviation Risk Intelligence System</div>
-      <div class="gate-version">Enterprise v3.2 · ICAO Compliant</div>
+      <div class="gate-brand-name" dir="ltr">AR<span>IS</span></div>
+      <div class="gate-tagline" data-i18n="tagline">Aviation Risk Intelligence System</div>
+      <div class="gate-version" data-i18n="version">Enterprise v3.2 · ICAO Compliant</div>
     </div>
     <div class="gate-card">
       <div class="gate-tabs">
-        <button class="gate-tab on" id="tab-key" onclick="gTab('key')">&#128273; License Key</button>
-        <button class="gate-tab" id="tab-buy" onclick="gTab('buy')">&#128179; Purchase Access</button>
+        <button class="gate-tab on" id="tab-key" onclick="gTab('key')" data-i18n="tabKey">&#128273; License Key</button>
+        <button class="gate-tab" id="tab-buy" onclick="gTab('buy')" data-i18n="tabBuy">&#128179; Purchase Access</button>
       </div>
       <div class="tab-pane on" id="pane-key">
         <div class="gate-status-row">
           <span class="gate-dot"></span>
-          <span>Secure · Encrypted · SIRA-verified</span>
-          <span style="margin-left:auto;font-size:10px" id="gateClock2">--:-- UTC</span>
+          <span data-i18n="secure">Secure · Encrypted · SIRA-verified</span>
+          <span style="margin-inline-start:auto;font-size:10px" id="gateClock2" dir="ltr">--:-- UTC</span>
         </div>
-        <label class="lbl">Enterprise License Key</label>
-        <div class="inp-wrap">
+        <label class="lbl" data-i18n="keyLabel">Enterprise License Key</label>
+        <div class="inp-wrap" dir="ltr">
           <span class="inp-icon">&#128273;</span>
           <input class="inp" id="keyInp" placeholder="XXXX-XXXX-XXXX-XXXX-SIRA"
             oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doActivate()"/>
         </div>
-        <button class="btn-primary" onclick="doActivate()">&#9654;&#65039; Activate &amp; Launch ARIS</button>
+        <button class="btn-primary" onclick="doActivate()" data-i18n="activate">&#9654;&#65039; Activate &amp; Launch ARIS</button>
         <div class="err" id="keyErr"></div>
-        <p class="gate-or">No license key? <a href="#" onclick="gTab('buy');return false">Purchase access →</a></p>
+        <p class="gate-or"><span data-i18n="noKey">No license key?</span> <a href="#" onclick="gTab('buy');return false" data-i18n="buyLink">Purchase access →</a></p>
       </div>
       <div class="tab-pane" id="pane-buy">
         <div class="price-badge">
-          <div class="price-amt"><sup>$</sup>97</div>
-          <div class="price-note">One-time · Lifetime license · Instant delivery</div>
+          <div class="price-amt" dir="ltr"><sup>$</sup>97</div>
+          <div class="price-note" data-i18n="priceNote">One-time · Lifetime license · Instant delivery</div>
         </div>
         <ul class="inc-list">
-          <li>12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
-          <li>270+ Airport Database — military &amp; conflict zone detection</li>
-          <li>OFAC · EU Art.215 · UN SC 1267 Sanctions screening</li>
-          <li>Country-specific permits, lead times &amp; authority contacts</li>
-          <li>Military/State aircraft detection · Chicago Convention Annex 2</li>
-          <li>Risk Narrative · Score Breakdown · PDF Report · History Log</li>
+          <li data-i18n="inc1">12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
+          <li data-i18n="inc2">270+ Airport Database — military &amp; conflict zone detection</li>
+          <li data-i18n="inc3">OFAC · EU Art.215 · UN SC 1267 Sanctions screening</li>
+          <li data-i18n="inc4">Country-specific permits, lead times &amp; authority contacts</li>
+          <li data-i18n="inc5">Military/State aircraft detection · Chicago Convention Annex 2</li>
+          <li data-i18n="inc6">Risk Narrative · Score Breakdown · PDF Report · History Log</li>
         </ul>
-        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Select payment method:</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" data-i18n="payMethod">Select payment method:</div>
         <div class="pay-grid">
-          <button class="pay-btn pb-wa" onclick="payWA()">&#128241; WhatsApp</button>
-          <button class="pay-btn pb-bk" onclick="payBK()">&#127970; Bank Transfer</button>
-          <button class="pay-btn pb-pp" onclick="payPP()">&#128179; PayPal</button>
-          <button class="pay-btn pb-cq" onclick="payCQ()">&#128176; CliQ</button>
+          <button class="pay-btn pb-wa" onclick="payWA()" data-i18n="payWA">&#128241; WhatsApp</button>
+          <button class="pay-btn pb-bk" onclick="payBK()" data-i18n="payBK">&#127970; Bank Transfer</button>
+          <button class="pay-btn pb-pp" onclick="payPP()" data-i18n="payPP">&#128179; PayPal</button>
+          <button class="pay-btn pb-cq" onclick="payCQ()" data-i18n="payCQ">&#128176; CliQ</button>
         </div>
-        <div style="font-size:10px;color:var(--muted);text-align:center;line-height:1.8">
-          License key delivered to your WhatsApp within minutes of payment.<br>
-          <span style="color:var(--green)">&#10003;</span> No subscription · <span style="color:var(--green)">&#10003;</span> Works offline · <span style="color:var(--green)">&#10003;</span> Lifetime updates
-        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;line-height:1.8" data-i18n-html="payNote"></div>
       </div>
     </div>
   </div>
@@ -271,13 +290,13 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
 <div id="app">
   <!-- Ticker bar -->
   <div class="ticker-bar" id="tickerBar">
-    <div class="ticker-label">⚠ LIVE ALERTS</div>
+    <div class="ticker-label" data-i18n="liveAlerts">⚠ LIVE ALERTS</div>
     <div class="ticker-track">
       <div class="ticker-inner" id="tickerInner"></div>
     </div>
   </div>
   <div class="topbar">
-    <div class="top-logo">
+    <div class="top-logo" dir="ltr">
       <svg viewBox="0 0 44 44" fill="none" width="32" height="32">
         <polygon points="22,4 40,36 4,36" fill="none" stroke="#0ea5e9" stroke-width="2.5"/>
         <polygon points="22,12 34,32 10,32" fill="rgba(14,165,233,.15)" stroke="#0ea5e9" stroke-width="1.2"/>
@@ -286,147 +305,309 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,sans-serif;overflow
       <div class="top-brand">AR<span>IS</span></div>
     </div>
     <div class="top-nav">
-      <button class="nav-btn on" onclick="showPage('dashboard',this)">Dashboard</button>
-      <button class="nav-btn" onclick="showPage('analyze',this)">Risk Analysis</button>
-      <button class="nav-btn" onclick="showPage('map',this)">Risk Map</button>
-      <button class="nav-btn" onclick="showPage('reports',this)">Reports</button>
+      <button class="nav-btn on" data-page="dashboard" onclick="showPage('dashboard',this)" data-i18n="navDash">Dashboard</button>
+      <button class="nav-btn" data-page="analyze" onclick="showPage('analyze',this)" data-i18n="navAnalyze">Risk Analysis</button>
+      <button class="nav-btn" data-page="map" onclick="showPage('map',this)" data-i18n="navMap">Risk Map</button>
+      <button class="nav-btn" data-page="reports" onclick="showPage('reports',this)" data-i18n="navReports">Reports</button>
     </div>
     <div class="top-right">
-      <div class="utc-clock" id="utcClock">00:00:00 UTC</div>
+      <button class="lang-btn" onclick="setLang(LANG==='ar'?'en':'ar')">🌐 English</button>
+      <div class="utc-clock" id="utcClock" dir="ltr">00:00:00 UTC</div>
       <div class="status-dot"></div>
-      <div class="status-txt">LIVE</div>
-      <div class="key-badge" id="keyBadge"></div>
+      <div class="status-txt" data-i18n="live">LIVE</div>
+      <div class="key-badge" id="keyBadge" dir="ltr"></div>
     </div>
   </div>
 
   <div class="page on" id="page-dashboard">
     <div class="dash-header">
-      <div class="dash-title">Aviation Risk Dashboard</div>
-      <div class="dash-sub">Real-time intelligence · <span id="dashDate"></span></div>
+      <div class="dash-title" data-i18n="dashTitle">Aviation Risk Dashboard</div>
+      <div class="dash-sub"><span data-i18n="dashSub">Real-time intelligence</span> · <span id="dashDate"></span></div>
     </div>
     <div class="kpi-row">
-      <div class="kpi kpi-blue"><div class="kpi-label">Airports Monitored</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-sub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
-      <div class="kpi kpi-red"><div class="kpi-label">Conflict-Zone Airports</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub">Updated daily</div><div class="kpi-icon">⚠</div></div>
-      <div class="kpi kpi-gold"><div class="kpi-label">Permit Databases</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-sub">Countries covered</div><div class="kpi-icon">🛡</div></div>
-      <div class="kpi kpi-green"><div class="kpi-label">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub" id="kpiSub">Run an analysis</div><div class="kpi-icon">📊</div></div>
+      <div class="kpi kpi-blue"><div class="kpi-label" data-i18n="kpiAirports">Airports Monitored</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-sub" data-i18n="kpiAirportsSub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
+      <div class="kpi kpi-red"><div class="kpi-label" data-i18n="kpiConflict">Conflict-Zone Airports</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub" data-i18n="kpiConflictSub">Updated daily</div><div class="kpi-icon">⚠</div></div>
+      <div class="kpi kpi-gold"><div class="kpi-label" data-i18n="kpiPermits">Permit Databases</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-sub" data-i18n="kpiPermitsSub">Countries covered</div><div class="kpi-icon">🛡</div></div>
+      <div class="kpi kpi-green"><div class="kpi-label" data-i18n="kpiSession">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub" id="kpiSub">Run an analysis</div><div class="kpi-icon">📊</div></div>
     </div>
     <div class="dash-grid-3">
-      <div class="card"><div class="card-title"><span class="dot"></span>Global Risk Map <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:auto" id="mapTime"></span></div><div id="dashMap"></div></div>
+      <div class="card"><div class="card-title"><span class="dot"></span><span data-i18n="mapCard">Global Risk Map</span> <span style="font-size:10px;color:var(--muted);font-weight:400;margin-inline-start:auto" id="mapTime"></span></div><div id="dashMap"></div></div>
       <div class="card">
-        <div class="card-title"><span class="dot" style="background:var(--red)"></span>High-Risk Regions <span class="rdl-high" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:auto;background:#ef4444;box-shadow:0 0 6px #ef4444;animation:pulse 1.5s infinite"></span></div>
-        <ul class="risk-list">
-          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Eastern Ukraine / Black Sea</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Gaza / Israel Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Yemen FIR</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Libya Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item high-risk"><span><span class="risk-dot-live rdl-high"></span>Syria Airspace</span><span class="risk-badge rb-high">HIGH</span></li>
-          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Somalia / Gulf of Aden</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Iraq Northern FIR</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span><span class="risk-dot-live rdl-med"></span>Sudan Conflict Areas</span><span class="risk-badge rb-med">MED</span></li>
-          <li class="risk-item"><span><span class="risk-dot-live rdl-low"></span>Afghanistan Airspace</span><span class="risk-badge rb-med">MED</span></li>
-        </ul>
+        <div class="card-title"><span class="dot" style="background:var(--red)"></span><span data-i18n="highRegions">High-Risk Regions</span> <span class="rdl-high" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-inline-start:auto;background:#ef4444;box-shadow:0 0 6px #ef4444;animation:pulse 1.5s infinite"></span></div>
+        <ul class="risk-list" id="riskList"></ul>
       </div>
     </div>
     <div style="height:14px"></div>
     <div class="dash-grid">
-      <div class="card"><div class="card-title"><span class="dot" style="background:var(--teal)"></span>Risk Distribution</div><canvas id="riskChart" height="160"></canvas></div>
-      <div class="card"><div class="card-title"><span class="dot" style="background:var(--purple)"></span>Analysis Layers Active</div><canvas id="layerChart" height="160"></canvas></div>
+      <div class="card"><div class="card-title"><span class="dot" style="background:var(--teal)"></span><span data-i18n="riskDist">Risk Distribution</span></div><canvas id="riskChart" height="160"></canvas></div>
+      <div class="card"><div class="card-title"><span class="dot" style="background:var(--purple)"></span><span data-i18n="layersActive">Analysis Layers Active</span></div><canvas id="layerChart" height="160"></canvas></div>
     </div>
   </div>
 
   <div class="page" id="page-analyze">
     <div class="dash-header">
-      <div class="dash-title">✈ Flight Risk Analysis</div>
-      <div class="dash-sub">الصق بيانات الرحلة أو أدخلها يدوياً ← اضغط تحليل ← النتائج تظهر أدناه</div>
+      <div class="dash-title" data-i18n="anTitle">✈ Flight Risk Analysis</div>
+      <div class="dash-sub" data-i18n="anSub"></div>
     </div>
     <div class="form-card">
       <div style="display:flex;gap:8px;margin-bottom:18px">
-        <button onclick="switchMode('paste')" id="mode-paste" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:Inter,sans-serif;background:var(--blue);color:#fff;transition:.2s">📋 Smart Paste — الصق النص</button>
-        <button onclick="switchMode('manual')" id="mode-manual" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:Inter,sans-serif;background:rgba(255,255,255,.07);color:var(--muted);transition:.2s">✏️ إدخال يدوي</button>
+        <button onclick="switchMode('paste')" id="mode-paste" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;background:var(--blue);color:#fff;transition:.2s" data-i18n="modePaste">📋 Smart Paste</button>
+        <button onclick="switchMode('manual')" id="mode-manual" style="flex:1;padding:11px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;background:rgba(255,255,255,.07);color:var(--muted);transition:.2s" data-i18n="modeManual">✏️ Manual Entry</button>
       </div>
       <div id="paste-panel">
         <div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.15);border-radius:8px;padding:10px">
-          📌 <strong style="color:#e2e8f0">كيف تستخدم Smart Paste:</strong><br>
-          انسخ نص طلب التصريح كاملاً من الإيميل أو الواتساب ثم الصقه في الحقل أدناه — يستخرج البرنامج البيانات تلقائياً.
+          📌 <strong style="color:#e2e8f0" data-i18n="howTitle">How to use Smart Paste:</strong><br>
+          <span data-i18n="howBody"></span>
         </div>
-        <textarea class="form-input" id="pasteText" rows="9"
-          placeholder="الصق نص طلب التصريح هنا...&#10;&#10;مثال:&#10;OPERATOR NAME  : AL ATHEER AVIATION COMPANY&#10;REGISTRATION   : HZATR&#10;A/C TYPE       : B739&#10;CALL SIGN      : HZATR&#10;&#10;ETD 30 JUN/1600 UTC | 30 JUN/1900 LCL    OERK&#10;ETA 30 JUN/1855 UTC | 30 JUN/2155 LCL    LTFE"
-          style="resize:vertical;line-height:1.7;font-family:monospace;font-size:12px;margin-bottom:12px"
+        <textarea class="form-input" id="pasteText" rows="9" dir="ltr" data-i18n-ph="pastePh"
+          style="resize:vertical;line-height:1.7;font-family:monospace;font-size:12px;margin-bottom:12px;text-align:left"
           oninput="liveparse(this.value)"></textarea>
         <div id="parse-preview" style="display:none;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:14px;margin-bottom:14px">
-          <div style="font-weight:700;color:#34d399;margin-bottom:10px;font-size:13px">✅ تم استخراج البيانات تلقائياً:</div>
+          <div style="font-weight:700;color:#34d399;margin-bottom:10px;font-size:13px" data-i18n="parsedOK">✅ Data extracted automatically:</div>
           <div id="parse-fields" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px 20px;font-size:13px"></div>
         </div>
         <button class="analyze-btn" onclick="doAnalyze()" style="font-size:15px;padding:15px">
-          <span>🔍</span><span>ابدأ تحليل المخاطر</span>
+          <span>🔍</span><span data-i18n="analyzeBtn">Start Risk Analysis</span>
         </button>
       </div>
       <div id="manual-panel" style="display:none">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-          <div><label class="form-label">اسم المشغل / Operator</label><input class="form-input" id="f-operator" placeholder="AL ATHEER AVIATION"/></div>
-          <div><label class="form-label">التسجيل / Registration</label><input class="form-input" id="f-reg" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
-          <div><label class="form-label">الكود / Callsign</label><input class="form-input" id="f-callsign" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label" data-i18n="lblOperator">Operator</label><input class="form-input" id="f-operator" placeholder="AL ATHEER AVIATION"/></div>
+          <div><label class="form-label" data-i18n="lblReg">Registration</label><input class="form-input" id="f-reg" dir="ltr" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label" data-i18n="lblCallsign">Callsign</label><input class="form-input" id="f-callsign" dir="ltr" placeholder="HZATR" oninput="this.value=this.value.toUpperCase()"/></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
-          <div><label class="form-label">من / FROM (ICAO)</label><input class="form-input" id="f-from" placeholder="OERK" oninput="this.value=this.value.toUpperCase()"/></div>
-          <div><label class="form-label">إلى / TO (ICAO)</label><input class="form-input" id="f-to" placeholder="LTFE" oninput="this.value=this.value.toUpperCase()"/></div>
-          <div><label class="form-label">التاريخ / Date</label><input class="form-input" id="f-date" type="date"/></div>
-          <div><label class="form-label">نوع الرحلة / Type</label>
+          <div><label class="form-label" data-i18n="lblFrom">From (ICAO)</label><input class="form-input" id="f-from" dir="ltr" placeholder="OERK" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label" data-i18n="lblTo">To (ICAO)</label><input class="form-input" id="f-to" dir="ltr" placeholder="LTFE" oninput="this.value=this.value.toUpperCase()"/></div>
+          <div><label class="form-label" data-i18n="lblDate">Date</label><input class="form-input" id="f-date" type="date"/></div>
+          <div><label class="form-label" data-i18n="lblType">Flight Type</label>
             <select class="form-select" id="f-cargo">
-              <option value="PAX">Passenger (PAX)</option>
-              <option value="VIP">VIP Charter</option>
-              <option value="CARGO">Cargo / Freight</option>
-              <option value="DG">Dangerous Goods (DGR)</option>
-              <option value="FERRY">Ferry Flight</option>
-              <option value="MEDEVAC">MEDEVAC / Air Ambulance</option>
-              <option value="MILITARY-PAX">Military Personnel</option>
-              <option value="MILITARY-WPN">Military / Weapons / Munitions</option>
-              <option value="MILITARY">Military Aircraft (General)</option>
+              <option value="PAX" data-i18n="optPAX">Passenger (PAX)</option>
+              <option value="VIP" data-i18n="optVIP">VIP Charter</option>
+              <option value="CARGO" data-i18n="optCARGO">Cargo / Freight</option>
+              <option value="DG" data-i18n="optDG">Dangerous Goods (DGR)</option>
+              <option value="FERRY" data-i18n="optFERRY">Ferry Flight</option>
+              <option value="MEDEVAC" data-i18n="optMEDEVAC">MEDEVAC / Air Ambulance</option>
+              <option value="MILITARY-PAX" data-i18n="optMILITARY-PAX">Military Personnel</option>
+              <option value="MILITARY-WPN" data-i18n="optMILITARY-WPN">Military / Weapons / Munitions</option>
+              <option value="MILITARY" data-i18n="optMILITARY">Military Aircraft (General)</option>
             </select>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 3fr;gap:12px;margin-bottom:14px">
-          <div><label class="form-label">نوع الطائرة / A/C</label><input class="form-input" id="f-actype" placeholder="B739"/></div>
+          <div><label class="form-label" data-i18n="lblAC">Aircraft Type</label><input class="form-input" id="f-actype" dir="ltr" placeholder="B739"/></div>
         </div>
         <button class="analyze-btn" onclick="doAnalyze()" style="font-size:15px;padding:15px">
-          <span>🔍</span><span>ابدأ تحليل المخاطر</span>
+          <span>🔍</span><span data-i18n="analyzeBtn">Start Risk Analysis</span>
         </button>
       </div>
     </div>
     <div id="resultArea">
       <div style="background:var(--bg2);border:2px dashed var(--border);border-radius:14px;padding:60px 24px;text-align:center;color:var(--muted)">
         <div style="font-size:56px;margin-bottom:16px">🛡</div>
-        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px">النتائج ستظهر هنا</div>
-        <div style="font-size:13px">الصق بيانات الرحلة أعلاه واضغط <strong style="color:var(--blue)">ابدأ تحليل المخاطر</strong></div>
+        <div style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px" data-i18n="emptyTitle">Results will appear here</div>
+        <div style="font-size:13px" data-i18n-html="emptyBody"></div>
       </div>
     </div>
   </div>
 
   <div class="page" id="page-map">
     <div class="dash-header">
-      <div class="dash-title">Global Risk Map</div>
-      <div class="dash-sub">Live conflict zones · Restricted airspace · Sanctions coverage</div>
+      <div class="dash-title" data-i18n="mapTitle">Global Risk Map</div>
+      <div class="dash-sub" data-i18n="mapSub"></div>
     </div>
     <div id="fullMapWrap">
       <div id="fullMap" style="width:100%;height:100%"></div>
       <div class="map-legend">
-        <div style="font-size:11px;font-weight:700;color:#e2e8f0;margin-bottom:8px">RISK LEVEL</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>High Risk</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Medium Risk</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Low Risk</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#0ea5e9"></div>Monitor</div>
+        <div style="font-size:11px;font-weight:700;color:#e2e8f0;margin-bottom:8px" data-i18n="legendTitle">RISK LEVEL</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span data-i18n="lvHIGH">High Risk</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span data-i18n="lvMED">Medium Risk</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span data-i18n="lvLOW">Low Risk</span></div>
       </div>
     </div>
   </div>
 
   <div class="page" id="page-reports">
     <div class="dash-header">
-      <div class="dash-title">Analysis Reports</div>
-      <div class="dash-sub">سجل التحليلات — كل تحليل يُحفظ تلقائياً ويمكن تصديره كـ PDF</div>
+      <div class="dash-title" data-i18n="repTitle">Analysis Reports</div>
+      <div class="dash-sub" data-i18n="repSub"></div>
     </div>
     <div id="reportsContent"></div>
   </div>
 </div>
+<script>
+// ── Language (Arabic / English) ──
+var LANG='ar';
+try{var _sl=localStorage.getItem('aris_lang');if(_sl==='en'||_sl==='ar')LANG=_sl;}catch(e){}
+function tr(en,ar){return LANG==='ar'?ar:en;}
+var I18N={
+  // Gate
+  tagline:['Aviation Risk Intelligence System','نظام استخبارات مخاطر الطيران'],
+  version:['Enterprise v3.2 · ICAO Compliant','الإصدار المؤسسي 3.2 · متوافق مع ICAO'],
+  tabKey:['🔑 License Key','🔑 مفتاح الترخيص'],
+  tabBuy:['💳 Purchase Access','💳 شراء الاشتراك'],
+  secure:['Secure · Encrypted · SIRA-verified','آمن · مشفّر · موثّق'],
+  keyLabel:['Enterprise License Key','مفتاح الترخيص المؤسسي'],
+  activate:['▶️ Activate & Launch ARIS','▶️ تفعيل وتشغيل ARIS'],
+  noKey:['No license key?','لا تملك مفتاحاً؟'],
+  buyLink:['Purchase access →','اشترِ الاشتراك ←'],
+  priceNote:['One-time · Lifetime license · Instant delivery','دفعة واحدة · ترخيص مدى الحياة · تسليم فوري'],
+  inc1:['12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)','محرك مخاطر من 12 طبقة (ICAO SMS Doc 9859/9870)'],
+  inc2:['270+ Airport Database — military & conflict zone detection','قاعدة بيانات لأكثر من 270 مطاراً — كشف المطارات العسكرية ومناطق النزاع'],
+  inc3:['OFAC · EU Art.215 · UN SC 1267 Sanctions screening','فحص العقوبات: OFAC · الاتحاد الأوروبي · مجلس الأمن 1267'],
+  inc4:['Country-specific permits, lead times & authority contacts','متطلبات التصاريح لكل دولة ومدد الطلب وجهات الاتصال'],
+  inc5:['Military/State aircraft detection · Chicago Convention Annex 2','كشف الطائرات العسكرية والحكومية · اتفاقية شيكاغو'],
+  inc6:['Risk Narrative · Score Breakdown · PDF Report · History Log','ملخص المخاطر · تفصيل الدرجة · تقرير PDF · سجل التحليلات'],
+  payMethod:['Select payment method:','اختر طريقة الدفع:'],
+  payWA:['📱 WhatsApp','📱 واتساب'],
+  payBK:['🏢 Bank Transfer','🏢 تحويل بنكي'],
+  payPP:['💳 PayPal','💳 باي بال'],
+  payCQ:['💰 CliQ','💰 كليك'],
+  payNote:['License key delivered to your WhatsApp within minutes of payment.<br><span style="color:var(--green)">✓</span> No subscription · <span style="color:var(--green)">✓</span> Works offline · <span style="color:var(--green)">✓</span> Lifetime updates',
+           'يصلك مفتاح الترخيص على واتساب خلال دقائق من الدفع.<br><span style="color:var(--green)">✓</span> بدون اشتراك شهري · <span style="color:var(--green)">✓</span> يعمل دون إنترنت · <span style="color:var(--green)">✓</span> تحديثات مدى الحياة'],
+  keyEmpty:['Please enter your license key.','الرجاء إدخال مفتاح الترخيص.'],
+  keyBad:['Invalid key. Contact MANAL1871 on WhatsApp for support.','المفتاح غير صحيح. تواصل مع MANAL1871 على واتساب للدعم.'],
+  // Top bar
+  liveAlerts:['⚠ LIVE ALERTS','⚠ تنبيهات مباشرة'],
+  navDash:['Dashboard','لوحة التحكم'],
+  navAnalyze:['Risk Analysis','تحليل المخاطر'],
+  navMap:['Risk Map','خريطة المخاطر'],
+  navReports:['Reports','التقارير'],
+  live:['LIVE','مباشر'],
+  // Dashboard
+  dashTitle:['Aviation Risk Dashboard','لوحة مخاطر الطيران'],
+  dashSub:['Real-time intelligence','معلومات لحظية'],
+  kpiAirports:['Airports Monitored','المطارات المرصودة'],
+  kpiAirportsSub:['Worldwide coverage','تغطية عالمية'],
+  kpiConflict:['Conflict-Zone Airports','مطارات مناطق النزاع'],
+  kpiConflictSub:['Updated daily','تحديث يومي'],
+  kpiPermits:['Permit Databases','قواعد بيانات التصاريح'],
+  kpiPermitsSub:['Countries covered','دولة مشمولة'],
+  kpiSession:['Analyses This Session','عدد التحليلات'],
+  kpiRun:['Run an analysis','ابدأ أول تحليل'],
+  kpiTotal:['{n} total analyses','{n} تحليل حتى الآن'],
+  mapCard:['Global Risk Map','خريطة المخاطر العالمية'],
+  updated:['Updated','آخر تحديث'],
+  highRegions:['High-Risk Regions','المناطق عالية الخطورة'],
+  riskDist:['Risk Distribution','توزيع مستويات الخطر'],
+  layersActive:['Analysis Layers Active','طبقات التحليل النشطة'],
+  // Analysis page
+  anTitle:['✈ Flight Risk Analysis','✈ تحليل مخاطر الرحلة'],
+  anSub:['Paste or enter the flight data → press Analyze → results appear below','الصق بيانات الرحلة أو أدخلها يدوياً ← اضغط تحليل ← تظهر النتائج أدناه'],
+  modePaste:['📋 Smart Paste','📋 لصق ذكي'],
+  modeManual:['✏️ Manual Entry','✏️ إدخال يدوي'],
+  howTitle:['How to use Smart Paste:','كيف تستخدم اللصق الذكي:'],
+  howBody:['Copy the full permit request text from the email or WhatsApp and paste it below — ARIS extracts the data automatically.','انسخ نص طلب التصريح كاملاً من الإيميل أو الواتساب ثم الصقه في الحقل أدناه، وسيستخرج البرنامج البيانات تلقائياً.'],
+  pastePh:['Paste the permit request text here...\n\nExample:\nOPERATOR NAME  : AL ATHEER AVIATION COMPANY\nREGISTRATION   : HZATR\nA/C TYPE       : B739\nCALL SIGN      : HZATR\n\nETD 30 JUN/1600 UTC | 30 JUN/1900 LCL    OERK\nETA 30 JUN/1855 UTC | 30 JUN/2155 LCL    LTFE',
+           'الصق نص طلب التصريح هنا...\n\nمثال:\nOPERATOR NAME  : AL ATHEER AVIATION COMPANY\nREGISTRATION   : HZATR\nA/C TYPE       : B739\nCALL SIGN      : HZATR\n\nETD 30 JUN/1600 UTC | 30 JUN/1900 LCL    OERK\nETA 30 JUN/1855 UTC | 30 JUN/2155 LCL    LTFE'],
+  parsedOK:['✅ Data extracted automatically:','✅ تم استخراج البيانات تلقائياً:'],
+  analyzeBtn:['Start Risk Analysis','ابدأ تحليل المخاطر'],
+  analyzing:['Analyzing...','جارٍ التحليل...'],
+  lblOperator:['Operator','اسم المشغّل'],
+  lblReg:['Registration','التسجيل'],
+  lblCallsign:['Callsign','رمز النداء'],
+  lblFrom:['From (ICAO)','من (رمز ICAO)'],
+  lblTo:['To (ICAO)','إلى (رمز ICAO)'],
+  lblDate:['Date','التاريخ'],
+  lblType:['Flight Type','نوع الرحلة'],
+  lblAC:['Aircraft Type','نوع الطائرة'],
+  optPAX:['Passenger (PAX)','ركاب (PAX)'],
+  optVIP:['VIP Charter','رحلة VIP خاصة'],
+  optCARGO:['Cargo / Freight','شحن'],
+  optDG:['Dangerous Goods (DGR)','بضائع خطرة (DGR)'],
+  optFERRY:['Ferry Flight','رحلة نقل طائرة (Ferry)'],
+  optMEDEVAC:['MEDEVAC / Air Ambulance','إسعاف جوي / إخلاء طبي'],
+  'optMILITARY-PAX':['Military Personnel','أفراد عسكريون'],
+  'optMILITARY-WPN':['Military / Weapons / Munitions','عسكري / أسلحة / ذخائر'],
+  optMILITARY:['Military Aircraft (General)','طائرة عسكرية (عام)'],
+  emptyTitle:['Results will appear here','ستظهر النتائج هنا'],
+  emptyBody:['Paste the flight data above and press <strong style="color:var(--blue)">Start Risk Analysis</strong>','الصق بيانات الرحلة أعلاه واضغط <strong style="color:var(--blue)">ابدأ تحليل المخاطر</strong>'],
+  pasteFirst:['Please paste the flight information first.','الرجاء لصق بيانات الرحلة أولاً.'],
+  icaoMissing:['⚠ ICAO codes missing','⚠ رموز المطارات ناقصة'],
+  icaoMissingBody:['Please enter valid FROM and TO airport ICAO codes (4 letters, e.g. OERK, OMDB).','الرجاء إدخال رمزي ICAO صحيحين لمطاري المغادرة والوصول (4 أحرف، مثل OERK و OMDB).'],
+  icaoBad:['⚠ Invalid ICAO format','⚠ صيغة رمز ICAO غير صحيحة'],
+  icaoBadBody:['ICAO codes must be exactly 4 letters (e.g. <strong>OERK</strong>, <strong>OMDB</strong>, <strong>KJFK</strong>).','رمز ICAO يتكون من 4 أحرف إنجليزية بالضبط (مثل <strong>OERK</strong> و <strong>OMDB</strong> و <strong>KJFK</strong>).'],
+  // Map page
+  mapTitle:['Global Risk Map','خريطة المخاطر العالمية'],
+  mapSub:['Conflict zones · Restricted airspace · Sanctions coverage — click a zone for details','مناطق النزاع · الأجواء المقيّدة · نطاق العقوبات — اضغط على أي منطقة لعرض التفاصيل'],
+  legendTitle:['RISK LEVEL','مستوى الخطر'],
+  lvHIGH:['High Risk','خطر عالٍ'],
+  lvMED:['Medium Risk','خطر متوسط'],
+  lvLOW:['Low Risk','خطر منخفض'],
+  lvMON:['Monitor','مراقبة'],
+  // Reports page
+  repTitle:['Analysis Reports','تقارير التحليل'],
+  repSub:['Every analysis is saved automatically and can be exported as a PDF','كل تحليل يُحفظ تلقائياً ويمكن تصديره كتقرير PDF'],
+  repEmpty:['No analyses yet','لا توجد تحليلات بعد'],
+  repEmptyBody:['Analyze a flight from the <strong style="color:var(--blue)">Risk Analysis</strong> page and it will be saved here automatically.','قم بتحليل رحلة من صفحة <strong style="color:var(--blue)">تحليل المخاطر</strong> وسيتم حفظها هنا تلقائياً.'],
+  repStart:['→ Start a new analysis','← ابدأ تحليلاً جديداً'],
+  repCount:['{n} saved analyses','{n} تحليل محفوظ'],
+  repNew:['+ New analysis','+ تحليل جديد'],
+  repClear:['🗑 Clear all','🗑 مسح الكل'],
+  repClearConfirm:['Delete all analysis records? This cannot be undone.','مسح جميع سجلات التحليل؟ لا يمكن التراجع عن هذا الإجراء.'],
+  thDate:['Date & Time','التاريخ والوقت'],
+  thRoute:['Route','المسار'],
+  thOp:['Operator','المشغّل'],
+  thReg:['Registration','التسجيل'],
+  thLevel:['Risk Level','مستوى الخطر'],
+  thScore:['Score','الدرجة'],
+  thDel:['Delete','حذف'],
+  // Result
+  riskScore:['RISK SCORE','درجة الخطر'],
+  pdfBtn:['📄 PDF Report','📄 تقرير PDF'],
+  copyBtn:['📋 Copy Summary','📋 نسخ الملخص'],
+  copied:['Summary copied!','تم نسخ الملخص!'],
+  runFirst:['Run an analysis first.','قم بإجراء تحليل أولاً.'],
+  unknownAP:['⚠ Airport not in database: <strong>{x}</strong> — the score is an estimate. Verify the codes and the airport status manually.','⚠ مطار غير موجود في قاعدة البيانات: <strong>{x}</strong> — النتيجة تقديرية، تحقق من الرموز ومن حالة المطار يدوياً.'],
+  breakdownTitle:['🧮 Score Breakdown','🧮 تفصيل درجة الخطر'],
+  total:['Total','المجموع'],
+  capped:[' (capped at 100 from {n})',' (الحد الأقصى 100، المجموع الفعلي {n})'],
+  scale:['0–29 CLEAR · 30–49 LOW · 50–74 MEDIUM · 75–100 HIGH','0–29 آمن · 30–49 منخفض · 50–74 متوسط · 75–100 عالٍ'],
+  layersTitle:['🔍 Risk Layer Analysis — {n} checks','🔍 تحليل طبقات المخاطر — {n} فحصاً'],
+  summaryTitle:['📝 Summary Report','📝 تقرير مختصر'],
+  stDANGER:['DANGER','خطر'],
+  stWARN:['WARN','تحذير'],
+  stOK:['OK','سليم'],
+  levelHIGH:['HIGH RISK','خطر عالٍ'],
+  levelMEDIUM:['MEDIUM RISK','خطر متوسط'],
+  levelLOW:['LOW RISK','خطر منخفض'],
+  levelCLEAR:['CLEAR','آمن'],
+  // Smart-paste preview fields
+  pfOperator:['Operator','المشغّل'],pfReg:['Registration','التسجيل'],pfAC:['Aircraft','الطائرة'],pfCallsign:['Callsign','رمز النداء'],
+  pfFrom:['From','من'],pfTo:['To','إلى'],pfDate:['Date','التاريخ'],pfCargo:['Cargo','نوع الحمولة'],pfPOB:['POB','عدد الأشخاص'],
+  pfPurpose:['Purpose','الغرض'],pfWeight:['Weight','الوزن'],pfCrew:['Crew Nat.','جنسية الطاقم'],pfRoute:['Route','المسار'],
+  tagMil:['⚔ MILITARY/STATE','⚔ عسكري/حكومي'],
+  tagState:['🏛 STATE A/C','🏛 طائرة حكومية'],
+  // Charts
+  chHigh:['High Risk','عالٍ'],chMed:['Medium Risk','متوسط'],chLow:['Low Risk','منخفض'],chClear:['Clear','آمن'],
+  chSanctions:['Sanctions','العقوبات'],chConflict:['Conflict','النزاعات'],chHealth:['Health','الصحة'],chDG:['DG','البضائع الخطرة'],chPermits:['Permits','التصاريح'],chRoute:['Route','المسار'],
+  langBtn:['عربي','English']
+};
+function t(k,vars){
+  var e=I18N[k]; var s=e?(LANG==='ar'?e[1]:e[0]):k;
+  if(vars) for(var v in vars) s=s.split('{'+v+'}').join(vars[v]);
+  return s;
+}
+var COUNTRY_AR={'Saudi Arabia':'السعودية','USA':'الولايات المتحدة','Turkey':'تركيا','China':'الصين','UAE':'الإمارات','Egypt':'مصر','India':'الهند','Iraq':'العراق','UK':'المملكة المتحدة','Iran':'إيران','Spain':'إسبانيا','Oman':'عُمان','Italy':'إيطاليا','Greece':'اليونان','Australia':'أستراليا','Ukraine':'أوكرانيا','Russia':'روسيا','Pakistan':'باكستان','Nigeria':'نيجيريا','Morocco':'المغرب','Libya':'ليبيا','Kazakhstan':'كازاخستان','Germany':'ألمانيا','France':'فرنسا','Canada':'كندا','Brazil':'البرازيل','Yemen':'اليمن','Tunisia':'تونس','Thailand':'تايلاند','South Africa':'جنوب أفريقيا','Jordan':'الأردن','Japan':'اليابان','Vietnam':'فيتنام','Tanzania':'تنزانيا','Syria':'سوريا','Switzerland':'سويسرا','Sweden':'السويد','Sudan':'السودان','South Korea':'كوريا الجنوبية','Qatar':'قطر','Portugal':'البرتغال','Poland':'بولندا','New Zealand':'نيوزيلندا','Mexico':'المكسيك','Kuwait':'الكويت','Kenya':'كينيا','Indonesia':'إندونيسيا','Ethiopia':'إثيوبيا','Cyprus':'قبرص','Bahrain':'البحرين','Algeria':'الجزائر','Zimbabwe':'زيمبابوي','Zambia':'زامبيا','Uzbekistan':'أوزبكستان','Uganda':'أوغندا','Turkmenistan':'تركمانستان','Taiwan':'تايوان','Sri Lanka':'سريلانكا','Somalia':'الصومال','Singapore':'سنغافورة','Serbia':'صربيا','Senegal':'السنغال','Romania':'رومانيا','Philippines':'الفلبين','Peru':'بيرو','Panama':'بنما','Norway':'النرويج','Netherlands':'هولندا','Nepal':'نيبال','Myanmar':'ميانمار','Mozambique':'موزمبيق','Maldives':'المالديف','Malaysia':'ماليزيا','Lebanon':'لبنان','Ivory Coast':'ساحل العاج','Israel':'إسرائيل','Ireland':'أيرلندا','Hungary':'المجر','Ghana':'غانا','Georgia':'جورجيا','Finland':'فنلندا','Eritrea':'إريتريا','Dominican Republic':'جمهورية الدومينيكان','Djibouti':'جيبوتي','Denmark':'الدنمارك','DRC':'الكونغو الديمقراطية','Czech Republic':'التشيك','Croatia':'كرواتيا','Colombia':'كولومبيا','Chile':'تشيلي','Cameroon':'الكاميرون','Cambodia':'كمبوديا','Bulgaria':'بلغاريا','Belgium':'بلجيكا','Belarus':'بيلاروسيا','Bangladesh':'بنغلاديش','Azerbaijan':'أذربيجان','Austria':'النمسا','Armenia':'أرمينيا','Argentina':'الأرجنتين','Angola':'أنغولا','Afghanistan':'أفغانستان','North Korea':'كوريا الشمالية','Venezuela':'فنزويلا','Unknown':'غير معروف'};
+function ctry(c){return LANG==='ar'&&COUNTRY_AR[c]?COUNTRY_AR[c]:c;}
+
+function setLang(l){
+  LANG=l;
+  try{localStorage.setItem('aris_lang',l);}catch(e){}
+  applyLang();
+}
+function applyLang(){
+  var html=document.documentElement;
+  html.lang=LANG; html.dir=LANG==='ar'?'rtl':'ltr';
+  document.body.classList.toggle('lang-ar',LANG==='ar');
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=t(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){el.innerHTML=t(el.getAttribute('data-i18n-html'));});
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){el.placeholder=t(el.getAttribute('data-i18n-ph'));});
+  document.querySelectorAll('.lang-btn').forEach(function(b){b.textContent='🌐 '+t('langBtn');});
+  document.title=LANG==='ar'?'ARIS — نظام استخبارات مخاطر الطيران':'ARIS — Aviation Risk Intelligence System';
+  if(typeof onLangChange==='function') onLangChange();
+}
+</script>
 <script>
 function switchMode(m){
   var isPaste=m==='paste';
@@ -559,12 +740,12 @@ function smartParse(txt){
 function liveparse(txt){
   if(txt.trim().length<10){document.getElementById('parse-preview').style.display='none';return;}
   var r=smartParse(txt);
-  var milTag=r.military?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.4)">⚔ MILITARY/STATE</span> ':''
-             +(r.stateAircraft?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)">🏛 STATE A/C</span> ':'');
-  var fields=[['Operator',r.op],['Registration',r.reg],['Aircraft',r.actype],['Callsign',r.callsign],['FROM',r.from],['TO',r.to],['Date',r.date],['Cargo',r.cargo],['POB',r.pob],['Purpose',r.purpose],['Weight',r.weight],['Crew Nat.',r.crewNat]].filter(function(x){return x[1];});
+  var milTag=r.military?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa;border:1px solid rgba(139,92,246,.4)">'+t('tagMil')+'</span> ':''
+             +(r.stateAircraft?'<span style="padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)">'+t('tagState')+'</span> ':'');
+  var fields=[['pfOperator',r.op],['pfReg',r.reg],['pfAC',r.actype],['pfCallsign',r.callsign],['pfFrom',r.from],['pfTo',r.to],['pfDate',r.date],['pfCargo',r.cargo?t('opt'+r.cargo):''],['pfPOB',r.pob],['pfPurpose',r.purpose],['pfWeight',r.weight],['pfCrew',r.crewNat]].filter(function(x){return x[1];});
   if(!fields.length){document.getElementById('parse-preview').style.display='none';return;}
-  var html=fields.map(function(kv){return '<div style="color:var(--muted)">'+kv[0]+': <strong style="color:#e2e8f0">'+escHTML(kv[1])+'</strong></div>';}).join('');
-  if(r.legs&&r.legs.length>2) html+='<div style="grid-column:1/-1;margin-top:6px;color:var(--muted)">Route: <strong style="color:#38bdf8">'+r.legs.join(' → ')+'</strong></div>';
+  var html=fields.map(function(kv){return '<div style="color:var(--muted)">'+t(kv[0])+': <strong style="color:#e2e8f0">'+escHTML(kv[1])+'</strong></div>';}).join('');
+  if(r.legs&&r.legs.length>2) html+='<div style="grid-column:1/-1;margin-top:6px;color:var(--muted)">'+t('pfRoute')+': <strong style="color:#38bdf8" dir="ltr">'+r.legs.join(' → ')+'</strong></div>';
   if(milTag) html='<div style="grid-column:1/-1;margin-bottom:8px">'+milTag+'</div>'+html;
   document.getElementById('parse-fields').innerHTML=html;
   document.getElementById('parse-preview').style.display='block';
@@ -619,11 +800,11 @@ function gTab(t){
 function doActivate(){
   var raw=document.getElementById('keyInp').value.trim().toUpperCase();
   var err=document.getElementById('keyErr');
-  if(!raw){err.textContent='Please enter your license key.';return;}
+  if(!raw){err.textContent=t('keyEmpty');return;}
   if(KEYS.indexOf(raw)>=0||KEYS.indexOf(rev(raw))>=0){
     localStorage.setItem(LIC,raw); launch(raw);
   } else {
-    err.textContent='Invalid key. Contact MANAL1871 on WhatsApp for support.';
+    err.textContent=t('keyBad');
   }
 }
 function launch(key){
@@ -633,32 +814,33 @@ function launch(key){
   initApp();
   setTimeout(function(){if(dashMap)dashMap.invalidateSize();},300);
 }
+window.addEventListener('DOMContentLoaded',applyLang);
 // Auto-launch for returning users — deferred until every script block has run (ZONES, TICKER_ALERTS, AP_DB...)
 window.addEventListener('DOMContentLoaded',function(){var k=localStorage.getItem(LIC);if(k&&(KEYS.indexOf(k)>=0||KEYS.indexOf(rev(k))>=0)){document.getElementById('keyInp').value=k;launch(k);}});
 
 var WA='962790000000';
 var MSG=encodeURIComponent('Hello, I want to purchase ARIS Enterprise ($97). Please send payment details.');
 function payWA(){window.open('https://wa.me/'+WA+'?text='+MSG,'_blank');}
-function payBK(){alert('Bank Transfer:\n\nBank: Arab Bank\nAccount Name: ARIS Aviation\nIBAN: JO00 ARAB 0000 0000\nRef: ARIS-LICENSE\n\nSend proof to WhatsApp: +962790000000');}
+function payBK(){alert(LANG==='ar'?'تحويل بنكي:\n\nالبنك: البنك العربي\nاسم الحساب: ARIS Aviation\nIBAN: JO00 ARAB 0000 0000\nالمرجع: ARIS-LICENSE\n\nأرسل إثبات التحويل على واتساب: +962790000000':'Bank Transfer:\n\nBank: Arab Bank\nAccount Name: ARIS Aviation\nIBAN: JO00 ARAB 0000 0000\nRef: ARIS-LICENSE\n\nSend proof to WhatsApp: +962790000000');}
 function payPP(){window.open('https://paypal.me/arisaviation','_blank');}
-function payCQ(){alert('CliQ:\n\nAlias: ARISAVIATION\nAmount: $97\n\nSend screenshot to WhatsApp after payment.');}
+function payCQ(){alert(LANG==='ar'?'كليك:\n\nالاسم المستعار: ARISAVIATION\nالمبلغ: 97 دولاراً\n\nأرسل صورة الدفع على واتساب بعد الإتمام.':'CliQ:\n\nAlias: ARISAVIATION\nAmount: $97\n\nSend screenshot to WhatsApp after payment.');}
 
 var sessionCount=0, dashMap=null, fullMap=null, resultMap=null;
 
 var TICKER_ALERTS=[
-  {dot:'#ef4444',text:'OYSC / OYAA — Yemen FIR CLOSED. All commercial permits SUSPENDED. ICAO NOTAM A0001/25.'},
-  {dot:'#ef4444',text:'HLLL — Libya airspace: split authority in effect. GNA + LNA dual permit required.'},
-  {dot:'#ef4444',text:'OSTT — Syria FIR restricted. Diplomatic permit mandatory. Most operators cannot comply.'},
-  {dot:'#ef4444',text:'UKBV — Ukrainian FIRs CLOSED per NOTAM A4537/22. No overflights permitted.'},
-  {dot:'#f59e0b',text:'HCSM — Somalia FIR HIGH RISK. Piracy advisory active. Min. overflight altitude 25,000ft.'},
-  {dot:'#f59e0b',text:'OAKX — Afghanistan airspace: Taliban-controlled. No recognized permit authority operational.'},
-  {dot:'#f59e0b',text:'EP- / YK- registrations: OFAC SDN-listed. Flights PROHIBITED for US-nexus operators.'},
-  {dot:'#f59e0b',text:'Sudan SCAA: Khartoum airport closed due to conflict. Alternate: Port Sudan (HSPN).'},
-  {dot:'#0ea5e9',text:'GACA Saudi Arabia: e-permit portal updated. Lead time remains 72h for non-scheduled ops.'},
-  {dot:'#0ea5e9',text:'GCAA UAE: Slot coordination mandatory at OMDB/OMAA during peak periods. Submit 48h.'},
-  {dot:'#0ea5e9',text:'EU operators: Russian airspace (UUWV/URMM) prohibited per Regulation (EU) 2022/334.'},
-  {dot:'#10b981',text:'ICAA Iraq: Security pre-clearance required for all non-scheduled flights. Contact Baghdad ACC.'},
-  {dot:'#10b981',text:'ECAA Egypt: DG cargo and charter flights require advance written approval. Lead time: 72h.'},
+  {dot:'#ef4444',text:'OYSC / OYAA — Yemen FIR CLOSED. All commercial permits SUSPENDED. ICAO NOTAM A0001/25.',ar:'OYSC / OYAA — إقليم معلومات الطيران اليمني مغلق. جميع التصاريح التجارية معلّقة. إشعار ICAO NOTAM A0001/25.'},
+  {dot:'#ef4444',text:'HLLL — Libya airspace: split authority in effect. GNA + LNA dual permit required.',ar:'HLLL — الأجواء الليبية: سلطتان منفصلتان. يلزم تصريح مزدوج من حكومة طرابلس وقيادة بنغازي.'},
+  {dot:'#ef4444',text:'OSTT — Syria FIR restricted. Diplomatic permit mandatory. Most operators cannot comply.',ar:'OSTT — إقليم معلومات الطيران السوري مقيّد. التصريح الدبلوماسي إلزامي، ومعظم المشغلين لا يستوفونه.'},
+  {dot:'#ef4444',text:'UKBV — Ukrainian FIRs CLOSED per NOTAM A4537/22. No overflights permitted.',ar:'UKBV — الأجواء الأوكرانية مغلقة وفق NOTAM A4537/22. العبور ممنوع.'},
+  {dot:'#f59e0b',text:'HCSM — Somalia FIR HIGH RISK. Piracy advisory active. Min. overflight altitude 25,000ft.',ar:'HCSM — الإقليم الصومالي عالي الخطورة. تحذير قرصنة ساري. الحد الأدنى لارتفاع العبور 25,000 قدم.'},
+  {dot:'#f59e0b',text:'OAKX — Afghanistan airspace: Taliban-controlled. No recognized permit authority operational.',ar:'OAKX — الأجواء الأفغانية تحت سيطرة طالبان. لا توجد جهة تصاريح معترف بها دولياً.'},
+  {dot:'#f59e0b',text:'EP- / YK- registrations: OFAC SDN-listed. Flights PROHIBITED for US-nexus operators.',ar:'تسجيلات EP- و YK-: مدرجة في قوائم OFAC. الرحلات ممنوعة على المشغلين المرتبطين بالولايات المتحدة.'},
+  {dot:'#f59e0b',text:'Sudan SCAA: Khartoum airport closed due to conflict. Alternate: Port Sudan (HSPN).',ar:'هيئة الطيران السودانية: مطار الخرطوم مغلق بسبب النزاع. المطار البديل: بورتسودان (HSPN).'},
+  {dot:'#0ea5e9',text:'GACA Saudi Arabia: e-permit portal updated. Lead time remains 72h for non-scheduled ops.',ar:'هيئة الطيران المدني السعودية: تحديث بوابة التصاريح الإلكترونية. مدة الطلب 72 ساعة للرحلات غير المجدولة.'},
+  {dot:'#0ea5e9',text:'GCAA UAE: Slot coordination mandatory at OMDB/OMAA during peak periods. Submit 48h.',ar:'الهيئة العامة للطيران المدني الإماراتية: تنسيق المواعيد إلزامي في OMDB و OMAA وقت الذروة. قدّم قبل 48 ساعة.'},
+  {dot:'#0ea5e9',text:'EU operators: Russian airspace (UUWV/URMM) prohibited per Regulation (EU) 2022/334.',ar:'مشغلو الاتحاد الأوروبي: الأجواء الروسية (UUWV/URMM) محظورة وفق اللائحة (EU) 2022/334.'},
+  {dot:'#10b981',text:'ICAA Iraq: Security pre-clearance required for all non-scheduled flights. Contact Baghdad ACC.',ar:'سلطة الطيران العراقية: موافقة أمنية مسبقة لجميع الرحلات غير المجدولة. تواصل مع مركز بغداد.'},
+  {dot:'#10b981',text:'ECAA Egypt: DG cargo and charter flights require advance written approval. Lead time: 72h.',ar:'سلطة الطيران المصرية: رحلات البضائع الخطرة والطيران العارض تحتاج موافقة كتابية مسبقة. مدة الطلب 72 ساعة.'},
 ];
 
 function initTicker(){
@@ -668,7 +850,7 @@ function initTicker(){
   // Duplicate for seamless loop
   for(var r=0;r<2;r++){
     TICKER_ALERTS.forEach(function(a){
-      html+='<span class="ticker-item"><span class="t-dot" style="background:'+a.dot+';box-shadow:0 0 5px '+a.dot+'"></span>'+a.text+'</span>';
+      html+='<span class="ticker-item"><span class="t-dot" style="background:'+a.dot+';box-shadow:0 0 5px '+a.dot+'"></span>'+tr(a.text,a.ar)+'</span>';
     });
   }
   inner.innerHTML=html;
@@ -684,7 +866,7 @@ function initUTCClock(){
     var s=String(now.getUTCSeconds()).padStart(2,'0');
     el.textContent=h+':'+m+':'+s+' UTC';
     var mapTime=document.getElementById('mapTime');
-    if(mapTime) mapTime.textContent='Updated '+h+':'+m+' UTC';
+    if(mapTime) mapTime.textContent=t('updated')+' '+h+':'+m+' UTC';
   }
   tick();
   setInterval(tick,1000);
@@ -704,8 +886,9 @@ function animateCounter(id,target,duration){
 function initApp(){
   sessionCount=parseInt(localStorage.getItem('aris_count')||'0');
   document.getElementById('kpiToday').textContent=sessionCount;
-  if(sessionCount>0) document.getElementById('kpiSub').textContent=sessionCount+' total analyses';
-  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  updateKpiSub();
+  updateDashDate();
+  renderRegions();
   var fdate=document.getElementById('f-date');
   if(fdate) fdate.value=new Date().toISOString().split('T')[0];
   initTicker();
@@ -727,54 +910,111 @@ function showPage(id,btn){
 }
 
 var ZONES=[
-  {lat:48.5,lng:32,r:300000,color:'#ef4444',name:'Eastern Ukraine',level:'HIGH'},
-  {lat:31.5,lng:34.5,r:180000,color:'#ef4444',name:'Gaza / Israel',level:'HIGH'},
-  {lat:15.5,lng:44,r:350000,color:'#ef4444',name:'Yemen FIR',level:'HIGH'},
-  {lat:27,lng:17,r:400000,color:'#ef4444',name:'Libya Airspace',level:'HIGH'},
-  {lat:33.5,lng:36.5,r:200000,color:'#ef4444',name:'Syria Airspace',level:'HIGH'},
-  {lat:8,lng:47,r:450000,color:'#f59e0b',name:'Somalia / GoA',level:'MED'},
-  {lat:35,lng:44,r:200000,color:'#f59e0b',name:'Iraq N. FIR',level:'MED'},
-  {lat:40.5,lng:128,r:200000,color:'#f59e0b',name:'North Korea Buffer',level:'MED'},
-  {lat:14,lng:24,r:300000,color:'#f59e0b',name:'Sudan Airspace',level:'MED'},
-  {lat:33,lng:65,r:350000,color:'#f59e0b',name:'Afghanistan',level:'MED'},
-  {lat:31.9,lng:35.9,r:120000,color:'#10b981',name:'Amman FIR',level:'LOW'},
+  {lat:48.5,lng:32,r:300000,color:'#ef4444',name:'Eastern Ukraine',ar:'شرق أوكرانيا',level:'HIGH',note:'All Ukrainian FIRs closed to civil traffic.',noteAr:'جميع الأقاليم الجوية الأوكرانية مغلقة أمام الطيران المدني.'},
+  {lat:31.5,lng:34.5,r:180000,color:'#ef4444',name:'Gaza / Israel',ar:'غزة / إسرائيل',dir:'left',level:'HIGH',note:'Active conflict. Check EASA CZIB and NOTAMs before dispatch.',noteAr:'نزاع نشط. راجع نشرات EASA وإشعارات NOTAM قبل الإقلاع.'},
+  {lat:15.5,lng:44,r:350000,color:'#ef4444',name:'Yemen FIR',ar:'الإقليم الجوي اليمني',level:'HIGH',note:'Commercial permits suspended.',noteAr:'التصاريح التجارية معلّقة.'},
+  {lat:27,lng:17,r:400000,color:'#ef4444',name:'Libya Airspace',ar:'الأجواء الليبية',level:'HIGH',note:'Split authority — dual permits may be required.',noteAr:'سلطتان منفصلتان — قد يلزم تصريحان.'},
+  {lat:33.5,lng:36.5,r:200000,color:'#ef4444',name:'Syria Airspace',ar:'الأجواء السورية',dir:'top',level:'HIGH',note:'Largely closed. Diplomatic permit required.',noteAr:'مغلقة في معظمها. يلزم تصريح دبلوماسي.'},
+  {lat:8,lng:47,r:450000,color:'#f59e0b',name:'Somalia / Gulf of Aden',ar:'الصومال / خليج عدن',level:'MED',note:'Piracy advisory. Minimum overflight FL250.',noteAr:'تحذير قرصنة. الحد الأدنى للعبور FL250.'},
+  {lat:35,lng:44,r:200000,color:'#f59e0b',name:'Northern Iraq FIR',ar:'شمال الإقليم العراقي',dir:'right',level:'MED',note:'Security pre-clearance for non-scheduled flights.',noteAr:'موافقة أمنية مسبقة للرحلات غير المجدولة.'},
+  {lat:40.5,lng:128,r:200000,color:'#f59e0b',name:'North Korea Buffer',ar:'محيط كوريا الشمالية',level:'MED',note:'Missile-test risk. Avoid Pyongyang FIR.',noteAr:'خطر تجارب صاروخية. تجنّب إقليم بيونغ يانغ.'},
+  {lat:14,lng:24,r:300000,color:'#f59e0b',name:'Sudan Airspace',ar:'الأجواء السودانية',level:'MED',note:'Khartoum closed. Port Sudan partially operational.',noteAr:'مطار الخرطوم مغلق. بورتسودان يعمل جزئياً.'},
+  {lat:33,lng:65,r:350000,color:'#f59e0b',name:'Afghanistan',ar:'أفغانستان',level:'MED',note:'No internationally recognized permit authority.',noteAr:'لا توجد جهة تصاريح معترف بها دولياً.'},
+  {lat:31.9,lng:35.9,r:120000,color:'#10b981',name:'Amman FIR',ar:'إقليم عمّان',level:'LOW',note:'Open. Standard permit procedures.',noteAr:'مفتوح. إجراءات التصاريح الاعتيادية.'},
 ];
+var zoneLayers=[];
+var TILE_URL='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+var TILE_OPT={attribution:'© OpenStreetMap · © CARTO',subdomains:'abcd',maxZoom:18};
 
-function addZones(map){
+function zoneName(z){return tr(z.name,z.ar);}
+function zoneLevel(z){return t(z.level==='HIGH'?'lvHIGH':z.level==='MED'?'lvMED':'lvLOW');}
+function zonePopup(z){
+  return '<div dir="'+(LANG==='ar'?'rtl':'ltr')+'" style="font-family:inherit;min-width:180px"><div style="font-weight:800;font-size:13px;margin-bottom:4px">'+zoneName(z)+'</div>'+
+    '<div style="font-weight:700;color:'+z.color+';margin-bottom:4px">'+zoneLevel(z)+'</div>'+
+    '<div style="font-size:12px;color:#334155">'+tr(z.note,z.noteAr)+'</div></div>';
+}
+function addZones(map,labels){
   ZONES.forEach(function(z){
-    L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.22,weight:1.5})
-      .addTo(map).bindPopup('<b>'+z.name+'</b><br>Risk: <b style="color:'+z.color+'">'+z.level+'</b>');
+    var c=L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.28,weight:2.5,dashArray:z.level==='HIGH'?null:'6,5'}).addTo(map);
+    c.bindPopup(zonePopup(z));
+    // Small LOW zones sit inside larger ones, so only HIGH/MED zones get a permanent label
+    var lab=labels&&z.level!=='LOW';
+    if(lab) c.bindTooltip(zoneName(z),{permanent:true,direction:z.dir||'center',offset:z.dir==='left'?[-12,0]:z.dir==='right'?[12,0]:z.dir==='top'?[0,-12]:[0,0],className:'zone-label zl-'+z.level});
+    zoneLayers.push({c:c,z:z,labels:lab});
+  });
+}
+function refreshZoneText(){
+  zoneLayers.forEach(function(o){
+    o.c.setPopupContent(zonePopup(o.z));
+    if(o.labels) o.c.setTooltipContent(zoneName(o.z));
   });
 }
 function initDashMap(){
   if(dashMap) return;
-  dashMap=L.map('dashMap',{zoomControl:false,scrollWheelZoom:false,dragging:false}).setView([25,30],2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(dashMap);
-  addZones(dashMap);
+  dashMap=L.map('dashMap',{zoomControl:true,scrollWheelZoom:false,dragging:true,attributionControl:true}).setView([27,42],3);
+  L.tileLayer(TILE_URL,TILE_OPT).addTo(dashMap);
+  addZones(dashMap,false);
   setTimeout(function(){dashMap.invalidateSize();},200);
 }
 function initFullMap(){
   if(fullMap) return;
-  fullMap=L.map('fullMap').setView([25,30],3);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(fullMap);
-  addZones(fullMap);
+  fullMap=L.map('fullMap',{zoomControl:true}).setView([27,40],4);
+  L.tileLayer(TILE_URL,TILE_OPT).addTo(fullMap);
+  addZones(fullMap,true);
   setTimeout(function(){fullMap.invalidateSize();},200);
 }
+function renderRegions(){
+  var el=document.getElementById('riskList'); if(!el) return;
+  el.innerHTML=ZONES.filter(function(z){return z.level!=='LOW';}).map(function(z){
+    var hi=z.level==='HIGH';
+    return '<li class="risk-item'+(hi?' high-risk':'')+'"><span><span class="risk-dot-live '+(hi?'rdl-high':'rdl-med')+'"></span>'+zoneName(z)+'</span>'+
+      '<span class="risk-badge '+(hi?'rb-high':'rb-med')+'">'+zoneLevel(z)+'</span></li>';
+  }).join('');
+}
+function updateKpiSub(){
+  var el=document.getElementById('kpiSub'); if(!el) return;
+  el.textContent=sessionCount>0?t('kpiTotal',{n:sessionCount}):t('kpiRun');
+}
+function updateDashDate(){
+  var el=document.getElementById('dashDate'); if(!el) return;
+  el.textContent=new Date().toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+var riskChartObj=null, layerChartObj=null;
+function chartLabels(){
+  return {risk:[t('chHigh'),t('chMed'),t('chLow'),t('chClear')],
+          layer:[t('chSanctions'),t('chConflict'),t('chHealth'),t('chDG'),t('chPermits'),t('chRoute')]};
+}
 function initCharts(){
-  new Chart(document.getElementById('riskChart'),{
+  if(riskChartObj) return;
+  Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;
+  var lb=chartLabels();
+  riskChartObj=new Chart(document.getElementById('riskChart'),{
     type:'doughnut',
-    data:{labels:['High Risk','Medium Risk','Low Risk','Clear'],
+    data:{labels:lb.risk,
       datasets:[{data:[19,28,45,428],backgroundColor:['#ef4444','#f59e0b','#10b981','#0ea5e9'],borderWidth:0,borderRadius:4}]},
-    options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#64748b',font:{size:11}}}}}
+    options:{responsive:true,plugins:{legend:{position:'bottom',rtl:LANG==='ar',labels:{color:'#94a3b8',font:{size:12}}}}}
   });
-  new Chart(document.getElementById('layerChart'),{
+  layerChartObj=new Chart(document.getElementById('layerChart'),{
     type:'bar',
-    data:{labels:['Sanctions','Conflict','Health','DG','Permits','Route'],
+    data:{labels:lb.layer,
       datasets:[{data:[3,19,12,8,47,22],backgroundColor:'rgba(14,165,233,.7)',borderRadius:6}]},
     options:{responsive:true,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},
-               y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}}
+      scales:{x:{reverse:LANG==='ar',ticks:{color:'#94a3b8',font:{size:11}},grid:{display:false}},
+               y:{position:LANG==='ar'?'right':'left',ticks:{color:'#94a3b8',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}}
   });
+}
+function onLangChange(){
+  if(!document.getElementById('app').classList.contains('show')) return;
+  initTicker(); updateKpiSub(); updateDashDate(); renderRegions(); refreshZoneText();
+  if(riskChartObj){
+    var lb=chartLabels();
+    riskChartObj.data.labels=lb.risk; riskChartObj.options.plugins.legend.rtl=LANG==='ar'; riskChartObj.update();
+    layerChartObj.data.labels=lb.layer; layerChartObj.options.scales.x.reverse=LANG==='ar';
+    layerChartObj.options.scales.y.position=LANG==='ar'?'right':'left'; layerChartObj.update();
+  }
+  var pt=document.getElementById('pasteText'); if(pt&&pt.value) liveparse(pt.value);
+  if(window._lastArgs) rerenderLast();
+  if(document.getElementById('page-reports').classList.contains('on')) showReports();
 }
 </script>
 <script>
@@ -1178,6 +1418,23 @@ var CONFLICT_ZONES={
   OAKB:'Afghanistan — EXTREME RISK. Taliban-controlled. Most permits not issued by recognized authority.',
 };
 
+var CONFLICT_ZONES_AR={
+  OYAA:'نزاع نشط — الحرب في اليمن. إشعار NOTAM A0001/25 ساري. جميع التصاريح التجارية معلّقة.',
+  OYSN:'نزاع نشط — اليمن. إقليم صنعاء مغلق أمام الطيران التجاري.',
+  OYHD:'نزاع نشط — اليمن. الحديدة تحت التهديد. لا عمليات.',
+  HLLT:'منطقة نزاع — ليبيا (طرابلس/معيتيقة). تحت سيطرة حكومة طرابلس. يلزم تصريح من سلطة الطيران في طرابلس.',
+  HLLB:'منطقة نزاع — ليبيا (بنغازي). أجواء تحت سيطرة قيادة بنغازي. يلزم تصريح من سلطتها.',
+  HLLS:'منطقة نزاع — ليبيا (سبها). أجواء مقيّدة وإشعارات NOTAM سارية.',
+  HLMB:'منطقة نزاع — ليبيا (مصراتة). تقارير عن قصف متقطع.',
+  UKLL:'منطقة نزاع في أوكرانيا. إقليم لفيف مقيّد وفق NOTAM A4537/22.',
+  UKWW:'منطقة نزاع في أوكرانيا — مطار فينيتسا مغلق. جميع الأقاليم الأوكرانية مغلقة أمام الطيران المدني.',
+  UKBB:'منطقة نزاع في أوكرانيا — مطار بوريسبيل مغلق. جميع الأقاليم الأوكرانية مقيّدة.',
+  UKOO:'منطقة نزاع في أوكرانيا — إقليم أوديسا مقيّد.',
+  OSDI:'سوريا — خطر عالٍ. إقليم دمشق مقيّد ومعظم العبور ممنوع.',
+  OSAP:'سوريا — خطر عالٍ. مطار حلب مقيّد ولا توجد عمليات تجارية.',
+  HCMM:'الإقليم الصومالي — خطر عالٍ. تحذير قرصنة ساري. الحد الأدنى للارتفاع 25,000 قدم.',
+  OAKB:'أفغانستان — خطر شديد. تحت سيطرة طالبان، ومعظم التصاريح لا تصدر عن جهة معترف بها.',
+};
 var SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','AL-MASRIA','KIS AIR','POUYA AIR','ZAGROS AIRLINES',
   'TABAN AIR','IRAN ASEMAN','IRAN AIR TOURS','ASHA AIRLINES','KISH AIR','VARESH AIRLINES','SAHAND AIR',
   'CASPIAN AIRLINES','ARIA AIR','KARUN AIRLINES','PAYAM AIR','PARS AIR',
@@ -1249,6 +1506,46 @@ var PERMIT_RULES={
   'South Africa':{lead:'48h',authority:'SACAA',tel:'+27-11-545-1000',notes:''},
 };
 
+var PERMIT_NOTES_AR={
+  'Saudi Arabia':'تصريح العبور عبر مركز جدة للمراقبة، وتصريح الهبوط عبر بوابة التصاريح الإلكترونية لهيئة الطيران المدني. موسم الحج والعمرة: 7 أيام إضافية.',
+  'UAE':'تنسيق المواعيد عبر مطاري أبوظبي ودبي في أوقات الذروة. الطائرات الحكومية: 72 ساعة.',
+  'Jordan':'لا يُسمح للطائرات المسجلة في إسرائيل وفق الاتفاقية الثنائية.',
+  'Kuwait':'الشحنات العسكرية أو الطائرات الحكومية تحتاج موافقة منفصلة من وزارة الدفاع.',
+  'Qatar':'إجراءات ICAO القياسية. جميع التصاريح عبر شبكة AFTN.',
+  'Oman':'العبور فوق شبه جزيرة مسندم يحتاج إذناً منفصلاً.',
+  'Iraq':'موافقة أمنية لجميع الرحلات غير المجدولة. مراجعة إشعارات NOTAM إلزامية.',
+  'Egypt':'البضائع الخطرة أو المعدات العسكرية أو الطيران العارض: موافقة كتابية مسبقة من سلطة الطيران المصرية.',
+  'Turkey':'إجراءات ICAO القياسية مع تقديم الطلب عبر AFTN. الطائرات الحكومية: 72 ساعة مع مذكرة دبلوماسية.',
+  'Libya':'منطقة نزاع. حكومة طرابلس تسيطر على طرابلس ومعيتيقة، وقيادة بنغازي على بنغازي. قد يلزم التصريحان.',
+  'Yemen':'نزاع مسلح نشط. جميع تصاريح الرحلات التجارية معلّقة وفق إشعار ICAO.',
+  'Lebanon':'لا يُسمح للطائرات المسجلة في إسرائيل أو التي تشغّلها جهات إسرائيلية. مراجعة NOTAM إلزامية.',
+  'Syria':'الأجواء مغلقة في معظمها. يلزم تصريح دبلوماسي خاص، ومعظم المشغلين لا يستوفونه.',
+  'Israel':'قد يخضع مشغلو دول الجامعة العربية لقيود في بلدانهم عند العبور عبر الأجواء الإسرائيلية.',
+  'Iran':'تنطبق العقوبات الأمريكية والأوروبية. لا يمكن للمشغلين والطائرات الغربية العمل قانونياً. الطائرات المسجلة EP- خاضعة لقائمة OFAC.',
+  'Pakistan':'موافقة أمنية مسبقة للشحن غير المجدول. الطائرات من الفئات الخاصة: 96 ساعة.',
+  'India':'تصريح الهبوط عبر نظام e-GAP (www.dgca.gov.in). رحلات الذهاب والعودة: إذن مناولة منفصل.',
+  'Afghanistan':'تحت سيطرة طالبان. لا توجد جهة تصاريح معترف بها دولياً. خطر شديد ومعظم المهام غير ممكنة.',
+  'Sudan':'نزاع داخلي مستمر في الخرطوم ودارفور. مراجعة NOTAM ضرورية. مطار بورتسودان يعمل جزئياً.',
+  'Somalia':'إقليم مقديشو عالي الخطورة. تحذير قرصنة ساري. الحد الأدنى لارتفاع العبور 25,000 قدم.',
+  'Russia':'العقوبات الأوروبية والأمريكية سارية. الطائرات المسجلة في الاتحاد الأوروبي ممنوعة من عبور الأجواء الروسية وفق اللائحة 2022/334.',
+  'Ukraine':'الأقاليم الأوكرانية (UKBV/UKFV/UKDV) مغلقة بسبب النزاع المسلح. العبور ممنوع.',
+  'Belarus':'العقوبات الأوروبية سارية. مشغلو الاتحاد الأوروبي ممنوعون من استخدام الأجواء البيلاروسية وفق اللائحة 2021/1028.',
+  'Greece':'يلزم التقديم عبر نظام EUROCONTROL IFPS. إجراءات الاتحاد الأوروبي القياسية.',
+  'Germany':'إجراءات الاتحاد الأوروبي القياسية. يلزم نظام EUROCONTROL IFPS.',
+  'UK':'بعد بريكست: تلزم تصاريح بريطانية خاصة للطائرات الحكومية غير المجدولة.',
+  'France':'يلزم نظام EUROCONTROL IFPS.',
+  'USA':'الطيران العام: موافقة FAA Part 129. الطيران العارض: بيان ركاب APIS لدى الجمارك. الطائرات الحكومية: مذكرة دبلوماسية عبر وزارة الخارجية.',
+  'Morocco':'إجراءات قياسية. يلزم حجز موعد مسبق في الدار البيضاء.',
+  'Algeria':'جميع الرحلات غير المجدولة تحتاج موافقة مسبقة.',
+  'Tunisia':'إجراءات ICAO القياسية. يلزم حجز موعد مسبق في تونس وقت الذروة.',
+  'Nigeria':'جميع المشغلين الأجانب: موافقة مسبقة من هيئة الطيران النيجيرية، مع رسوم أمنية إضافية.',
+};
+function leadTxt(l){
+  if(LANG!=='ar') return l;
+  var m={SUSPENDED:'معلّقة',RESTRICTED:'مقيّدة',CLOSED:'مغلقة'};
+  if(m[l]) return m[l];
+  return String(l).replace(/^(\d+)h(\+?)$/,function(_,n,p){return n+' ساعة'+(p?'+':'');});
+}
 function getAP(icao){return AP_DB[icao]||{name:icao,city:'Unknown',country:'Unknown',lat:25,lng:45,fir:'UNKNOWN'};}
 
 function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
@@ -1272,37 +1569,42 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var isHighRiskCountry=HIGH_RISK_COUNTRIES.indexOf(destCountry)>=0||HIGH_RISK_COUNTRIES.indexOf(fromCountry)>=0;
   var isMedRiskCountry=MED_RISK_COUNTRIES.indexOf(destCountry)>=0||MED_RISK_COUNTRIES.indexOf(fromCountry)>=0;
 
-  // Sanctions prefix check for EP- (Iran) and RA- (Russia) get extra weight
+  var SEP=tr(', ','، '), SEP2=tr('; ','؛ ');
+  var routeLTR='<span dir="ltr">'+from+' → '+to+'</span>';
+  var cityRoute=tr('Route '+fromAP.city+' → '+toAP.city,'الرحلة من '+fromAP.city+' إلى '+toAP.city);
+
   // Deterministic score: the same flight always gets the same score, and every point is explained
-  var breakdown=[{label:'Baseline operational risk',pts:15}];
+  var breakdown=[{label:tr('Baseline operational risk','المخاطر التشغيلية الأساسية'),pts:15}];
   function add(cond,pts,label){if(cond) breakdown.push({label:label,pts:pts});}
-  add(isConflict,55,'Active conflict zone airport ('+conflictHits.join(', ')+')');
-  add(isSanctioned,40,'Sanctions match ('+(sanctionedOp||('registration '+regPx+'-'))+')');
-  add(isDG,20,'Dangerous goods cargo');
-  add(isMilWpn,35,'Weapons / munitions declared');
-  add(isMilPax||isMilitary,15,'Military personnel / aircraft');
-  add(isStateAC,8,'State aircraft');
-  add(destMilitary||fromMilitary,10,'Military airfield');
-  add(isHighRiskCountry&&!isConflict,20,'High-risk country');
-  add(isMedRiskCountry&&!isSanctioned,10,'Medium-risk country');
+  add(isConflict,55,tr('Active conflict zone airport','مطار في منطقة نزاع نشط')+' ('+conflictHits.join(', ')+')');
+  add(isSanctioned,40,tr('Sanctions match','تطابق مع قوائم العقوبات')+' ('+(sanctionedOp||(tr('registration ','التسجيل ')+regPx+'-'))+')');
+  add(isDG,20,tr('Dangerous goods cargo','شحنة بضائع خطرة'));
+  add(isMilWpn,35,tr('Weapons / munitions declared','أسلحة / ذخائر معلنة'));
+  add(isMilPax||isMilitary,15,tr('Military personnel / aircraft','أفراد أو طائرة عسكرية'));
+  add(isStateAC,8,tr('State aircraft','طائرة حكومية'));
+  add(destMilitary||fromMilitary,10,tr('Military airfield','مطار عسكري'));
+  add(isHighRiskCountry&&!isConflict,20,tr('High-risk country','دولة عالية الخطورة'));
+  add(isMedRiskCountry&&!isSanctioned,10,tr('Medium-risk country','دولة متوسطة الخطورة'));
   var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HSSS'];
-  add(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0,12,'Restricted FIR ('+(conflictFIRs.indexOf(toAP.fir)>=0?toAP.fir:fromAP.fir)+')');
+  add(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0,12,tr('Restricted FIR','إقليم جوي مقيّد')+' ('+(conflictFIRs.indexOf(toAP.fir)>=0?toAP.fir:fromAP.fir)+')');
   // Multi-leg routing: legs lists every airport, so 3+ airports means at least one intermediate stop
   var nLegs=(legs||[]).length;
-  add(nLegs>=3,5,'Multi-leg routing ('+nLegs+' airports)');
-  add(nLegs>=5,5,'Extended multi-leg routing');
-  add(!AP_DB[from]||!AP_DB[to],10,'Airport not in database — data unverified');
+  add(nLegs>=3,5,tr('Multi-leg routing ('+nLegs+' airports)','مسار متعدد المحطات ('+nLegs+' مطارات)'));
+  add(nLegs>=5,5,tr('Extended multi-leg routing','مسار طويل متعدد المحطات'));
+  add(!AP_DB[from]||!AP_DB[to],10,tr('Airport not in database — data unverified','مطار غير موجود في قاعدة البيانات — بيانات غير مؤكدة'));
   var score=breakdown.reduce(function(a,b){return a+b.pts;},0);
   var rawScore=score;
   score=Math.min(100,score);
-  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.'};
+  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.',notesAr:'قدّم طلب التصريح بصيغة ICAO القياسية قبل 72 ساعة من الإقلاع.'};
+  var prNotes=LANG==='ar'?(pr.notesAr||PERMIT_NOTES_AR[toAP.country]||pr.notes):pr.notes;
+  var lead=leadTxt(pr.lead);
   // Hard stops (ICAO Doc 9859 risk matrix: catastrophic severity = intolerable) — never rated below HIGH
   var hardStops=[];
-  if(isSanctioned) hardStops.push('Sanctioned operator/aircraft');
-  if(isConflict) hardStops.push('Active conflict zone');
-  if(isMilWpn) hardStops.push('Weapons/munitions cargo');
-  if(pr.lead==='SUSPENDED'||pr.lead==='CLOSED'||pr.lead==='RESTRICTED') hardStops.push('Destination permits '+pr.lead);
-  if(hardStops.length&&score<75){breakdown.push({label:'Hard-stop floor: '+hardStops.join(', '),pts:75-score});score=75;}
+  if(isSanctioned) hardStops.push(tr('Sanctioned operator/aircraft','مشغّل أو طائرة خاضعة للعقوبات'));
+  if(isConflict) hardStops.push(tr('Active conflict zone','منطقة نزاع نشط'));
+  if(isMilWpn) hardStops.push(tr('Weapons/munitions cargo','شحنة أسلحة أو ذخائر'));
+  if(pr.lead==='SUSPENDED'||pr.lead==='CLOSED'||pr.lead==='RESTRICTED') hardStops.push(tr('Destination permits ','تصاريح الوجهة ')+lead);
+  if(hardStops.length&&score<75){breakdown.push({label:tr('Hard-stop floor: ','حد أدنى إلزامي: ')+hardStops.join(SEP),pts:75-score});score=75;}
   var level=score>=75?'HIGH':score>=50?'MEDIUM':score>=30?'LOW':'CLEAR';
   var color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
 
@@ -1310,94 +1612,138 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
 
   // Military layer detail
   var milDetail='';
-  if(isMilWpn) milDetail='⚔ WEAPONS/MUNITIONS declared. End-User Certificate (EUC) required. Arms export license from origin country mandatory. Transit country approval required. Customs Form 302 (NATO) or equivalent needed. Coordinate with MoD of all transit states.';
-  else if(isMilPax||isMilitary) milDetail='⚔ Military personnel/aircraft detected. ICAO Annex 2 §3.3 exemption may apply if state aircraft. Diplomatic clearance (DipClear) required for all overflight states. Ministry of Defence coordination mandatory.';
-  else if(isStateAC) milDetail='🏛 State aircraft operation. Chicago Convention Article 3 applies — commercial ICAO rules do NOT automatically apply. Diplomatic note (verbal note) required from origin state MFA to each overflown/destination state.';
-  else milDetail='No military or state aircraft indicators detected. Standard civil aviation rules apply per ICAO Annex 2.';
+  if(isMilWpn) milDetail=tr('⚔ WEAPONS/MUNITIONS declared. End-User Certificate (EUC) required. Arms export license from origin country mandatory. Transit country approval required. Customs Form 302 (NATO) or equivalent needed. Coordinate with MoD of all transit states.',
+    '⚔ تم الإعلان عن أسلحة أو ذخائر. تلزم شهادة المستخدم النهائي (EUC)، وترخيص تصدير أسلحة من دولة المنشأ، وموافقة دول العبور، ونموذج جمارك 302 (الناتو) أو ما يعادله. نسّق مع وزارات الدفاع في جميع دول العبور.');
+  else if(isMilPax||isMilitary) milDetail=tr('⚔ Military personnel/aircraft detected. ICAO Annex 2 §3.3 exemption may apply if state aircraft. Diplomatic clearance (DipClear) required for all overflight states. Ministry of Defence coordination mandatory.',
+    '⚔ تم رصد أفراد أو طائرة عسكرية. قد ينطبق استثناء الملحق 2 لـ ICAO (§3.3) إذا كانت طائرة حكومية. يلزم تصريح دبلوماسي (DipClear) من جميع دول العبور، والتنسيق مع وزارة الدفاع إلزامي.');
+  else if(isStateAC) milDetail=tr('🏛 State aircraft operation. Chicago Convention Article 3 applies — commercial ICAO rules do NOT automatically apply. Diplomatic note (verbal note) required from origin state MFA to each overflown/destination state.',
+    '🏛 عملية بطائرة حكومية. تنطبق المادة 3 من اتفاقية شيكاغو، ولا تنطبق قواعد ICAO التجارية تلقائياً. تلزم مذكرة دبلوماسية من وزارة خارجية دولة المنشأ إلى كل دولة عبور أو وصول.');
+  else milDetail=tr('No military or state aircraft indicators detected. Standard civil aviation rules apply per ICAO Annex 2.',
+    'لا توجد مؤشرات على طائرة عسكرية أو حكومية. تنطبق قواعد الطيران المدني القياسية وفق الملحق 2 لـ ICAO.');
   var milStatus=isMilWpn?'DANGER':(isMilPax||isMilitary||isStateAC)?'WARN':'OK';
+  var opE=escHTML(op||'—'), regE=escHTML(reg||'—');
+  var conflictNotes=conflictHits.map(function(c){return LANG==='ar'&&CONFLICT_ZONES_AR[c]?CONFLICT_ZONES_AR[c]:CONFLICT_ZONES[c];}).join(' | ');
 
   var layers=[
-    {icon:'🛡',name:'OFAC Sanctions (USA — SDN/BIS/OFAC)',
+    {icon:'🛡',name:tr('OFAC Sanctions (USA — SDN/BIS/OFAC)','عقوبات OFAC الأمريكية (SDN/BIS)'),
      status:isSanctioned?'DANGER':'OK',
      detail:isSanctioned?
-       '⛔ OFAC MATCH — '+escHTML(sanctionedOp||reg)+'. Per 31 C.F.R. §560 (Iran) / §544 (Russia), US persons prohibited from providing aircraft services. Flight PROHIBITED without specific OFAC license. Immediate legal counsel required.':
-       'Operator "'+escHTML(op||'—')+'" & reg "'+escHTML(reg||'—')+'" — no match in the ARIS built-in watchlist. Confirm against the official OFAC SDN list (sanctionssearch.ofac.treas.gov) before dispatch.'},
-    {icon:'🇪🇺',name:'EU Sanctions (Art.215 TFEU / EASA)',
+       tr('⛔ OFAC MATCH — '+escHTML(sanctionedOp||reg)+'. Per 31 C.F.R. §560 (Iran) / §544 (Russia), US persons prohibited from providing aircraft services. Flight PROHIBITED without specific OFAC license. Immediate legal counsel required.',
+          '⛔ تطابق مع OFAC — '+escHTML(sanctionedOp||reg)+'. وفق 31 C.F.R. §560 (إيران) و §544 (روسيا) يُحظر على الأشخاص الأمريكيين تقديم أي خدمات للطائرة. الرحلة ممنوعة دون ترخيص خاص من OFAC، ويلزم الرجوع إلى مستشار قانوني فوراً.'):
+       tr('Operator "'+opE+'" & reg "'+regE+'" — no match in the ARIS built-in watchlist. Confirm against the official OFAC SDN list (sanctionssearch.ofac.treas.gov) before dispatch.',
+          'المشغّل "'+opE+'" والتسجيل "'+regE+'" — لا يوجد تطابق في قائمة ARIS المدمجة. تحقق من قائمة OFAC SDN الرسمية (sanctionssearch.ofac.treas.gov) قبل الإقلاع.')},
+    {icon:'🇪🇺',name:tr('EU Sanctions (Art.215 TFEU / EASA)','عقوبات الاتحاد الأوروبي (المادة 215 / EASA)'),
      status:isSanctioned?'DANGER':'OK',
      detail:isSanctioned?
-       '⛔ EU MATCH — EU Reg. 269/2014 (Russia) / 833/2014 (Russia aviation). EU operators CANNOT provide brokering, insurance or technical services to listed entities. EU-registered aircraft cannot overfly Russian FIRs per Council Reg (EU) 2022/334.':
-       'No match in the ARIS built-in watchlist. Confirm against the EU Financial Sanctions consolidated list before dispatch.'},
-    {icon:'🌐',name:'UN Security Council Resolutions',
+       tr('⛔ EU MATCH — EU Reg. 269/2014 (Russia) / 833/2014 (Russia aviation). EU operators CANNOT provide brokering, insurance or technical services to listed entities. EU-registered aircraft cannot overfly Russian FIRs per Council Reg (EU) 2022/334.',
+          '⛔ تطابق مع عقوبات الاتحاد الأوروبي — اللائحتان 269/2014 و 833/2014 (روسيا). لا يجوز لمشغلي الاتحاد الأوروبي تقديم خدمات الوساطة أو التأمين أو الخدمات الفنية للجهات المدرجة، والطائرات المسجلة في الاتحاد ممنوعة من عبور الأجواء الروسية وفق اللائحة 2022/334.'):
+       tr('No match in the ARIS built-in watchlist. Confirm against the EU Financial Sanctions consolidated list before dispatch.',
+          'لا يوجد تطابق في قائمة ARIS المدمجة. تحقق من القائمة الأوروبية الموحدة للعقوبات المالية قبل الإقلاع.')},
+    {icon:'🌐',name:tr('UN Security Council Resolutions','قرارات مجلس الأمن الدولي'),
      status:isSanctioned?'WARN':'OK',
-     detail:isSanctioned?'UN SC Resolution 1267/1988/2253 potential applicability — refer to UN 1267 Committee consolidated list. State reporting obligations may apply.':'No match in the ARIS built-in watchlist for '+escHTML(op||'operator')+' / '+escHTML(reg||'registration')+'. Confirm against the UN SC consolidated list (1267/1718/2253).'},
-    {icon:'⚔',name:'Conflict Zone Assessment (ICAO Doc 9870)',
+     detail:isSanctioned?
+       tr('UN SC Resolution 1267/1988/2253 potential applicability — refer to UN 1267 Committee consolidated list. State reporting obligations may apply.',
+          'احتمال انطباق قرارات مجلس الأمن 1267/1988/2253 — راجع القائمة الموحدة للجنة 1267. قد تنطبق التزامات إبلاغ على الدولة.'):
+       tr('No match in the ARIS built-in watchlist for '+escHTML(op||'operator')+' / '+escHTML(reg||'registration')+'. Confirm against the UN SC consolidated list (1267/1718/2253).',
+          'لا يوجد تطابق في قائمة ARIS المدمجة لـ '+escHTML(op||'المشغّل')+' / '+escHTML(reg||'التسجيل')+'. تحقق من القائمة الموحدة لمجلس الأمن (1267/1718/2253).')},
+    {icon:'⚔',name:tr('Conflict Zone Assessment (ICAO Doc 9870)','تقييم مناطق النزاع (ICAO Doc 9870)'),
      status:isConflict?'DANGER':isHighRiskCountry?'WARN':'OK',
-     detail:isConflict?'⛔ ACTIVE CONFLICT ZONE — '+conflictHits.map(function(c){return CONFLICT_ZONES[c];}).join(' | '):
-       isHighRiskCountry?'⚠ HIGH-RISK COUNTRY: '+destCountry+'. ICAO Doc 9870 Appendix A caution. Consult national CAA conflict zone bulletins and EASA SIB before dispatch.':
-       'Route '+from+'→'+to+' clear of active conflict zones per ICAO conflict zone map (Doc 9870). No active EASA SIBs noted.'},
-    {icon:'⚔️',name:'Military / State Aircraft (Chicago Convention Art.3)',
+     detail:isConflict?tr('⛔ ACTIVE CONFLICT ZONE — ','⛔ منطقة نزاع نشط — ')+conflictNotes:
+       isHighRiskCountry?tr('⚠ HIGH-RISK COUNTRY: '+destCountry+'. ICAO Doc 9870 Appendix A caution. Consult national CAA conflict zone bulletins and EASA SIB before dispatch.',
+          '⚠ دولة عالية الخطورة: '+ctry(destCountry)+'. تنبيه وفق الملحق A من ICAO Doc 9870. راجع نشرات مناطق النزاع لدى سلطة الطيران الوطنية ونشرات EASA قبل الإقلاع.'):
+       tr('Route '+routeLTR+' clear of active conflict zones per ICAO conflict zone map (Doc 9870). No active EASA SIBs noted.',
+          'المسار '+routeLTR+' خالٍ من مناطق النزاع النشطة وفق خريطة ICAO (Doc 9870). لا توجد نشرات EASA سارية.')},
+    {icon:'⚔️',name:tr('Military / State Aircraft (Chicago Convention Art.3)','الطائرات العسكرية والحكومية (اتفاقية شيكاغو م.3)'),
      status:milStatus,
      detail:milDetail},
-    {icon:'☢',name:'Dangerous Goods — IATA DGR / ICAO Doc 9284',
+    {icon:'☢',name:tr('Dangerous Goods — IATA DGR / ICAO Doc 9284','البضائع الخطرة — IATA DGR / ICAO Doc 9284'),
      status:isDG?'WARN':isMilWpn?'DANGER':'OK',
-     detail:isDG?'⚠ DG CARGO DECLARED — IATA DGR 65th Ed. (2024) compliance mandatory. Shipper declaration, operator DG authorization, NOTOC required. Verify acceptance per ICAO Annex 18 §5.':
-       isMilWpn?'⛔ MILITARY WEAPONS/MUNITIONS — Not IATA DGR subject but require: End-User Certificate (EUC), Arms Export License (origin state), Import License (dest state), Transit Approval (each transit state MoD), Customs Form 302 (NATO) or equivalent. 15 U.S.C. §730 (EAR) may apply.':
-       'No dangerous goods declared. Standard cargo procedures per ICAO Annex 18 / IATA DGR 65th Ed.'},
-    {icon:'💊',name:'Health & Entry Requirements (WHO IHR 2005)',
+     detail:isDG?tr('⚠ DG CARGO DECLARED — IATA DGR 65th Ed. (2024) compliance mandatory. Shipper declaration, operator DG authorization, NOTOC required. Verify acceptance per ICAO Annex 18 §5.',
+          '⚠ تم الإعلان عن بضائع خطرة — الالتزام بلوائح IATA DGR (الإصدار 65، 2024) إلزامي: إقرار الشاحن، وتفويض المشغّل لنقل البضائع الخطرة، وإشعار قائد الطائرة (NOTOC). تحقق من القبول وفق الملحق 18 لـ ICAO §5.'):
+       isMilWpn?tr('⛔ MILITARY WEAPONS/MUNITIONS — Not IATA DGR subject but require: End-User Certificate (EUC), Arms Export License (origin state), Import License (dest state), Transit Approval (each transit state MoD), Customs Form 302 (NATO) or equivalent. 15 U.S.C. §730 (EAR) may apply.',
+          '⛔ أسلحة أو ذخائر عسكرية — لا تخضع لـ IATA DGR لكنها تتطلب: شهادة المستخدم النهائي (EUC)، وترخيص تصدير من دولة المنشأ، وترخيص استيراد من دولة الوصول، وموافقة وزارة الدفاع في كل دولة عبور، ونموذج جمارك 302 (الناتو) أو ما يعادله. قد تنطبق لوائح التصدير الأمريكية (EAR).'):
+       tr('No dangerous goods declared. Standard cargo procedures per ICAO Annex 18 / IATA DGR 65th Ed.',
+          'لا توجد بضائع خطرة معلنة. تنطبق إجراءات الشحن القياسية وفق الملحق 18 لـ ICAO ولوائح IATA DGR.')},
+    {icon:'💊',name:tr('Health & Entry Requirements (WHO IHR 2005)','الصحة ومتطلبات الدخول (اللوائح الصحية الدولية 2005)'),
      status:'OK',
-     detail:'WHO IHR 2005 — '+toAP.country+': No active PHEIC alerts. Verify crew entry visas, yellow fever vaccination if applicable (ICAO PANS-TRG), and aircraft disinsection per WHO guidance. Confirm crew rest per ICAO Annex 6 §4.10.'},
-    {icon:'⛽',name:'Fuel Planning — ICAO Annex 6 §4.3.6',
+     detail:tr('WHO IHR 2005 — '+toAP.country+': No active PHEIC alerts. Verify crew entry visas, yellow fever vaccination if applicable (ICAO PANS-TRG), and aircraft disinsection per WHO guidance. Confirm crew rest per ICAO Annex 6 §4.10.',
+          'اللوائح الصحية الدولية 2005 — '+ctry(toAP.country)+': لا توجد حالة طوارئ صحية دولية معلنة. تحقق من تأشيرات دخول الطاقم، وتطعيم الحمى الصفراء عند الحاجة، وتعقيم الطائرة وفق إرشادات منظمة الصحة العالمية. تأكد من فترات راحة الطاقم وفق الملحق 6 لـ ICAO §4.10.')},
+    {icon:'⛽',name:tr('Fuel Planning — ICAO Annex 6 §4.3.6','تخطيط الوقود — الملحق 6 لـ ICAO §4.3.6'),
      status:destMilitary||isHighRiskCountry?'WARN':'OK',
-     detail:'Route '+from+' → '+to+': Minimum fuel = Trip fuel + 5% contingency (or 5min at cruising speed) + Alternate fuel + 30-min final reserve (45-min piston) per ICAO Annex 6 §4.3.6. '+(destMilitary?'⚠ MILITARY AIRFIELD — JET-A availability NOT guaranteed. Coordinate with base ops prior to departure. Tanker fuel or fuel ferry may be required.':isHighRiskCountry?'⚠ High-risk destination — confirm fuel availability before ETD.':'Confirm fuel availability and handling agent 24h prior.')},
-    {icon:'🗺',name:'FIR / ATS Route Analysis (ICAO Doc 7030)',
+     detail:tr('Route '+routeLTR+': Minimum fuel = Trip fuel + 5% contingency (or 5min at cruising speed) + Alternate fuel + 30-min final reserve (45-min piston) per ICAO Annex 6 §4.3.6. ',
+          'المسار '+routeLTR+': الحد الأدنى للوقود = وقود الرحلة + 5% احتياطي طوارئ (أو 5 دقائق بسرعة التحليق) + وقود المطار البديل + احتياطي نهائي 30 دقيقة (45 دقيقة للمحركات المكبسية) وفق الملحق 6 لـ ICAO §4.3.6. ')+
+       (destMilitary?tr('⚠ MILITARY AIRFIELD — JET-A availability NOT guaranteed. Coordinate with base ops prior to departure. Tanker fuel or fuel ferry may be required.','⚠ مطار عسكري — توفر وقود JET-A غير مضمون. نسّق مع عمليات القاعدة قبل المغادرة، وقد تحتاج إلى حمل وقود إضافي.'):
+        isHighRiskCountry?tr('⚠ High-risk destination — confirm fuel availability before ETD.','⚠ وجهة عالية الخطورة — تأكد من توفر الوقود قبل الإقلاع.'):
+        tr('Confirm fuel availability and handling agent 24h prior.','تأكد من توفر الوقود ووكيل الخدمات الأرضية قبل 24 ساعة.'))},
+    {icon:'🗺',name:tr('FIR / ATS Route Analysis (ICAO Doc 7030)','تحليل الأقاليم الجوية والمسارات (ICAO Doc 7030)'),
      status:isConflict?'WARN':isMedRiskCountry?'WARN':'OK',
-     detail:'DEP FIR: '+fromAP.fir+' | DEST FIR: '+toAP.fir+'.'+(fromMilitary?' [DEP = Military airfield — PPR required from base commander.]':'')+
-       (destMilitary?' [DEST = Military airfield — PPR + MoD liaison mandatory.]':'')+
-       (isConflict?' ⚠ Restricted FIR — ICAO SL Doc 7030 regional supplement review mandatory. Entry clearance required from responsible ACC.':
-       isMedRiskCountry?' ⚠ Sensitive FIR — verify ATC/AFTN filing routes and any published route restrictions.':
-       ' Both FIRs open. File flight plan per ICAO Doc 4444 PANS-ATM §4.')},
-    {icon:'📡',name:'NOTAM / AIS Review (ICAO Annex 15)',
+     detail:tr('DEP FIR: ','إقليم المغادرة: ')+fromAP.fir+tr(' | DEST FIR: ',' | إقليم الوصول: ')+toAP.fir+'.'+
+       (fromMilitary?tr(' [DEP = Military airfield — PPR required from base commander.]',' [المغادرة من مطار عسكري — يلزم إذن مسبق (PPR) من قائد القاعدة.]'):'')+
+       (destMilitary?tr(' [DEST = Military airfield — PPR + MoD liaison mandatory.]',' [الوصول إلى مطار عسكري — يلزم إذن مسبق (PPR) وتنسيق مع وزارة الدفاع.]'):'')+
+       (isConflict?tr(' ⚠ Restricted FIR — ICAO SL Doc 7030 regional supplement review mandatory. Entry clearance required from responsible ACC.',' ⚠ إقليم مقيّد — مراجعة الملحق الإقليمي لـ ICAO Doc 7030 إلزامية، ويلزم إذن دخول من مركز المراقبة المسؤول.'):
+       isMedRiskCountry?tr(' ⚠ Sensitive FIR — verify ATC/AFTN filing routes and any published route restrictions.',' ⚠ إقليم حساس — تحقق من مسارات تقديم خطة الطيران وأي قيود منشورة على المسارات.'):
+       tr(' Both FIRs open. File flight plan per ICAO Doc 4444 PANS-ATM §4.',' الإقليمان مفتوحان. قدّم خطة الطيران وفق ICAO Doc 4444.'))},
+    {icon:'📡',name:tr('NOTAM / AIS Review (ICAO Annex 15)','مراجعة إشعارات NOTAM (الملحق 15 لـ ICAO)'),
      status:isConflict||isHighRiskCountry?'WARN':'OK',
      detail:(isConflict||isHighRiskCountry)?
-       '⚠ ACTIVE NOTAM REVIEW REQUIRED — Check NOTAM A-series (aerodrome), B-series (FIR), D-series (enroute). Source: ICAO NOTAM Office, EUROCONTROL EAD, or national AIS. Review within 24h of ETD per ICAO Annex 15 §5.2.':
-       'Verify NOTAMs 24h before ETD at '+from+' and '+to+' via ICAO AIS portal or EUROCONTROL EAD. Monitor: aerodrome, FIR, and SIGMET/AIRMET (ICAO Annex 15 §5).'},
-    {icon:'🛬',name:'Airport Status & Handling (ICAO Annex 14)',
+       tr('⚠ ACTIVE NOTAM REVIEW REQUIRED — Check NOTAM A-series (aerodrome), B-series (FIR), D-series (enroute). Source: ICAO NOTAM Office, EUROCONTROL EAD, or national AIS. Review within 24h of ETD per ICAO Annex 15 §5.2.',
+          '⚠ مراجعة إشعارات NOTAM إلزامية — راجع السلسلة A (المطارات) والسلسلة B (الأقاليم) والسلسلة D (المسارات). المصدر: مكتب NOTAM الدولي أو EUROCONTROL EAD أو خدمة المعلومات الوطنية. راجعها خلال 24 ساعة قبل الإقلاع وفق الملحق 15 لـ ICAO.'):
+       tr('Verify NOTAMs 24h before ETD at '+from+' and '+to+' via ICAO AIS portal or EUROCONTROL EAD. Monitor: aerodrome, FIR, and SIGMET/AIRMET (ICAO Annex 15 §5).',
+          'تحقق من إشعارات NOTAM قبل 24 ساعة من الإقلاع لمطاري '+from+' و '+to+' عبر بوابة ICAO أو EUROCONTROL EAD. راقب المطار والإقليم ونشرات SIGMET/AIRMET.')},
+    {icon:'🛬',name:tr('Airport Status & Handling (ICAO Annex 14)','حالة المطار والخدمات الأرضية (الملحق 14 لـ ICAO)'),
      status:destMilitary?'WARN':isConflict?'DANGER':'OK',
-     detail:(isConflict&&destMilitary)?'⛔ CONFLICT ZONE MILITARY AIRFIELD — Operations require MoD authorization AND active conflict clearance. Civil ATCO/handler may be absent. Security escort likely required on apron.':
-       destMilitary?'⚠ MILITARY AIRFIELD: '+toAP.name+' ('+to+'), '+toAP.city+'. Coordinate with Base Ops / MOD liaison prior to arrival. PPR mandatory. Civil handling/customs/immigration may be limited. Verify customs availability per ICAO Annex 14 §2.9.':
-       toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+' — Operational. Confirm handling agent, fuel, and slot 24h prior per ICAO Annex 14.'},
-    {icon:'📋',name:'Permit Requirements & Lead Times',
+     detail:(isConflict&&destMilitary)?tr('⛔ CONFLICT ZONE MILITARY AIRFIELD — Operations require MoD authorization AND active conflict clearance. Civil ATCO/handler may be absent. Security escort likely required on apron.',
+          '⛔ مطار عسكري في منطقة نزاع — تتطلب العمليات تفويضاً من وزارة الدفاع وإذناً خاصاً بمنطقة النزاع. قد لا تتوفر مراقبة جوية أو خدمات أرضية مدنية، وقد تلزم حراسة أمنية على ساحة الطائرات.'):
+       destMilitary?tr('⚠ MILITARY AIRFIELD: '+toAP.name+' ('+to+'), '+toAP.city+'. Coordinate with Base Ops / MOD liaison prior to arrival. PPR mandatory. Civil handling/customs/immigration may be limited. Verify customs availability per ICAO Annex 14 §2.9.',
+          '⚠ مطار عسكري: '+toAP.name+' ('+to+')، '+toAP.city+'. نسّق مع عمليات القاعدة ووزارة الدفاع قبل الوصول. الإذن المسبق (PPR) إلزامي، وقد تكون خدمات المناولة والجمارك والجوازات المدنية محدودة.'):
+       tr(toAP.name+' ('+to+'), '+toAP.city+', '+toAP.country+' — Operational. Confirm handling agent, fuel, and slot 24h prior per ICAO Annex 14.',
+          toAP.name+' ('+to+')، '+toAP.city+'، '+ctry(toAP.country)+' — يعمل. أكّد وكيل الخدمات الأرضية والوقود والموعد قبل 24 ساعة وفق الملحق 14 لـ ICAO.')},
+    {icon:'📋',name:tr('Permit Requirements & Lead Times','متطلبات التصاريح ومدد الطلب'),
      status:permitStatus,
      detail:(pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?
-       '🚫 PERMIT STATUS: '+pr.lead+' — '+pr.notes+' Authority: '+pr.authority+' Tel: '+pr.tel:
-       (isConflict||isSanctioned)?'⛔ PERMIT LIKELY REFUSED — '+(isConflict?'Active conflict zone. ':'')+( isSanctioned?'Sanctioned operator/aircraft — permit authority will reject. ':'')+'Contact: '+pr.authority+' '+pr.tel:
-       (isStateAC||isMilitary)?'🏛 STATE/MILITARY AIRCRAFT — Diplomatic clearance (verbal note via MFA) required IN ADDITION to standard overflight/landing permit. Lead time: '+pr.lead+'+. Authority: '+pr.authority+' '+pr.tel:
-       'Lead time: '+pr.lead+' before ETD | Authority: '+pr.authority+' | Tel: '+pr.tel+'.'+(pr.notes?' '+pr.notes:'')},
+       tr('🚫 PERMIT STATUS: ','🚫 حالة التصاريح: ')+lead+' — '+prNotes+tr(' Authority: ',' الجهة: ')+pr.authority+tr(' Tel: ',' هاتف: ')+'<span dir="ltr">'+pr.tel+'</span>':
+       (isConflict||isSanctioned)?tr('⛔ PERMIT LIKELY REFUSED — ','⛔ يُرجّح رفض التصريح — ')+(isConflict?tr('Active conflict zone. ','منطقة نزاع نشط. '):'')+(isSanctioned?tr('Sanctioned operator/aircraft — permit authority will reject. ','مشغّل أو طائرة خاضعة للعقوبات — سترفض جهة التصاريح الطلب. '):'')+tr('Contact: ','الاتصال: ')+pr.authority+' <span dir="ltr">'+pr.tel+'</span>':
+       (isStateAC||isMilitary)?tr('🏛 STATE/MILITARY AIRCRAFT — Diplomatic clearance (verbal note via MFA) required IN ADDITION to standard overflight/landing permit. Lead time: '+lead+'+. Authority: ',
+          '🏛 طائرة حكومية أو عسكرية — يلزم تصريح دبلوماسي (مذكرة عبر وزارة الخارجية) إضافةً إلى تصريح العبور أو الهبوط المعتاد. مدة الطلب: '+lead+' أو أكثر. الجهة: ')+pr.authority+' <span dir="ltr">'+pr.tel+'</span>':
+       tr('Lead time: '+lead+' before ETD | Authority: ','مدة الطلب: '+lead+' قبل الإقلاع | الجهة: ')+pr.authority+tr(' | Tel: ',' | هاتف: ')+'<span dir="ltr">'+pr.tel+'</span>.'+(prNotes?' '+prNotes:'')},
   ];
 
   var riskFactors=[];
-  if(isConflict) riskFactors.push('Active conflict zone(s): '+conflictHits.join(', '));
-  if(isSanctioned) riskFactors.push('Sanctioned operator/registration detected');
-  if(isMilWpn) riskFactors.push('Military weapons/munitions declared');
-  if(isMilPax||isMilitary) riskFactors.push('Military personnel/aircraft');
-  if(isStateAC) riskFactors.push('State aircraft — Chicago Convention Art.3 applies');
-  if(isDG) riskFactors.push('Dangerous goods cargo');
-  if(isHighRiskCountry) riskFactors.push('High-risk country routing ('+destCountry+')');
-  if(isMedRiskCountry) riskFactors.push('Medium-risk country routing ('+destCountry+')');
-  if(destMilitary||fromMilitary) riskFactors.push('Military airfield involved');
+  if(isConflict) riskFactors.push(tr('Active conflict zone(s): ','منطقة نزاع نشط: ')+conflictHits.join(', '));
+  if(isSanctioned) riskFactors.push(tr('Sanctioned operator/registration detected','تم رصد مشغّل أو تسجيل خاضع للعقوبات'));
+  if(isMilWpn) riskFactors.push(tr('Military weapons/munitions declared','أسلحة أو ذخائر عسكرية معلنة'));
+  if(isMilPax||isMilitary) riskFactors.push(tr('Military personnel/aircraft','أفراد أو طائرة عسكرية'));
+  if(isStateAC) riskFactors.push(tr('State aircraft — Chicago Convention Art.3 applies','طائرة حكومية — تنطبق المادة 3 من اتفاقية شيكاغو'));
+  if(isDG) riskFactors.push(tr('Dangerous goods cargo','شحنة بضائع خطرة'));
+  if(isHighRiskCountry) riskFactors.push(tr('High-risk country routing ('+destCountry+')','مسار عبر دولة عالية الخطورة ('+ctry(destCountry)+')'));
+  if(isMedRiskCountry) riskFactors.push(tr('Medium-risk country routing ('+destCountry+')','مسار عبر دولة متوسطة الخطورة ('+ctry(destCountry)+')'));
+  if(destMilitary||fromMilitary) riskFactors.push(tr('Military airfield involved','مطار عسكري ضمن الرحلة'));
+  var rf=riskFactors.join(SEP2);
 
-  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> → <strong>'+toAP.name+' ('+to+')</strong>'+
-    (isMilitary?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(239,68,68,.2);color:#fca5a5">⚔ MILITARY</span>':'')+
-    (isStateAC?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa">🏛 STATE AIRCRAFT</span>':'')+'<br>'+
-    '<span style="font-size:11px;color:var(--muted)">'+fromAP.city+', '+fromAP.country+' → '+toAP.city+', '+toAP.country+' | FIR: '+fromAP.fir+'/'+toAP.fir+' | Permit: '+pr.authority+'</span><br><br>'+
-    (score>=75?'<span style="color:#f87171;font-weight:700">⛔ HIGH RISK ('+score+'/100)</span> — Critical regulatory or safety hazards identified on this route. '+
-      (riskFactors.length?'<strong>Key factors:</strong> '+riskFactors.join('; ')+'. ':'')+'<strong>DO NOT DISPATCH</strong> without obtaining full multi-authority authorization. Consult aviation legal counsel before any crew briefing.':
-    score>=50?'<span style="color:#fbbf24;font-weight:700">⚠ MEDIUM RISK ('+score+'/100)</span> — Elevated advisory conditions present on this route. '+
-      (riskFactors.length?'Risk factors: '+riskFactors.join('; ')+'. ':'')+'Permits must be confirmed with '+pr.authority+' at least '+pr.lead+' before ETD. Duty of care obligations apply under ICAO SMS Doc 9859 §7.':
-    score>=30?'<span style="color:#34d399;font-weight:700">✅ LOW RISK ('+score+'/100)</span> — Route '+fromAP.city+' → '+toAP.city+' is acceptable under current regulatory conditions. '+
-      (riskFactors.length?'Minor advisory: '+riskFactors.join('; ')+'. ':'')+'Submit overflight/landing permit to '+pr.authority+' with '+pr.lead+' lead time. Verify NOTAMs 24h before ETD.':
-    '<span style="color:#38bdf8;font-weight:700">✅ CLEAR ('+score+'/100)</span> — No significant risk factors detected. Route '+fromAP.city+' → '+toAP.city+' is clear. Standard permit filing with '+pr.authority+' applies. Monitor NOTAMs.')+
-    '<br><br><em style="color:var(--muted);font-size:11px">ARIS Enterprise v3.2 · '+new Date().toUTCString()+' · Analysis is advisory only — verify with competent authority · ICAO Doc 9859/9870/4444</em>';
+  var narrative='<strong>'+fromAP.name+' ('+from+')</strong> '+tr('→','←')+' <strong>'+toAP.name+' ('+to+')</strong>'+
+    (isMilitary?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(239,68,68,.2);color:#fca5a5">'+tr('⚔ MILITARY','⚔ عسكري')+'</span>':'')+
+    (isStateAC?'&nbsp;<span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;background:rgba(139,92,246,.2);color:#a78bfa">'+tr('🏛 STATE AIRCRAFT','🏛 طائرة حكومية')+'</span>':'')+'<br>'+
+    '<span style="font-size:11px;color:var(--muted)">'+fromAP.city+tr(', ','، ')+ctry(fromAP.country)+' '+tr('→','←')+' '+toAP.city+tr(', ','، ')+ctry(toAP.country)+' | '+tr('FIR','الإقليم')+': '+fromAP.fir+'/'+toAP.fir+' | '+tr('Permit','جهة التصريح')+': '+pr.authority+'</span><br><br>'+
+    (score>=75?'<span style="color:#f87171;font-weight:700">'+tr('⛔ HIGH RISK','⛔ خطر عالٍ')+' ('+score+'/100)</span> — '+
+      tr('Critical regulatory or safety hazards identified on this route. ','تم رصد مخاطر تنظيمية أو مخاطر سلامة حرجة على هذا المسار. ')+
+      (rf?'<strong>'+tr('Key factors:','العوامل الرئيسية:')+'</strong> '+rf+'. ':'')+
+      tr('<strong>DO NOT DISPATCH</strong> without obtaining full multi-authority authorization. Consult aviation legal counsel before any crew briefing.',
+         '<strong>لا تُطلق الرحلة</strong> قبل الحصول على موافقات جميع الجهات المعنية، واستشر مستشاراً قانونياً مختصاً بالطيران قبل إحاطة الطاقم.'):
+    score>=50?'<span style="color:#fbbf24;font-weight:700">'+tr('⚠ MEDIUM RISK','⚠ خطر متوسط')+' ('+score+'/100)</span> — '+
+      tr('Elevated advisory conditions present on this route. ','توجد ظروف تستدعي الحذر على هذا المسار. ')+
+      (rf?tr('Risk factors: ','عوامل الخطر: ')+rf+'. ':'')+
+      tr('Permits must be confirmed with '+pr.authority+' at least '+lead+' before ETD. Duty of care obligations apply under ICAO SMS Doc 9859 §7.',
+         'يجب تأكيد التصاريح مع '+pr.authority+' قبل '+lead+' على الأقل من الإقلاع. تنطبق واجبات العناية وفق نظام إدارة السلامة ICAO Doc 9859.'):
+    score>=30?'<span style="color:#34d399;font-weight:700">'+tr('✅ LOW RISK','✅ خطر منخفض')+' ('+score+'/100)</span> — '+
+      cityRoute+tr(' is acceptable under current regulatory conditions. ',' مقبولة وفق الظروف التنظيمية الحالية. ')+
+      (rf?tr('Minor advisory: ','تنبيه بسيط: ')+rf+'. ':'')+
+      tr('Submit overflight/landing permit to '+pr.authority+' with '+lead+' lead time. Verify NOTAMs 24h before ETD.',
+         'قدّم طلب تصريح العبور أو الهبوط إلى '+pr.authority+' قبل '+lead+'. تحقق من إشعارات NOTAM قبل 24 ساعة من الإقلاع.'):
+    '<span style="color:#38bdf8;font-weight:700">'+tr('✅ CLEAR','✅ آمن')+' ('+score+'/100)</span> — '+
+      tr('No significant risk factors detected. ','لم يتم رصد عوامل خطر مهمة. ')+cityRoute+tr(' is clear. Standard permit filing with '+pr.authority+' applies. Monitor NOTAMs.',
+         ' سالكة. يُقدَّم طلب التصريح الاعتيادي إلى '+pr.authority+'. راقب إشعارات NOTAM.'))+
+    '<br><br><em style="color:var(--muted);font-size:11px">ARIS Enterprise v3.2 · '+new Date().toUTCString()+' · '+
+      tr('Analysis is advisory only — verify with competent authority','التحليل استشاري فقط — تحقق دائماً من الجهة المختصة')+' · ICAO Doc 9859/9870/4444</em>';
 
   return{score:score,rawScore:rawScore,breakdown:breakdown,level:level,color:color,layers:layers,narrative:narrative,fromAP:fromAP,toAP:toAP,pr:pr};
 }
@@ -1408,7 +1754,7 @@ function doAnalyze(){
   var parsed={};
   if(pasteMode){
     var txt=document.getElementById('pasteText').value;
-    if(txt.trim().length<5){alert('Please paste flight information first.');return;}
+    if(txt.trim().length<5){alert(t('pasteFirst'));return;}
     parsed=smartParse(txt);
     f={op:parsed.op||'',reg:parsed.reg||'',callsign:parsed.callsign||'',from:parsed.from||'',to:parsed.to||'',cargo:parsed.cargo||'PAX',date:parsed.date||'',actype:parsed.actype||''};
   } else {
@@ -1426,35 +1772,36 @@ function doAnalyze(){
     parsed.legs=[];
   }
   if(!f.from||!f.to){
-    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ ICAO codes missing</strong><br><br>Please enter valid FROM and TO airport ICAO codes (4 letters, e.g. OERK, OMDB).</div>';
+    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>'+t('icaoMissing')+'</strong><br><br>'+t('icaoMissingBody')+'</div>';
     return;
   }
   if(!/^[A-Z]{4}$/.test(f.from)||!/^[A-Z]{4}$/.test(f.to)){
-    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>⚠ Invalid ICAO format</strong><br><br>ICAO codes must be exactly 4 letters (e.g. <strong>OERK</strong>, <strong>OMDB</strong>, <strong>KJFK</strong>).</div>';
+    document.getElementById('resultArea').innerHTML='<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:20px;text-align:center;color:#f87171"><strong>'+t('icaoBad')+'</strong><br><br>'+t('icaoBadBody')+'</div>';
     return;
   }
   var fromKnown=!!AP_DB[f.from], toKnown=!!AP_DB[f.to];
   f.unknown=[];
   if(!fromKnown) f.unknown.push(f.from);
   if(!toKnown) f.unknown.push(f.to);
-  if(!fromKnown||!toKnown){
-    var unknown=[];
-    if(!fromKnown) unknown.push('FROM: <strong>'+f.from+'</strong>');
-    if(!toKnown) unknown.push('TO: <strong>'+f.to+'</strong>');
-    document.getElementById('resultArea').innerHTML='<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:20px;text-align:center;color:#fbbf24"><strong>⚠ Airport not in database: '+unknown.join(' · ')+'</strong><br><br>Analysis will proceed with limited data. Verify ICAO codes and review results carefully.</div>';
-    // Still proceed with analysis — getAP falls back gracefully
-  }
   var btns=document.querySelectorAll('.analyze-btn');
-  btns.forEach(function(b){b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">&#8635;</span> &nbsp;Analyzing...';});
+  btns.forEach(function(b){b.style.opacity='.6';b.style.pointerEvents='none';b.innerHTML='<span style="animation:spin 1s linear infinite;display:inline-block">&#8635;</span> &nbsp;'+t('analyzing');});
   sessionCount++;
   localStorage.setItem('aris_count',sessionCount);
   document.getElementById('kpiToday').textContent=sessionCount;
+  updateKpiSub();
   setTimeout(function(){
-    btns.forEach(function(b){b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>&#128269;</span><span>ابدأ تحليل المخاطر</span>';});
-    var d=getRisk(f.from,f.to,f.cargo,f.op,f.reg,parsed.legs,parsed.military||false,parsed.stateAircraft||false);
+    btns.forEach(function(b){b.style.opacity='';b.style.pointerEvents='';b.innerHTML='<span>&#128269;</span><span data-i18n="analyzeBtn">'+t('analyzeBtn')+'</span>';});
+    window._lastArgs={f:f,parsed:parsed};
+    var d=riskFor(f,parsed);
     saveHistory(d,f);
     renderResult(d,f,parsed.legs);
   },1000);
+}
+function riskFor(f,parsed){return getRisk(f.from,f.to,f.cargo,f.op,f.reg,parsed.legs,parsed.military||false,parsed.stateAircraft||false);}
+// Re-render the last result in the current language (score is deterministic, so it is unchanged)
+function rerenderLast(){
+  var a=window._lastArgs; if(!a) return;
+  renderResult(riskFor(a.f,a.parsed),a.f,a.parsed.legs,true);
 }
 
 function saveHistory(d,f){
@@ -1466,9 +1813,10 @@ function saveHistory(d,f){
   }catch(e){}
 }
 
-function renderResult(d,f,legs){
+function renderResult(d,f,legs,noScroll){
   var lclr=d.level==='HIGH'?'#ef4444':d.level==='MEDIUM'?'#f59e0b':d.level==='LOW'?'#10b981':'#0ea5e9';
   var routeStr=legs&&legs.length>2?legs.join(' → '):(f.from+' → '+f.to);
+  var arrow=tr(' → ',' ← ');
   var danger=d.layers.filter(function(l){return l.status==='DANGER';}).length;
   var warn=d.layers.filter(function(l){return l.status==='WARN';}).length;
 
@@ -1477,65 +1825,65 @@ function renderResult(d,f,legs){
     '<div style="background:'+lclr+'18;border-bottom:1px solid '+lclr+'40;padding:20px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">'+
       '<div style="text-align:center;min-width:80px">'+
         '<div style="font-family:Rajdhani,sans-serif;font-size:62px;font-weight:700;color:'+lclr+';line-height:1">'+d.score+'</div>'+
-        '<div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">RISK SCORE</div>'+
+        '<div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">'+t('riskScore')+'</div>'+
       '</div>'+
       '<div style="flex:1;min-width:200px">'+
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">'+
-          '<span style="font-family:Rajdhani,sans-serif;font-size:22px;font-weight:700;color:#fff">'+routeStr+'</span>'+
-          '<span style="padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;background:'+lclr+'22;color:'+lclr+';border:1px solid '+lclr+'55">'+d.level+' RISK</span>'+
+          '<span style="font-family:Rajdhani,sans-serif;font-size:22px;font-weight:700;color:#fff" dir="ltr">'+routeStr+'</span>'+
+          '<span style="padding:4px 14px;border-radius:6px;font-size:12px;font-weight:800;background:'+lclr+'22;color:'+lclr+';border:1px solid '+lclr+'55">'+t('level'+d.level)+'</span>'+
         '</div>'+
-        '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">'+d.fromAP.name+' → '+d.toAP.name+' &nbsp;·&nbsp; '+d.fromAP.country+' → '+d.toAP.country+'</div>'+
+        '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px">'+d.fromAP.name+arrow+d.toAP.name+' &nbsp;·&nbsp; '+ctry(d.fromAP.country)+arrow+ctry(d.toAP.country)+'</div>'+
         '<div style="font-size:12px;color:var(--muted)">'+
           (f.op?'<strong style="color:#e2e8f0">'+escHTML(f.op)+'</strong> &nbsp;·&nbsp; ':'')+
-          escHTML(f.reg||'—')+' &nbsp;·&nbsp; '+escHTML(f.actype||'—')+' &nbsp;·&nbsp; '+escHTML(f.cargo)+' &nbsp;·&nbsp; '+escHTML(f.date||'—')+
+          escHTML(f.reg||'—')+' &nbsp;·&nbsp; '+escHTML(f.actype||'—')+' &nbsp;·&nbsp; '+escHTML(t('opt'+f.cargo))+' &nbsp;·&nbsp; '+escHTML(f.date||'—')+
         '</div>'+
       '</div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">'+
         '<div style="display:flex;gap:8px">'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' DANGER</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' WARN</span>'+
-          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(d.layers.length-danger-warn)+' OK</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(239,68,68,.15);color:#f87171">'+danger+' '+t('stDANGER')+'</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(245,158,11,.12);color:#fbbf24">'+warn+' '+t('stWARN')+'</span>'+
+          '<span style="padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;background:rgba(16,185,129,.1);color:#34d399">'+(d.layers.length-danger-warn)+' '+t('stOK')+'</span>'+
         '</div>'+
         '<div style="display:flex;gap:8px;margin-top:4px">'+
-          '<button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">📄 تقرير PDF</button>'+
-          '<button class="act-btn ab-del" onclick="copySummary()" style="padding:9px 18px;font-size:13px;border:1px solid var(--border);color:#e2e8f0">📋 نسخ الملخص</button>'+
+          '<button class="act-btn ab-pdf" onclick="genPDF()" style="padding:9px 18px;font-size:13px">'+t('pdfBtn')+'</button>'+
+          '<button class="act-btn ab-del" onclick="copySummary()" style="padding:9px 18px;font-size:13px;border:1px solid var(--border);color:#e2e8f0">'+t('copyBtn')+'</button>'+
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div id="resultMap" style="height:200px;width:100%"></div>'+
+    '<div id="resultMap" style="height:260px;width:100%"></div>'+
   '</div>'+
-  ((f.unknown&&f.unknown.length)?'<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px;color:#fbbf24;font-size:13px">⚠ مطار غير موجود في قاعدة البيانات: <strong>'+f.unknown.join(' · ')+'</strong> — النتيجة تقديرية، تحقق من الرموز ومن حالة المطار يدوياً.</div>':'')+
-  '<div class="narrative-card" style="margin-bottom:16px"><h4 style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px">🧮 تفصيل درجة الخطر / Score Breakdown</h4>'+
+  ((f.unknown&&f.unknown.length)?'<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px;color:#fbbf24;font-size:13px">'+t('unknownAP',{x:f.unknown.join(' · ')})+'</div>':'')+
+  '<div class="narrative-card" style="margin-bottom:16px"><h4 style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px">'+t('breakdownTitle')+'</h4>'+
     '<table style="width:100%;font-size:12px;border-collapse:collapse">'+
-    d.breakdown.map(function(b){return '<tr><td style="padding:5px 0;color:#94a3b8;border-bottom:1px solid var(--border)">'+escHTML(b.label)+'</td><td style="padding:5px 0;text-align:right;font-weight:700;color:#e2e8f0;border-bottom:1px solid var(--border)">+'+b.pts+'</td></tr>';}).join('')+
-    '<tr><td style="padding:7px 0;font-weight:700;color:#e2e8f0">Total'+(d.rawScore>100?' (capped at 100 from '+d.rawScore+')':'')+'</td><td style="padding:7px 0;text-align:right;font-weight:800;color:'+lclr+'">'+d.score+'/100</td></tr>'+
+    d.breakdown.map(function(b){return '<tr><td style="padding:5px 0;color:#94a3b8;border-bottom:1px solid var(--border)">'+escHTML(b.label)+'</td><td style="padding:5px 0;text-align:end;font-weight:700;color:#e2e8f0;border-bottom:1px solid var(--border)"><span dir="ltr">+'+b.pts+'</span></td></tr>';}).join('')+
+    '<tr><td style="padding:7px 0;font-weight:700;color:#e2e8f0">'+t('total')+(d.rawScore>100?t('capped',{n:d.rawScore}):'')+'</td><td style="padding:7px 0;text-align:end;font-weight:800;color:'+lclr+'"><span dir="ltr">'+d.score+'/100</span></td></tr>'+
     '</table>'+
-    '<div style="font-size:11px;color:var(--muted);margin-top:8px">0–29 CLEAR · 30–49 LOW · 50–74 MEDIUM · 75–100 HIGH</div></div>'+
-  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">&#128269; Risk Layer Analysis — '+d.layers.length+' checks</div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:8px">'+t('scale')+'</div></div>'+
+  '<div style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:12px">'+t('layersTitle',{n:d.layers.length})+'</div>'+
   '<div class="layer-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">'+
   d.layers.map(function(l){
     var cls=l.status==='DANGER'?'danger':l.status==='WARN'?'warn':'ok';
     var sc=l.status==='DANGER'?'ls-danger':l.status==='WARN'?'ls-warn':'ls-ok';
-    var slbl=l.status==='DANGER'?'DANGER':l.status==='WARN'?'WARN':'OK';
+    var slbl=t('st'+l.status);
     return '<div class="layer-card '+cls+'"><div class="layer-head"><span class="layer-icon">'+l.icon+'</span><span class="layer-name">'+l.name+'</span><span class="layer-status '+sc+'">'+slbl+'</span></div><div class="layer-detail">'+l.detail+'</div></div>';
   }).join('')+
   '</div>'+
-  '<div class="narrative-card"><h4 style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px;display:flex;align-items:center;gap:8px">📝 تقرير مختصر</h4><div class="narrative-txt">'+d.narrative+'</div></div>';
+  '<div class="narrative-card"><h4 style="font-size:14px;font-weight:700;color:#e2e8f0;margin-bottom:10px;display:flex;align-items:center;gap:8px">'+t('summaryTitle')+'</h4><div class="narrative-txt">'+d.narrative+'</div></div>';
 
   window._last={d:d,f:f,legs:legs};
-  document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
+  if(!noScroll) document.getElementById('resultArea').scrollIntoView({behavior:'smooth',block:'start'});
 
   setTimeout(function(){
     if(resultMap){resultMap.remove();resultMap=null;}
-    resultMap=L.map('resultMap',{zoomControl:false,scrollWheelZoom:false,attributionControl:false}).setView([25,35],3);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:''}).addTo(resultMap);
-    function mk(c,lbl){return '<div style="background:'+c+';color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;border:2px solid #fff;white-space:nowrap">'+lbl+'</div>';}
+    resultMap=L.map('resultMap',{zoomControl:true,scrollWheelZoom:false}).setView([25,35],3);
+    L.tileLayer(TILE_URL,TILE_OPT).addTo(resultMap);
+    function mk(c,lbl){return '<div style="background:'+c+';color:#fff;font-size:12px;font-weight:800;padding:4px 9px;border-radius:10px;border:2px solid #fff;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.35)">'+lbl+'</div>';}
     var fc=[d.fromAP.lat,d.fromAP.lng], tc=[d.toAP.lat,d.toAP.lng];
     var fOK=!!AP_DB[f.from], tOK=!!AP_DB[f.to];
     if(fOK) L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9',f.from)})}).addTo(resultMap);
     if(tOK) L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981',f.to)})}).addTo(resultMap);
-    if(fOK&&tOK){L.polyline([fc,tc],{color:d.color,weight:3,dashArray:'10,6'}).addTo(resultMap);resultMap.fitBounds([fc,tc],{padding:[30,30],maxZoom:6});}
-    ZONES.forEach(function(z){L.circle([z.lat,z.lng],{radius:z.r*.5,color:z.color,fillColor:z.color,fillOpacity:.15,weight:1}).addTo(resultMap);});
+    if(fOK&&tOK){L.polyline([fc,tc],{color:'#1e3a8a',weight:4,dashArray:'10,6'}).addTo(resultMap);resultMap.fitBounds([fc,tc],{padding:[30,30],maxZoom:6});}
+    ZONES.forEach(function(z){L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.22,weight:2,dashArray:z.level==='HIGH'?null:'6,5'}).addTo(resultMap).bindPopup(zonePopup(z));});
     setTimeout(function(){resultMap.invalidateSize();},100);
   },200);
 }
@@ -1543,8 +1891,10 @@ function renderResult(d,f,legs){
 function copySummary(){
   if(!window._last) return;
   var d=window._last.d, f=window._last.f;
-  var txt='ARIS Risk Report\n'+f.from+'→'+f.to+' | '+d.level+' RISK ('+d.score+'/100)\nOperator: '+(f.op||'—')+' | Reg: '+(f.reg||'—')+' | '+f.cargo+' | '+(f.date||'—')+'\nPermit: '+d.pr.lead+' lead | '+d.pr.authority+'\nGenerated: '+new Date().toUTCString();
-  navigator.clipboard.writeText(txt).then(function(){alert('Summary copied!');}).catch(function(){alert(txt);});
+  var txt=tr('ARIS Risk Report','تقرير مخاطر ARIS')+'\n'+f.from+' → '+f.to+' | '+t('level'+d.level)+' ('+d.score+'/100)\n'+
+    t('lblOperator')+': '+(f.op||'—')+' | '+t('lblReg')+': '+(f.reg||'—')+' | '+t('opt'+f.cargo)+' | '+(f.date||'—')+'\n'+
+    tr('Permit lead time: ','مدة طلب التصريح: ')+leadTxt(d.pr.lead)+' | '+d.pr.authority+'\n'+tr('Generated: ','تاريخ الإنشاء: ')+new Date().toUTCString();
+  navigator.clipboard.writeText(txt).then(function(){alert(t('copied'));}).catch(function(){alert(txt);});
 }
 
 function pdfSafe(v){
@@ -1552,8 +1902,10 @@ function pdfSafe(v){
     .replace(/[→]/g,'->').replace(/[—–]/g,'-').replace(/[·]/g,'|').replace(/§/g,'S.').replace(/[^\x20-\x7E]/g,'').replace(/\s{2,}/g,' ').trim();
 }
 function genPDF(){
-  if(!window._last){alert('Run an analysis first.');return;}
-  var d=window._last.d, f=window._last.f;
+  if(!window._last){alert(t('runFirst'));return;}
+  // The built-in PDF font has no Arabic glyphs, so the report is always generated in English
+  var f=window._last.f, d=window._last.d, saved=LANG;
+  if(window._lastArgs){LANG='en';try{d=riskFor(window._lastArgs.f,window._lastArgs.parsed);}finally{LANG=saved;}}
   var jsPDF=window.jspdf.jsPDF;
   var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   // Header background
@@ -1627,9 +1979,9 @@ function showReports(){
   if(!hist.length){
     el.innerHTML='<div style="background:var(--bg2);border:2px dashed var(--border);border-radius:14px;padding:60px 24px;text-align:center;color:var(--muted)">'+
       '<div style="font-size:48px;margin-bottom:16px">📋</div>'+
-      '<div style="font-size:15px;font-weight:600;color:#e2e8f0;margin-bottom:8px">لا توجد تحليلات بعد</div>'+
-      '<div style="font-size:13px;margin-bottom:20px">قم بتحليل رحلة من صفحة <strong style="color:var(--blue)">Risk Analysis</strong> ليتم حفظها هنا تلقائياً</div>'+
-      '<button onclick="showPage(\'analyze\',document.querySelectorAll(\'.nav-btn\')[1])" style="padding:10px 24px;border-radius:9px;border:none;cursor:pointer;background:var(--blue);color:#fff;font-size:13px;font-weight:700;font-family:Inter,sans-serif">→ ابدأ تحليلاً جديداً</button>'+
+      '<div style="font-size:15px;font-weight:600;color:#e2e8f0;margin-bottom:8px">'+t('repEmpty')+'</div>'+
+      '<div style="font-size:13px;margin-bottom:20px">'+t('repEmptyBody')+'</div>'+
+      '<button onclick="showPage(\'analyze\',document.querySelectorAll(\'.nav-btn\')[1])" style="padding:10px 24px;border-radius:9px;border:none;cursor:pointer;background:var(--blue);color:#fff;font-size:13px;font-weight:700;font-family:inherit">'+t('repStart')+'</button>'+
     '</div>';
     return;
   }
@@ -1637,26 +1989,26 @@ function showReports(){
     var lclr=h.level==='HIGH'?'#f87171':h.level==='MEDIUM'?'#fbbf24':h.level==='LOW'?'#34d399':'#38bdf8';
     var lbg=h.level==='HIGH'?'rgba(239,68,68,.12)':h.level==='MEDIUM'?'rgba(245,158,11,.1)':h.level==='LOW'?'rgba(16,185,129,.1)':'rgba(14,165,233,.1)';
     return '<tr>'+
-      '<td style="color:var(--muted)">'+new Date(h.timestamp).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'+
-      '<td><strong style="color:#e2e8f0">'+h.from+' → '+h.to+'</strong></td>'+
+      '<td style="color:var(--muted)">'+new Date(h.timestamp).toLocaleDateString(LANG==='ar'?'ar-EG':'en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</td>'+
+      '<td><strong style="color:#e2e8f0" dir="ltr">'+escHTML(h.from)+' → '+escHTML(h.to)+'</strong></td>'+
       '<td style="color:#94a3b8">'+escHTML(h.op||'—')+'</td>'+
       '<td style="color:#94a3b8;font-family:monospace">'+escHTML(h.reg||'—')+'</td>'+
-      '<td><span style="padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;background:'+lbg+';color:'+lclr+'">'+h.level+'</span></td>'+
+      '<td><span style="padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;background:'+lbg+';color:'+lclr+'">'+t('level'+h.level)+'</span></td>'+
       '<td style="color:'+lclr+';font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700">'+h.score+'</td>'+
-      '<td><button class="act-btn ab-del" onclick="deleteHistEntry('+idx+')" title="Delete">🗑</button></td>'+
+      '<td><button class="act-btn ab-del" onclick="deleteHistEntry('+idx+')" title="'+t('thDel')+'">🗑</button></td>'+
     '</tr>';
   }).join('');
   el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'+
-    '<div style="font-size:13px;color:var(--muted)">'+hist.length+' تحليل محفوظ</div>'+
+    '<div style="font-size:13px;color:var(--muted)">'+t('repCount',{n:hist.length})+'</div>'+
     '<div style="display:flex;gap:8px">'+
-      '<button onclick="showPage(\'analyze\',document.querySelectorAll(\'.nav-btn\')[1])" style="padding:8px 16px;border-radius:8px;border:none;cursor:pointer;background:var(--blue);color:#fff;font-size:12px;font-weight:700;font-family:Inter,sans-serif">+ تحليل جديد</button>'+
-      '<button onclick="clearHistory()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:rgba(239,68,68,.1);color:#f87171;font-size:12px;font-weight:700;font-family:Inter,sans-serif">🗑 مسح الكل</button>'+
+      '<button onclick="showPage(\'analyze\',document.querySelectorAll(\'.nav-btn\')[1])" style="padding:8px 16px;border-radius:8px;border:none;cursor:pointer;background:var(--blue);color:#fff;font-size:12px;font-weight:700;font-family:inherit">'+t('repNew')+'</button>'+
+      '<button onclick="clearHistory()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:rgba(239,68,68,.1);color:#f87171;font-size:12px;font-weight:700;font-family:inherit">'+t('repClear')+'</button>'+
     '</div>'+
   '</div>'+
   '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden">'+
   '<table class="hist-table">'+
   '<thead><tr>'+
-    '<th>التاريخ والوقت</th><th>المسار</th><th>المشغّل</th><th>السجل</th><th>مستوى الخطر</th><th>النتيجة</th><th>حذف</th>'+
+    '<th>'+t('thDate')+'</th><th>'+t('thRoute')+'</th><th>'+t('thOp')+'</th><th>'+t('thReg')+'</th><th>'+t('thLevel')+'</th><th>'+t('thScore')+'</th><th>'+t('thDel')+'</th>'+
   '</tr></thead>'+
   '<tbody>'+rows+'</tbody>'+
   '</table></div>';
@@ -1672,7 +2024,7 @@ function deleteHistEntry(idx){
 }
 
 function clearHistory(){
-  if(confirm('مسح جميع سجلات التحليل؟ هذا الإجراء لا يمكن التراجع عنه.')){
+  if(confirm(t('repClearConfirm'))){
     localStorage.removeItem('aris_history');
     showReports();
   }
