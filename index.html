@@ -212,8 +212,9 @@ body.lang-ar .layer-detail,body.lang-ar .narrative-txt{line-height:1.9}
 .leaflet-container{direction:ltr;font-family:Cairo,Inter,sans-serif}
 .leaflet-popup-content{font-size:13px}
 .zone-label{background:rgba(255,255,255,.92);border:2px solid #ef4444;color:#111827;font-weight:800;font-size:12px;padding:3px 8px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.25);font-family:Cairo,Inter,sans-serif}
-.zone-label.zl-MED{border-color:#f59e0b}
-.zone-label.zl-LOW{border-color:#10b981}
+.zone-label.zl-DANGER{border-color:#f97316}
+.zone-label.zl-CAUTION{border-color:#eab308}
+#riskList{max-height:330px;overflow-y:auto;padding-inline-end:4px}
 .zone-label:before{display:none}
 .map-legend{color:#e2e8f0}
 </style>
@@ -267,7 +268,7 @@ body.lang-ar .layer-detail,body.lang-ar .narrative-txt{line-height:1.9}
           <div class="price-note" data-i18n="priceNote">One-time · Lifetime license · Instant delivery</div>
         </div>
         <ul class="inc-list">
-          <li data-i18n="inc1">12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
+          <li data-i18n="inc1">15-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)</li>
           <li data-i18n="inc2">270+ Airport Database — military &amp; conflict zone detection</li>
           <li data-i18n="inc3">OFAC · EU Art.215 · UN SC 1267 Sanctions screening</li>
           <li data-i18n="inc4">Country-specific permits, lead times &amp; authority contacts</li>
@@ -326,7 +327,7 @@ body.lang-ar .layer-detail,body.lang-ar .narrative-txt{line-height:1.9}
     </div>
     <div class="kpi-row">
       <div class="kpi kpi-blue"><div class="kpi-label" data-i18n="kpiAirports">Airports Monitored</div><div class="kpi-val" id="kpi1">0</div><div class="kpi-sub" data-i18n="kpiAirportsSub">Worldwide coverage</div><div class="kpi-icon">✈</div></div>
-      <div class="kpi kpi-red"><div class="kpi-label" data-i18n="kpiConflict">Conflict-Zone Airports</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub" data-i18n="kpiConflictSub">Updated daily</div><div class="kpi-icon">⚠</div></div>
+      <div class="kpi kpi-red"><div class="kpi-label" data-i18n="kpiConflict">Conflict-Zone Airports</div><div class="kpi-val" id="kpi2">0</div><div class="kpi-sub" id="kpiDataSub"></div><div class="kpi-icon">⚠</div></div>
       <div class="kpi kpi-gold"><div class="kpi-label" data-i18n="kpiPermits">Permit Databases</div><div class="kpi-val" id="kpi3">0</div><div class="kpi-sub" data-i18n="kpiPermitsSub">Countries covered</div><div class="kpi-icon">🛡</div></div>
       <div class="kpi kpi-green"><div class="kpi-label" data-i18n="kpiSession">Analyses This Session</div><div class="kpi-val" id="kpiToday">0</div><div class="kpi-sub" id="kpiSub">Run an analysis</div><div class="kpi-icon">📊</div></div>
     </div>
@@ -420,9 +421,10 @@ body.lang-ar .layer-detail,body.lang-ar .narrative-txt{line-height:1.9}
       <div id="fullMap" style="width:100%;height:100%"></div>
       <div class="map-legend">
         <div style="font-size:11px;font-weight:700;color:#e2e8f0;margin-bottom:8px" data-i18n="legendTitle">RISK LEVEL</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span data-i18n="lvHIGH">High Risk</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span data-i18n="lvMED">Medium Risk</span></div>
-        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div><span data-i18n="lvLOW">Low Risk</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span data-i18n="zNOFLY">Level 1 · No-fly</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div><span data-i18n="zDANGER">Level 2 · Danger</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div><span data-i18n="zCAUTION">Level 3 · Caution</span></div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:8px" id="legendDate"></div>
       </div>
     </div>
   </div>
@@ -452,7 +454,7 @@ var I18N={
   noKey:['No license key?','لا تملك مفتاحاً؟'],
   buyLink:['Purchase access →','اشترِ الاشتراك ←'],
   priceNote:['One-time · Lifetime license · Instant delivery','دفعة واحدة · ترخيص مدى الحياة · تسليم فوري'],
-  inc1:['12-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)','محرك مخاطر من 12 طبقة (ICAO SMS Doc 9859/9870)'],
+  inc1:['15-Layer Aviation Risk Engine (ICAO SMS Doc 9859/9870)','محرك مخاطر من 15 طبقة (ICAO SMS Doc 9859/9870)'],
   inc2:['270+ Airport Database — military & conflict zone detection','قاعدة بيانات لأكثر من 270 مطاراً — كشف المطارات العسكرية ومناطق النزاع'],
   inc3:['OFAC · EU Art.215 · UN SC 1267 Sanctions screening','فحص العقوبات: OFAC · الاتحاد الأوروبي · مجلس الأمن 1267'],
   inc4:['Country-specific permits, lead times & authority contacts','متطلبات التصاريح لكل دولة ومدد الطلب وجهات الاتصال'],
@@ -479,7 +481,7 @@ var I18N={
   dashSub:['Real-time intelligence','معلومات لحظية'],
   kpiAirports:['Airports Monitored','المطارات المرصودة'],
   kpiAirportsSub:['Worldwide coverage','تغطية عالمية'],
-  kpiConflict:['Conflict-Zone Airports','مطارات مناطق النزاع'],
+  kpiConflict:['Countries Under Airspace Advisory','دول عليها تحذيرات أجواء'],
   kpiConflictSub:['Updated daily','تحديث يومي'],
   kpiPermits:['Permit Databases','قواعد بيانات التصاريح'],
   kpiPermitsSub:['Countries covered','دولة مشمولة'],
@@ -488,7 +490,7 @@ var I18N={
   kpiTotal:['{n} total analyses','{n} تحليل حتى الآن'],
   mapCard:['Global Risk Map','خريطة المخاطر العالمية'],
   updated:['Updated','آخر تحديث'],
-  highRegions:['High-Risk Regions','المناطق عالية الخطورة'],
+  highRegions:['No-Fly & Danger Zones','مناطق الحظر والخطر'],
   riskDist:['Risk Distribution','توزيع مستويات الخطر'],
   layersActive:['Analysis Layers Active','طبقات التحليل النشطة'],
   // Analysis page
@@ -529,11 +531,17 @@ var I18N={
   icaoBadBody:['ICAO codes must be exactly 4 letters (e.g. <strong>OERK</strong>, <strong>OMDB</strong>, <strong>KJFK</strong>).','رمز ICAO يتكون من 4 أحرف إنجليزية بالضبط (مثل <strong>OERK</strong> و <strong>OMDB</strong> و <strong>KJFK</strong>).'],
   // Map page
   mapTitle:['Global Risk Map','خريطة المخاطر العالمية'],
-  mapSub:['Conflict zones · Restricted airspace · Sanctions coverage — click a zone for details','مناطق النزاع · الأجواء المقيّدة · نطاق العقوبات — اضغط على أي منطقة لعرض التفاصيل'],
+  mapSub:['Airspace advisories worldwide (EASA CZIB · FAA · Safe Airspace) — click a zone for details','تحذيرات الأجواء حول العالم (EASA · FAA · Safe Airspace) — اضغط على أي منطقة لعرض التفاصيل'],
   legendTitle:['RISK LEVEL','مستوى الخطر'],
   lvHIGH:['High Risk','خطر عالٍ'],
   lvMED:['Medium Risk','خطر متوسط'],
   lvLOW:['Low Risk','خطر منخفض'],
+  zNOFLY:['Level 1 · No-fly','المستوى 1 · حظر طيران'],
+  zPARTIAL:['Level 1 · Partial no-fly','المستوى 1 · حظر جزئي'],
+  zDANGER:['Level 2 · Danger','المستوى 2 · خطر'],
+  zCAUTION:['Level 3 · Caution','المستوى 3 · حذر'],
+  dataAsOf:['Data as of {d}','البيانات بتاريخ {d}'],
+  dataStale:['⚠ Data is {n} days old — update it','⚠ عمر البيانات {n} يوماً — يلزم التحديث'],
   lvMON:['Monitor','مراقبة'],
   // Reports page
   repTitle:['Analysis Reports','تقارير التحليل'],
@@ -588,8 +596,15 @@ function t(k,vars){
   if(vars) for(var v in vars) s=s.split('{'+v+'}').join(vars[v]);
   return s;
 }
-var COUNTRY_AR={'Saudi Arabia':'السعودية','USA':'الولايات المتحدة','Turkey':'تركيا','China':'الصين','UAE':'الإمارات','Egypt':'مصر','India':'الهند','Iraq':'العراق','UK':'المملكة المتحدة','Iran':'إيران','Spain':'إسبانيا','Oman':'عُمان','Italy':'إيطاليا','Greece':'اليونان','Australia':'أستراليا','Ukraine':'أوكرانيا','Russia':'روسيا','Pakistan':'باكستان','Nigeria':'نيجيريا','Morocco':'المغرب','Libya':'ليبيا','Kazakhstan':'كازاخستان','Germany':'ألمانيا','France':'فرنسا','Canada':'كندا','Brazil':'البرازيل','Yemen':'اليمن','Tunisia':'تونس','Thailand':'تايلاند','South Africa':'جنوب أفريقيا','Jordan':'الأردن','Japan':'اليابان','Vietnam':'فيتنام','Tanzania':'تنزانيا','Syria':'سوريا','Switzerland':'سويسرا','Sweden':'السويد','Sudan':'السودان','South Korea':'كوريا الجنوبية','Qatar':'قطر','Portugal':'البرتغال','Poland':'بولندا','New Zealand':'نيوزيلندا','Mexico':'المكسيك','Kuwait':'الكويت','Kenya':'كينيا','Indonesia':'إندونيسيا','Ethiopia':'إثيوبيا','Cyprus':'قبرص','Bahrain':'البحرين','Algeria':'الجزائر','Zimbabwe':'زيمبابوي','Zambia':'زامبيا','Uzbekistan':'أوزبكستان','Uganda':'أوغندا','Turkmenistan':'تركمانستان','Taiwan':'تايوان','Sri Lanka':'سريلانكا','Somalia':'الصومال','Singapore':'سنغافورة','Serbia':'صربيا','Senegal':'السنغال','Romania':'رومانيا','Philippines':'الفلبين','Peru':'بيرو','Panama':'بنما','Norway':'النرويج','Netherlands':'هولندا','Nepal':'نيبال','Myanmar':'ميانمار','Mozambique':'موزمبيق','Maldives':'المالديف','Malaysia':'ماليزيا','Lebanon':'لبنان','Ivory Coast':'ساحل العاج','Israel':'إسرائيل','Ireland':'أيرلندا','Hungary':'المجر','Ghana':'غانا','Georgia':'جورجيا','Finland':'فنلندا','Eritrea':'إريتريا','Dominican Republic':'جمهورية الدومينيكان','Djibouti':'جيبوتي','Denmark':'الدنمارك','DRC':'الكونغو الديمقراطية','Czech Republic':'التشيك','Croatia':'كرواتيا','Colombia':'كولومبيا','Chile':'تشيلي','Cameroon':'الكاميرون','Cambodia':'كمبوديا','Bulgaria':'بلغاريا','Belgium':'بلجيكا','Belarus':'بيلاروسيا','Bangladesh':'بنغلاديش','Azerbaijan':'أذربيجان','Austria':'النمسا','Armenia':'أرمينيا','Argentina':'الأرجنتين','Angola':'أنغولا','Afghanistan':'أفغانستان','North Korea':'كوريا الشمالية','Venezuela':'فنزويلا','Unknown':'غير معروف'};
-function ctry(c){return LANG==='ar'&&COUNTRY_AR[c]?COUNTRY_AR[c]:c;}
+var COUNTRY_AR={'Saudi Arabia':'السعودية','USA':'الولايات المتحدة','Turkey':'تركيا','China':'الصين','UAE':'الإمارات','Egypt':'مصر','India':'الهند','Iraq':'العراق','UK':'المملكة المتحدة','Iran':'إيران','Spain':'إسبانيا','Oman':'عُمان','Italy':'إيطاليا','Greece':'اليونان','Australia':'أستراليا','Ukraine':'أوكرانيا','Russia':'روسيا','Pakistan':'باكستان','Nigeria':'نيجيريا','Morocco':'المغرب','Libya':'ليبيا','Kazakhstan':'كازاخستان','Germany':'ألمانيا','France':'فرنسا','Canada':'كندا','Brazil':'البرازيل','Yemen':'اليمن','Tunisia':'تونس','Thailand':'تايلاند','South Africa':'جنوب أفريقيا','Jordan':'الأردن','Japan':'اليابان','Vietnam':'فيتنام','Tanzania':'تنزانيا','Syria':'سوريا','Switzerland':'سويسرا','Sweden':'السويد','Sudan':'السودان','South Korea':'كوريا الجنوبية','Qatar':'قطر','Portugal':'البرتغال','Poland':'بولندا','New Zealand':'نيوزيلندا','Mexico':'المكسيك','Kuwait':'الكويت','Kenya':'كينيا','Indonesia':'إندونيسيا','Ethiopia':'إثيوبيا','Cyprus':'قبرص','Bahrain':'البحرين','Algeria':'الجزائر','Zimbabwe':'زيمبابوي','Zambia':'زامبيا','Uzbekistan':'أوزبكستان','Uganda':'أوغندا','Turkmenistan':'تركمانستان','Taiwan':'تايوان','Sri Lanka':'سريلانكا','Somalia':'الصومال','Singapore':'سنغافورة','Serbia':'صربيا','Senegal':'السنغال','Romania':'رومانيا','Philippines':'الفلبين','Peru':'بيرو','Panama':'بنما','Norway':'النرويج','Netherlands':'هولندا','Nepal':'نيبال','Myanmar':'ميانمار','Mozambique':'موزمبيق','Maldives':'المالديف','Malaysia':'ماليزيا','Lebanon':'لبنان','Ivory Coast':'ساحل العاج','Israel':'إسرائيل','Ireland':'أيرلندا','Hungary':'المجر','Ghana':'غانا','Georgia':'جورجيا','Finland':'فنلندا','Eritrea':'إريتريا','Dominican Republic':'جمهورية الدومينيكان','Djibouti':'جيبوتي','Denmark':'الدنمارك','DRC':'الكونغو الديمقراطية','Czech Republic':'التشيك','Croatia':'كرواتيا','Colombia':'كولومبيا','Chile':'تشيلي','Cameroon':'الكاميرون','Cambodia':'كمبوديا','Bulgaria':'بلغاريا','Belgium':'بلجيكا','Belarus':'بيلاروسيا','Bangladesh':'بنغلاديش','Azerbaijan':'أذربيجان','Austria':'النمسا','Armenia':'أرمينيا','Argentina':'الأرجنتين','Angola':'أنغولا','Afghanistan':'أفغانستان','North Korea':'كوريا الشمالية','Venezuela':'فنزويلا','Haiti':'هايتي','Moldova':'مولدوفا','Mali':'مالي','Niger':'النيجر','South Sudan':'جنوب السودان','Rwanda':'رواندا','Hong Kong':'هونغ كونغ','Palestine':'فلسطين','Unknown':'غير معروف'};
+var _arNames=null;
+function ctry(c){
+  if(LANG!=='ar') return c;
+  if(COUNTRY_AR[c]) return COUNTRY_AR[c];
+  var iso=typeof ISO_OF!=='undefined'&&ISO_OF[c];
+  if(iso&&window.Intl&&Intl.DisplayNames){try{_arNames=_arNames||new Intl.DisplayNames(['ar'],{type:'region'});return _arNames.of(iso)||c;}catch(e){}}
+  return c;
+}
 
 function setLang(l){
   LANG=l;
@@ -815,7 +830,7 @@ function launch(key){
   setTimeout(function(){if(dashMap)dashMap.invalidateSize();},300);
 }
 window.addEventListener('DOMContentLoaded',applyLang);
-// Auto-launch for returning users — deferred until every script block has run (ZONES, TICKER_ALERTS, AP_DB...)
+// Auto-launch for returning users — deferred until every script block has run (COUNTRY_RISK, TICKER_ALERTS, AP_DB...)
 window.addEventListener('DOMContentLoaded',function(){var k=localStorage.getItem(LIC);if(k&&(KEYS.indexOf(k)>=0||KEYS.indexOf(rev(k))>=0)){document.getElementById('keyInp').value=k;launch(k);}});
 
 var WA='962790000000';
@@ -888,13 +903,13 @@ function initApp(){
   document.getElementById('kpiToday').textContent=sessionCount;
   updateKpiSub();
   updateDashDate();
-  renderRegions();
+  renderRegions(); updateDataDate();
   var fdate=document.getElementById('f-date');
   if(fdate) fdate.value=new Date().toISOString().split('T')[0];
   initTicker();
   initUTCClock();
   setTimeout(function(){animateCounter('kpi1',Object.keys(AP_DB).length,1200);},200);
-  setTimeout(function(){animateCounter('kpi2',Object.keys(CONFLICT_ZONES).length,900);},350);
+  setTimeout(function(){animateCounter('kpi2',Object.keys(COUNTRY_RISK).length,900);},350);
   setTimeout(function(){animateCounter('kpi3',Object.keys(PERMIT_RULES).length,700);},500);
   setTimeout(initDashMap,100);
   setTimeout(initCharts,200);
@@ -909,37 +924,64 @@ function showPage(id,btn){
   if(id==='reports') showReports();
 }
 
-var ZONES=[
-  {lat:48.5,lng:32,r:300000,color:'#ef4444',name:'Eastern Ukraine',ar:'شرق أوكرانيا',level:'HIGH',note:'All Ukrainian FIRs closed to civil traffic.',noteAr:'جميع الأقاليم الجوية الأوكرانية مغلقة أمام الطيران المدني.'},
-  {lat:31.5,lng:34.5,r:180000,color:'#ef4444',name:'Gaza / Israel',ar:'غزة / إسرائيل',dir:'left',level:'HIGH',note:'Active conflict. Check EASA CZIB and NOTAMs before dispatch.',noteAr:'نزاع نشط. راجع نشرات EASA وإشعارات NOTAM قبل الإقلاع.'},
-  {lat:15.5,lng:44,r:350000,color:'#ef4444',name:'Yemen FIR',ar:'الإقليم الجوي اليمني',level:'HIGH',note:'Commercial permits suspended.',noteAr:'التصاريح التجارية معلّقة.'},
-  {lat:27,lng:17,r:400000,color:'#ef4444',name:'Libya Airspace',ar:'الأجواء الليبية',level:'HIGH',note:'Split authority — dual permits may be required.',noteAr:'سلطتان منفصلتان — قد يلزم تصريحان.'},
-  {lat:33.5,lng:36.5,r:200000,color:'#ef4444',name:'Syria Airspace',ar:'الأجواء السورية',dir:'top',level:'HIGH',note:'Largely closed. Diplomatic permit required.',noteAr:'مغلقة في معظمها. يلزم تصريح دبلوماسي.'},
-  {lat:8,lng:47,r:450000,color:'#f59e0b',name:'Somalia / Gulf of Aden',ar:'الصومال / خليج عدن',level:'MED',note:'Piracy advisory. Minimum overflight FL250.',noteAr:'تحذير قرصنة. الحد الأدنى للعبور FL250.'},
-  {lat:35,lng:44,r:200000,color:'#f59e0b',name:'Northern Iraq FIR',ar:'شمال الإقليم العراقي',dir:'right',level:'MED',note:'Security pre-clearance for non-scheduled flights.',noteAr:'موافقة أمنية مسبقة للرحلات غير المجدولة.'},
-  {lat:40.5,lng:128,r:200000,color:'#f59e0b',name:'North Korea Buffer',ar:'محيط كوريا الشمالية',level:'MED',note:'Missile-test risk. Avoid Pyongyang FIR.',noteAr:'خطر تجارب صاروخية. تجنّب إقليم بيونغ يانغ.'},
-  {lat:14,lng:24,r:300000,color:'#f59e0b',name:'Sudan Airspace',ar:'الأجواء السودانية',level:'MED',note:'Khartoum closed. Port Sudan partially operational.',noteAr:'مطار الخرطوم مغلق. بورتسودان يعمل جزئياً.'},
-  {lat:33,lng:65,r:350000,color:'#f59e0b',name:'Afghanistan',ar:'أفغانستان',level:'MED',note:'No internationally recognized permit authority.',noteAr:'لا توجد جهة تصاريح معترف بها دولياً.'},
-  {lat:31.9,lng:35.9,r:120000,color:'#10b981',name:'Amman FIR',ar:'إقليم عمّان',level:'LOW',note:'Open. Standard permit procedures.',noteAr:'مفتوح. إجراءات التصاريح الاعتيادية.'},
-];
+// Map zones are drawn from the global risk data (COUNTRY_RISK). Centre, radius (km), label side and an optional area name
+var ZONE_GEO={
+  RU:{c:[56,44],r:650},UA:{c:[49,32],r:420},SA:{c:[19,44],r:300,n:'Southern Saudi Arabia',na:'جنوب السعودية'},
+  IR:{c:[32.5,54],r:620},YE:{c:[15.5,47],r:380},LB:{c:[33.9,35.8],r:70,dir:'left'},SD:{c:[15,30],r:550},LY:{c:[27,17],r:560},HT:{c:[19,-72.5],r:120},
+  SY:{c:[35.2,38.5],r:230,dir:'top'},IQ:{c:[33,43.5],r:330},IL:{c:[31.4,34.9],r:100,dir:'left'},AF:{c:[33.9,66],r:430},KW:{c:[29.3,47.6],r:80,dir:'bottom'},
+  ET:{c:[13,39.5],r:250,dir:'bottom',n:'Northern Ethiopia',na:'شمال إثيوبيا'},PK:{c:[30,70],r:480},VE:{c:[7,-66],r:430},
+  CD:{c:[-1.5,29],r:250,n:'Eastern DRC',na:'شرق الكونغو الديمقراطية'},SO:{c:[5,46],r:430},ML:{c:[17,-3],r:520},KP:{c:[40,127],r:200},SS:{c:[7.5,30.5],r:380},
+  MD:{c:[47,28.5],r:120,dir:'left'},BY:{c:[53.5,28],r:290},ER:{c:[15.6,38.8],r:170,dir:'left'},MM:{c:[21,96],r:430},NE:{c:[17,9],r:520},
+  JO:{c:[31,36.6],r:150},QA:{c:[25.3,51.2],r:70},BH:{c:[26,50.55],r:40},AE:{c:[24,54.3],r:170},OM:{c:[21,57],r:330},
+  EG:{c:[29.5,33.6],r:220,n:'Sinai / Red Sea (Egypt)',na:'سيناء / البحر الأحمر (مصر)'},IN:{c:[34,75],r:200,n:'Kashmir',na:'كشمير'},
+  KH:{c:[14,103.5],r:120,n:'Thai-Cambodian border',na:'الحدود التايلاندية الكمبودية'},RW:{c:[-1.9,29.9],r:90},
+  TR:{c:[37.5,40],r:220,n:'South-east Turkey',na:'جنوب شرق تركيا'},CY:{c:[35,33.2],r:80},KR:{c:[37.5,127],r:100,n:'Seoul area',na:'منطقة سيول'},
+  KE:{c:[2,41],r:200,n:'Kenya-Somalia border',na:'الحدود الكينية الصومالية'}
+};
+var ZONE_STYLE={NOFLY:{color:'#ef4444',key:'zNOFLY'},DANGER:{color:'#f97316',key:'zDANGER'},CAUTION:{color:'#eab308',key:'zCAUTION'}};
+var _zones=null;
+function zones(){
+  if(_zones) return _zones;
+  _zones=[];
+  if(typeof COUNTRY_RISK==='undefined') return _zones;
+  for(var iso in COUNTRY_RISK){
+    var r=COUNTRY_RISK[iso], g=ZONE_GEO[iso]; if(!g) continue;
+    var lvl=(r.dno||r.lv===1)?'NOFLY':r.lv===2?'DANGER':'CAUTION';
+    _zones.push({iso:iso,lat:g.c[0],lng:g.c[1],r:g.r*1000,dir:g.dir,n:g.n,na:g.na,lvl:lvl,color:ZONE_STYLE[lvl].color,risk:r,
+      rank:(r.dno?5:r.partial?3:r.lv===1?4:r.lv===2?2:1)});
+  }
+  _zones.push({iso:'',lat:26.6,lng:53,r:280000,dir:'bottom',n:'Persian Gulf overwater',na:'الأجواء فوق مياه الخليج',lvl:'DANGER',color:ZONE_STYLE.DANGER.color,rank:2,
+    risk:{easa:'CZIB-2026-07-R3',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',firs:[],
+      why:'Persian Gulf and Gulf of Oman: avoid overwater routes except for arrival and departure.',whyAr:'الخليج العربي وخليج عُمان: تجنّب المسارات فوق المياه إلا للهبوط والإقلاع.'}});
+  _zones.sort(function(a,b){return b.rank-a.rank||b.r-a.r;});
+  return _zones;
+}
 var zoneLayers=[];
 var TILE_URL='https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 var TILE_OPT={attribution:'© OpenStreetMap · © CARTO',subdomains:'abcd',maxZoom:18};
 
-function zoneName(z){return tr(z.name,z.ar);}
-function zoneLevel(z){return t(z.level==='HIGH'?'lvHIGH':z.level==='MED'?'lvMED':'lvLOW');}
+function zoneName(z){
+  if(z.n) return tr(z.n,z.na);
+  return ctry(AP_COUNTRY[z.iso]||z.iso);
+}
+function zoneLevel(z){return z.rank===3?t('zPARTIAL'):t(ZONE_STYLE[z.lvl].key);}
 function zonePopup(z){
-  return '<div dir="'+(LANG==='ar'?'rtl':'ltr')+'" style="font-family:inherit;min-width:180px"><div style="font-weight:800;font-size:13px;margin-bottom:4px">'+zoneName(z)+'</div>'+
+  var r=z.risk;
+  return '<div dir="'+(LANG==='ar'?'rtl':'ltr')+'" style="font-family:inherit;min-width:200px;max-width:260px"><div style="font-weight:800;font-size:13px;margin-bottom:4px">'+zoneName(z)+'</div>'+
     '<div style="font-weight:700;color:'+z.color+';margin-bottom:4px">'+zoneLevel(z)+'</div>'+
-    '<div style="font-size:12px;color:#334155">'+tr(z.note,z.noteAr)+'</div></div>';
+    '<div style="font-size:12px;color:#334155;margin-bottom:4px">'+tr(r.why,r.whyAr)+'</div>'+
+    '<div style="font-size:11px;color:#64748b" dir="ltr">'+(r.easa?'EASA '+r.easa+(r.until?' → '+r.until:'')+'<br>':'')+(r.faa?'FAA '+r.faa+'<br>':'')+
+      (r.firs.length?'FIR '+r.firs.join(' / ')+'<br>':'')+tr('As of ','بتاريخ ')+r.asOf+'</div></div>';
 }
 function addZones(map,labels){
-  ZONES.forEach(function(z){
-    var c=L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.28,weight:2.5,dashArray:z.level==='HIGH'?null:'6,5'}).addTo(map);
+  zones().forEach(function(z){
+    var c=L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:z.lvl==='CAUTION'?.18:.26,weight:z.lvl==='NOFLY'?2.5:2,
+      dashArray:(z.lvl==='NOFLY'&&z.rank!==3)?null:'6,5'}).addTo(map);
     c.bindPopup(zonePopup(z));
-    // Small LOW zones sit inside larger ones, so only HIGH/MED zones get a permanent label
-    var lab=labels&&z.level!=='LOW';
-    if(lab) c.bindTooltip(zoneName(z),{permanent:true,direction:z.dir||'center',offset:z.dir==='left'?[-12,0]:z.dir==='right'?[12,0]:z.dir==='top'?[0,-12]:[0,0],className:'zone-label zl-'+z.level});
+    // Level 3 zones are many and small, so only NO-FLY and DANGER zones carry a permanent label
+    var lab=labels&&z.lvl!=='CAUTION';
+    if(lab) c.bindTooltip(zoneName(z),{permanent:true,direction:z.dir||'center',
+      offset:z.dir==='left'?[-10,0]:z.dir==='right'?[10,0]:z.dir==='top'?[0,-10]:z.dir==='bottom'?[0,10]:[0,0],className:'zone-label zl-'+z.lvl});
     zoneLayers.push({c:c,z:z,labels:lab});
   });
 }
@@ -951,25 +993,30 @@ function refreshZoneText(){
 }
 function initDashMap(){
   if(dashMap) return;
-  dashMap=L.map('dashMap',{zoomControl:true,scrollWheelZoom:false,dragging:true,attributionControl:true}).setView([27,42],3);
+  dashMap=L.map('dashMap',{zoomControl:true,scrollWheelZoom:false,dragging:true,attributionControl:true,worldCopyJump:true}).setView([28,38],2);
   L.tileLayer(TILE_URL,TILE_OPT).addTo(dashMap);
   addZones(dashMap,false);
   setTimeout(function(){dashMap.invalidateSize();},200);
 }
 function initFullMap(){
   if(fullMap) return;
-  fullMap=L.map('fullMap',{zoomControl:true}).setView([27,40],4);
+  fullMap=L.map('fullMap',{zoomControl:true,worldCopyJump:true}).setView([30,40],4);
   L.tileLayer(TILE_URL,TILE_OPT).addTo(fullMap);
   addZones(fullMap,true);
   setTimeout(function(){fullMap.invalidateSize();},200);
 }
 function renderRegions(){
   var el=document.getElementById('riskList'); if(!el) return;
-  el.innerHTML=ZONES.filter(function(z){return z.level!=='LOW';}).map(function(z){
-    var hi=z.level==='HIGH';
+  el.innerHTML=zones().filter(function(z){return z.lvl!=='CAUTION';}).map(function(z){
+    var hi=z.lvl==='NOFLY';
     return '<li class="risk-item'+(hi?' high-risk':'')+'"><span><span class="risk-dot-live '+(hi?'rdl-high':'rdl-med')+'"></span>'+zoneName(z)+'</span>'+
       '<span class="risk-badge '+(hi?'rb-high':'rb-med')+'">'+zoneLevel(z)+'</span></li>';
   }).join('');
+}
+function updateDataDate(){
+  var age=daysSince(RISK_DATA_DATE);
+  var txt=age>STALE_DAYS?t('dataStale',{n:age}):t('dataAsOf',{d:RISK_DATA_DATE});
+  ['kpiDataSub','legendDate'].forEach(function(id){var el=document.getElementById(id);if(el){el.textContent=txt;el.style.color=age>STALE_DAYS?'#fbbf24':'';}});
 }
 function updateKpiSub(){
   var el=document.getElementById('kpiSub'); if(!el) return;
@@ -1005,7 +1052,7 @@ function initCharts(){
 }
 function onLangChange(){
   if(!document.getElementById('app').classList.contains('show')) return;
-  initTicker(); updateKpiSub(); updateDashDate(); renderRegions(); refreshZoneText();
+  initTicker(); updateKpiSub(); updateDashDate(); updateDataDate(); renderRegions(); refreshZoneText();
   if(riskChartObj){
     var lb=chartLabels();
     riskChartObj.data.labels=lb.risk; riskChartObj.options.plugins.legend.rtl=LANG==='ar'; riskChartObj.update();
@@ -1017,6 +1064,7 @@ function onLangChange(){
   if(document.getElementById('page-reports').classList.contains('on')) showReports();
 }
 </script>
+<script src="airports.js"></script>
 <script>
 var AP_DB={
   // ── SAUDI ARABIA ──
@@ -1095,7 +1143,7 @@ var AP_DB={
   HLLS:{name:'Sebha Airport',city:'Sebha',country:'Libya',lat:26.987,lng:14.472,fir:'HLLL'},
   HLMB:{name:'Misrata Airport',city:'Misrata',country:'Libya',lat:32.325,lng:15.061,fir:'HLLL'},
   // ── LEBANON ──
-  OLBA:{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.821,lng:35.488,fir:'LCCC'},
+  OLBA:{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.821,lng:35.488,fir:'OLBB'},
   // ── SYRIA ──
   OSDI:{name:'Damascus Intl',city:'Damascus',country:'Syria',lat:33.411,lng:36.516,fir:'OSTT'},
   OSAP:{name:'Aleppo Intl',city:'Aleppo',country:'Syria',lat:36.181,lng:37.224,fir:'OSTT'},
@@ -1185,8 +1233,8 @@ var AP_DB={
   // ── IRELAND ──
   EIDW:{name:'Dublin Airport',city:'Dublin',country:'Ireland',lat:53.421,lng:-6.27,fir:'EISN'},
   // ── RUSSIA ──
-  UUEE:{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.972,lng:37.415,fir:'URRV'},
-  UUDD:{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.41,lng:37.906,fir:'URRV'},
+  UUEE:{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.972,lng:37.415,fir:'UUWV'},
+  UUDD:{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.41,lng:37.906,fir:'UUWV'},
   URSS:{name:'Sochi Intl',city:'Sochi',country:'Russia',lat:43.449,lng:39.957,fir:'URRV'},
   ULLI:{name:'Pulkovo Airport',city:'St Petersburg',country:'Russia',lat:59.8,lng:30.262,fir:'ULLL'},
   // ── UKRAINE ──
@@ -1400,6 +1448,150 @@ var AP_DB={
 };
 </script>
 <script>
+// ── Global risk data ──
+// Source: ARIS research dataset (aris-risk-dataset.json), compiled 2026-10-14 from Safe Airspace,
+// EASA CZIBs, FAA SFAR/KICZ NOTAMs, EU Air Safety List, FAA IASA and EASA GNSS bulletins.
+// Advisory only: every item must be re-checked against the live source before dispatch.
+var RISK_DATA_DATE='2026-10-14';
+var STALE_DAYS=90;
+// lv: 1 NO-FLY, 2 DANGER, 3 CAUTION. dno: EASA CZIB "do not operate" at all levels. partial: only part of the FIR.
+var COUNTRY_RISK={
+  RU:{lv:1,firs:['UUWV','URRV','UWWW'],faa:'KICZ A0005/22',asOf:'2026-10-06',
+      why:'Drones and missiles; air-defence misidentification risk (AZAL 8243, Dec 2024).',whyAr:'طائرات مسيّرة وصواريخ، وخطر الاستهداف الخاطئ من الدفاعات الجوية (رحلة أذربيجان 8243، ديسمبر 2024).'},
+  UA:{lv:1,firs:['UKBV','UKLV','UKDV','UKOV','UKFV'],faa:'SFAR 113 + KICZ A0004/22',asOf:'2026-09-22',
+      why:'All Ukrainian FIRs closed to civil traffic since Feb 2022.',whyAr:'جميع الأقاليم الجوية الأوكرانية مغلقة أمام الطيران المدني منذ فبراير 2022.'},
+  SA:{lv:1,partial:1,firs:['OEJD'],easa:'CZIB-2026-09-R1',until:'2026-11-16',asOf:'2026-10-13',
+      why:'Houthi missile and drone attacks, including Riyadh. EASA: do not operate in a defined portion of the Jeddah FIR at all levels; caution in the rest.',
+      whyAr:'هجمات صاروخية وبالمسيّرات من الحوثيين، منها على الرياض. توصية EASA: عدم التشغيل في جزء محدد من إقليم جدة بجميع الارتفاعات، والحذر في بقية الإقليم.'},
+  IR:{lv:1,dno:1,firs:['OIIX'],easa:'CZIB-2026-04-R2',until:'2026-11-16',faa:'SFAR 117',asOf:'2026-10-02',
+      why:'Air-defence misidentification risk (PS752, 2020) and military tension.',whyAr:'خطر الاستهداف الخاطئ من الدفاعات الجوية (رحلة PS752، 2020) وتوتر عسكري.'},
+  YE:{lv:1,dno:1,firs:['OYSC'],easa:'CZIB Sanaa FIR',faa:'SFAR 115',asOf:'2026-10-01',
+      why:'Active conflict; Houthi surface-to-air missiles.',whyAr:'نزاع نشط وصواريخ أرض-جو لدى الحوثيين.'},
+  LB:{lv:1,firs:['OLBB'],easa:'CZIB-2026-06-R2',until:'2026-11-16',asOf:'2026-10-09',
+      why:'Israel-Hezbollah military activity, misidentification risk, GNSS jamming.',whyAr:'نشاط عسكري بين إسرائيل وحزب الله، وخطر الاستهداف الخاطئ، وتشويش على GPS.'},
+  SD:{lv:1,firs:['HSSS'],faa:'Routing authorization',asOf:'2026-09-01',
+      why:'Airspace closed to civil flights; anti-aircraft fire and poor ground security.',whyAr:'الأجواء مغلقة أمام الطيران المدني، مع مضادات أرضية وضعف في الأمن الأرضي.'},
+  LY:{lv:1,firs:['HLLL'],faa:'SFAR 112',asOf:'2026-07-30',
+      why:'Militia and air-defence threats; unreliable ATC.',whyAr:'تهديدات من الميليشيات والدفاعات الجوية، وخدمات مراقبة جوية غير موثوقة.'},
+  HT:{lv:1,firs:['MTEG'],faa:'FAA NOTAM (Sep 2026)',asOf:'2026-09-01',
+      why:'Gang gunfire and drones against low-flying aircraft around Port-au-Prince.',whyAr:'إطلاق نار من العصابات ومسيّرات ضد الطائرات المنخفضة حول بورت أو برنس.'},
+  SY:{lv:2,dno:1,firs:['OSTT'],easa:'CZIB Syria (rev. 2026-10-01)',until:'2026-11-30',faa:'SFAR 114',asOf:'2026-10-01',
+      why:'Military activity, interceptions, MANPADS.',whyAr:'نشاط عسكري واعتراضات وصواريخ محمولة على الكتف.'},
+  IQ:{lv:2,firs:['ORBB'],easa:'CZIB-2026-05-R2',until:'2026-11-16',faa:'SFAR 77',asOf:'2026-10-05',
+      why:'Missile and drone attacks; armed groups with anti-aircraft weapons.',whyAr:'هجمات بالصواريخ والمسيّرات، وجماعات مسلحة تملك أسلحة مضادة للطائرات.'},
+  IL:{lv:2,firs:['LLLL'],easa:'Conflict-zone bulletin (Sep 2026)',asOf:'2026-10-01',
+      why:'Missile and drone threats; short-notice airspace restrictions.',whyAr:'تهديدات صاروخية وبالمسيّرات، وقيود على الأجواء بإشعار قصير.'},
+  AF:{lv:2,firs:['OAKX'],faa:'SFAR 116 / KICZ A0029/21',asOf:'2026-10-01',
+      why:'No ATC service in the Kabul FIR; activity near the Pakistan border.',whyAr:'لا توجد خدمة مراقبة جوية في إقليم كابل، ونشاط عسكري قرب الحدود الباكستانية.'},
+  KW:{lv:2,firs:['OKAC'],easa:'CZIB-2026-07-R3 (Persian Gulf)',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',
+      why:'Regional missile and drone activity; overflights prohibited.',whyAr:'نشاط صاروخي وبالمسيّرات في المنطقة، والعبور ممنوع.'},
+  ET:{lv:2,firs:['HAAA'],easa:'Conflict-zone bulletin (Apr 2026)',asOf:'2026-10-02',
+      why:'Conflict, drones and anti-aircraft fire in Tigray, Afar and Amhara.',whyAr:'نزاع ومسيّرات ومضادات أرضية في تيغراي وعفر وأمهرة.'},
+  PK:{lv:2,firs:['OPKR','OPLR'],asOf:'2026-09-01',
+      why:'India-Pakistan tension; MANPADS below FL260.',whyAr:'توتر بين الهند وباكستان، وصواريخ محمولة تحت مستوى FL260.'},
+  VE:{lv:2,firs:['SVZM'],faa:'KICZ A0013/19',asOf:'2026-02-16',
+      why:'Military activity, surface-to-air missiles, GPS interference.',whyAr:'نشاط عسكري وصواريخ أرض-جو وتشويش على GPS.'},
+  CD:{lv:2,firs:['FZZA'],asOf:'2026-04-16',
+      why:'Conflict in eastern DRC; anti-aircraft fire near Goma.',whyAr:'نزاع في شرق الكونغو ومضادات أرضية قرب غوما.'},
+  SO:{lv:2,firs:['HCSM'],faa:'SFAR 107',asOf:'2026-09-01',
+      why:'Anti-aircraft fire below FL260; conflicting ATC instructions.',whyAr:'مضادات أرضية تحت FL260، وتعليمات مراقبة جوية متضاربة.'},
+  ML:{lv:2,firs:['DRRR','GOOO'],asOf:'2026-09-16',
+      why:'MANPADS, indirect fire and militant activity.',whyAr:'صواريخ محمولة وقصف غير مباشر ونشاط مسلحين.'},
+  KP:{lv:2,firs:['ZKKP'],faa:'SFAR 79',asOf:'2026-09-01',
+      why:'Unannounced missile launches.',whyAr:'إطلاق صواريخ دون إعلان مسبق.'},
+  SS:{lv:2,firs:[],asOf:'2023-04-01',
+      why:'Poor ATC below FL245; past anti-aircraft fire.',whyAr:'ضعف المراقبة الجوية تحت FL245، وحوادث سابقة لمضادات أرضية.'},
+  MD:{lv:2,firs:['LUUU'],asOf:'2024-11-22',
+      why:'Spillover from the war in Ukraine.',whyAr:'امتداد آثار الحرب في أوكرانيا.'},
+  BY:{lv:2,firs:['UMMV'],faa:'KICZ A0003/22',asOf:'2026-09-01',
+      why:'Misidentification risk near the Ukraine border; EU airspace ban on Belarusian carriers.',whyAr:'خطر الاستهداف الخاطئ قرب الحدود الأوكرانية، وحظر أوروبي على شركات الطيران البيلاروسية.'},
+  ER:{lv:2,firs:['HHAA'],asOf:'2020-11-17',
+      why:'Spillover from the Tigray conflict.',whyAr:'امتداد آثار نزاع تيغراي.'},
+  MM:{lv:2,firs:['VYYF'],easa:'Conflict-zone bulletin (Jul 2026)',asOf:'2026-09-01',
+      why:'Air strikes, surface-to-air missiles, drone attack on an ATR at Myitkyina (Feb 2026), GNSS jamming.',whyAr:'غارات جوية وصواريخ أرض-جو، وهجوم بمسيّرة على طائرة ATR في ميتكيينا (فبراير 2026)، وتشويش على GPS.'},
+  NE:{lv:2,firs:['DRRR'],easa:'Conflict-zone bulletin (Oct 2026)',asOf:'2026-10-01',
+      why:'Misidentification risk, poor ground security, GNSS spoofing.',whyAr:'خطر الاستهداف الخاطئ، وضعف الأمن الأرضي، وتزييف إشارات GPS.'},
+  JO:{lv:3,firs:['OJAC'],easa:'CZIB-2026-08-R2',until:'2026-10-16',asOf:'2026-09-30',
+      why:'Missile and drone spillover; France, Germany and EASA advise avoiding the FIR.',whyAr:'امتداد الهجمات الصاروخية وبالمسيّرات، وفرنسا وألمانيا وEASA تنصح بتجنّب الإقليم.'},
+  QA:{lv:3,firs:['OTDF'],easa:'CZIB-2026-07-R3 (Persian Gulf)',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',
+      why:'Avoid Gulf waters except for arrival and departure.',whyAr:'تجنّب الأجواء فوق مياه الخليج إلا للهبوط والإقلاع.'},
+  BH:{lv:3,firs:['OBBB'],easa:'CZIB-2026-07-R3 (Persian Gulf)',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',
+      why:'Avoid Gulf waters except for arrival and departure.',whyAr:'تجنّب الأجواء فوق مياه الخليج إلا للهبوط والإقلاع.'},
+  AE:{lv:3,firs:['OMAE'],easa:'CZIB-2026-07-R3 (Persian Gulf)',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',
+      why:'Missile and drone debris; GPS spoofing.',whyAr:'حطام صواريخ ومسيّرات، وتزييف إشارات GPS.'},
+  OM:{lv:3,firs:['OOMM'],easa:'CZIB-2026-07-R3 (Gulf of Oman)',until:'2026-11-16',faa:'KICZ A0016/20',asOf:'2026-09-30',
+      why:'Avoid the Gulf of Oman west of 58°E.',whyAr:'تجنّب خليج عُمان غرب خط الطول 58 شرقاً.'},
+  EG:{lv:3,firs:['HECC'],asOf:'2025-07-01',
+      why:'Caution over the Red Sea and Gulf of Aqaba.',whyAr:'الحذر فوق البحر الأحمر وخليج العقبة.'},
+  IN:{lv:3,firs:[],asOf:'2025-05-01',
+      why:'Military activity in Kashmir.',whyAr:'نشاط عسكري في كشمير.'},
+  KH:{lv:3,firs:['VDPF'],asOf:'2025-12-01',
+      why:'Fighting on the Thai-Cambodian border.',whyAr:'اشتباكات على الحدود التايلاندية الكمبودية.'},
+  RW:{lv:3,firs:[],asOf:'2026-01-01',
+      why:'Eastern DRC conflict near Goma.',whyAr:'نزاع شرق الكونغو قرب غوما.'},
+  TR:{lv:3,firs:['LTAA','LTBB'],asOf:'2026-10-02',
+      why:'MANPADS near the Syrian border; GNSS interference (NOTAM LTAA A4412/26).',whyAr:'صواريخ محمولة قرب الحدود السورية، وتشويش على GPS (NOTAM LTAA A4412/26).'},
+  CY:{lv:3,firs:['LCCC'],asOf:'2026-06-01',
+      why:'Proximity to Syria; GNSS interference.',whyAr:'القرب من سوريا، وتشويش على GPS.'},
+  KR:{lv:3,firs:['RKRR'],asOf:'2026-09-29',
+      why:'GNSS interference from North Korea near Seoul (NOTAM RKRR Z0718/26).',whyAr:'تشويش على GPS من كوريا الشمالية قرب سيول (NOTAM RKRR Z0718/26).'},
+  KE:{lv:3,firs:['HKNA'],faa:'KICZ A0008/22',asOf:'2022-06-01',
+      why:'Somalia border area.',whyAr:'المنطقة الحدودية مع الصومال.'}
+};
+// FAA prohibitions: binding on US operators and N-registered aircraft, strong advisory for everyone else
+var FAA_PROHIB={IQ:'SFAR 77',KP:'SFAR 79',SO:'SFAR 107',LY:'SFAR 112',UA:'SFAR 113 / KICZ A0004/22',SY:'SFAR 114',
+  YE:'SFAR 115',AF:'SFAR 116',IR:'SFAR 117',RU:'KICZ A0005/22',BY:'KICZ A0003/22',VE:'KICZ A0013/19'};
+// EU Air Safety List (48th update, 2026-06-08). Annex A: every carrier certified in these states (by nationality mark)
+var EU_ASL_A_PREFIX={YA:'Afghanistan',D2:'Angola',EK:'Armenia',TN:'Congo (Brazzaville)','9Q':'DRC',J2:'Djibouti','3C':'Equatorial Guinea',
+  E3:'Eritrea',A8:'Liberia','5A':'Libya','9N':'Nepal',S9:'Sao Tome and Principe','9L':'Sierra Leone',ST:'Sudan',PZ:'Suriname','5H':'Tanzania',RA:'Russia'};
+var EU_ASL_A_CARRIERS=['AIR EXPRESS ALGERIA','AIR ZIMBABWE','AVIOR AIRLINES','IRAN ASEMAN AIRLINES','FLY BAGHDAD','IRAQI AIRWAYS'];
+var EU_ASL_B_CARRIERS=['IRAN AIR','AIR KORYO'];
+// EU member states plus EEA and Switzerland (where an Annex A ban makes the flight unlawful)
+var EU_EEA=['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE','IS','LI','NO','CH'];
+// FAA IASA Category 2 states (state of the operator, from the nationality mark)
+var IASA_CAT2_PREFIX={S2:'Bangladesh',AP:'Pakistan',RA:'Russia',YV:'Venezuela',V2:'Antigua and Barbuda',J7:'Dominica',J3:'Grenada',J6:'St Lucia',J8:'St Vincent and the Grenadines',V4:'St Kitts and Nevis'};
+// GNSS jamming/spoofing regions (EASA SIB, 2026-07), approximated to the countries they cover
+var GNSS_ISO={CY:'Eastern Mediterranean',LB:'Eastern Mediterranean',IL:'Eastern Mediterranean',EG:'Eastern Mediterranean (Sinai)',SY:'Iraq-Iran-Syria border',
+  TR:'Black Sea / Syrian border',RO:'Black Sea',BG:'Black Sea',GE:'Black Sea',UA:'Black Sea',RU:'Black Sea / Baltic (Kaliningrad)',
+  EE:'Baltic Sea',LV:'Baltic Sea',LT:'Baltic Sea',PL:'Baltic Sea',FI:'Baltic Sea / Arctic',NO:'Arctic (northern Norway)',
+  AE:'Persian Gulf',QA:'Persian Gulf',BH:'Persian Gulf',KW:'Persian Gulf',OM:'Persian Gulf',IR:'Persian Gulf / Iraq-Iran border',IQ:'Iraq-Iran-Syria border',
+  KR:'Korean Peninsula',KP:'Korean Peninsula',MM:'Northern Myanmar',GT:'Central America Pacific',SV:'Central America Pacific',HN:'Central America Pacific',NI:'Central America Pacific',VE:'Venezuela'};
+var GNSS_AR={'Eastern Mediterranean':'شرق المتوسط','Eastern Mediterranean (Sinai)':'شرق المتوسط (سيناء)','Iraq-Iran-Syria border':'حدود العراق وإيران وسوريا',
+  'Black Sea / Syrian border':'البحر الأسود / الحدود السورية','Black Sea':'البحر الأسود','Black Sea / Baltic (Kaliningrad)':'البحر الأسود / البلطيق (كالينينغراد)',
+  'Baltic Sea':'بحر البلطيق','Baltic Sea / Arctic':'بحر البلطيق / القطب الشمالي','Arctic (northern Norway)':'القطب الشمالي (شمال النرويج)',
+  'Persian Gulf':'الخليج العربي','Persian Gulf / Iraq-Iran border':'الخليج العربي / حدود العراق وإيران','Korean Peninsula':'شبه الجزيرة الكورية',
+  'Northern Myanmar':'شمال ميانمار','Central America Pacific':'ساحل المحيط الهادئ لأمريكا الوسطى','Venezuela':'فنزويلا'};
+
+// ── Merge the global airport list into AP_DB (curated entries win) ──
+var ISO_OF={};
+(function(){
+  if(typeof AP_COUNTRY==='undefined') return;
+  for(var iso in AP_COUNTRY) ISO_OF[AP_COUNTRY[iso]]=iso;
+  // Ukrainian FIR by the airport's ICAO code (Kharkiv FIR is now part of Dnipro)
+  function uaFIR(icao){var c=icao.charAt(2);return c==='L'?'UKLV':c==='O'?'UKOV':c==='F'?'UKFV':(c==='D'||c==='H'||c==='C')?'UKDV':'UKBV';}
+  function firFor(icao,iso){
+    if(iso==='UA') return uaFIR(icao);
+    var r=COUNTRY_RISK[iso]; if(r&&r.firs.length===1) return r.firs[0];
+    return FIR_BY_ISO[iso]||'—';
+  }
+  // Single-FIR countries already used by the curated list
+  var FIR_BY_ISO={};
+  for(var k in AP_DB){var a=AP_DB[k],i=ISO_OF[a.country];if(i&&a.fir&&!FIR_BY_ISO[i]) FIR_BY_ISO[i]=a.fir;}
+  ['US','CA','RU','CN','IN','BR','AU','ID','AR','MX','KZ','DZ','LY','SD','PK','MN','IR','UA','TR','JP','ZA','NG','FR','DE','GB','IT','ES','SE','NO','PH'].forEach(function(i){
+    if(!(COUNTRY_RISK[i]&&COUNTRY_RISK[i].firs.length===1)) delete FIR_BY_ISO[i];});
+  for(var k2 in AP_DB){var b=AP_DB[k2];b.iso=ISO_OF[b.country]||'';if(b.iso==='UA') b.fir=uaFIR(k2);}
+  if(typeof AP_GLOBAL==='undefined') return;
+  AP_GLOBAL.split('\n').forEach(function(row){
+    var p=row.split('|'); if(AP_DB[p[0]]) return;
+    var e={name:p[1],city:p[2]||p[1],country:AP_COUNTRY[p[3]]||p[3],iso:p[3],lat:+p[4],lng:+p[5],fir:firFor(p[0],p[3])};
+    if(p[6]==='1') e.military=true;
+    AP_DB[p[0]]=e;
+  });
+})();
+function apISO(ap){return ap.iso||ISO_OF[ap.country]||'';}
+function daysSince(d){var t=Date.parse(d);return isNaN(t)?9999:Math.floor((Date.now()-t)/864e5);}
+</script>
+<script>
 var CONFLICT_ZONES={
   OYAA:'Active conflict — Yemen civil war. NOTAM A0001/25 in effect. All commercial permits SUSPENDED.',
   OYSN:'Active conflict — Yemen. Sanaa FIR closed to commercial traffic.',
@@ -1439,10 +1631,14 @@ var SANCTIONS_OPERATORS=['MAHAN AIR','QESHM AIRLINES','MERAJ AIR','CHAM WINGS','
   'TABAN AIR','IRAN ASEMAN','IRAN AIR TOURS','ASHA AIRLINES','KISH AIR','VARESH AIRLINES','SAHAND AIR',
   'CASPIAN AIRLINES','ARIA AIR','KARUN AIRLINES','PAYAM AIR','PARS AIR',
   'AIR KORYO','VLADIVOSTOK AIR','NORDWIND','RED WINGS','UTAIR','YAKUTIA AIRLINES',
-  'CONVIASA','LASER AIRLINES','VENEZOLANA'];
+  'CONVIASA','LASER AIRLINES','VENEZOLANA',
+  'AZUR AIR','AEROFLOT','ROSSIYA','POBEDA','S7 AIRLINES','URAL AIRLINES','ATRAN','BELAVIA','IRAN AIR','IRAN AIRTOUR','FLY BAGHDAD'];
 // Nationality marks under broad sanctions/bans: EP Iran, YK Syria, RA Russia, EW Belarus, P DPRK
 var SANCTIONS_REG_PREFIX=['EP','YK','RA','EW','P'];
 
+// Nationality marks the engine checks, longest first so 9Q/5A are not confused with shorter marks
+var KNOWN_REG_PREFIX=(function(){var o={};SANCTIONS_REG_PREFIX.concat(Object.keys(EU_ASL_A_PREFIX),Object.keys(IASA_CAT2_PREFIX)).forEach(function(p){o[p]=1;});
+  return Object.keys(o).sort(function(a,b){return b.length-a.length;});})();
 function escHTML(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
 // Nationality mark of a registration, with or without the hyphen (EP-ABC / EPABC)
@@ -1450,21 +1646,23 @@ function regPrefix(reg){
   var r=(reg||'').toUpperCase().replace(/\s+/g,'');
   if(!r) return '';
   if(r.indexOf('-')>0) return r.split('-')[0];
-  for(var i=0;i<SANCTIONS_REG_PREFIX.length;i++){
-    var px=SANCTIONS_REG_PREFIX[i];
+  if(/^N[1-9]/.test(r)) return 'N';
+  for(var i=0;i<KNOWN_REG_PREFIX.length;i++){
+    var px=KNOWN_REG_PREFIX[i];
     // Single-letter mark (P) only counts when followed by a hyphen, to avoid PK-/PH- false hits
     if(px.length>1&&r.indexOf(px)===0&&r.length>=px.length+3) return px;
   }
   return '';
 }
-function matchSanctionedOperator(op){
+function matchName(op,list){
   var o=' '+(op||'').toUpperCase().replace(/[^A-Z0-9]+/g,' ')+' ';
-  for(var i=0;i<SANCTIONS_OPERATORS.length;i++){
-    var n=' '+SANCTIONS_OPERATORS[i].replace(/[^A-Z0-9]+/g,' ')+' ';
-    if(o.indexOf(n)>=0) return SANCTIONS_OPERATORS[i];
+  for(var i=0;i<list.length;i++){
+    var n=' '+list[i].replace(/[^A-Z0-9]+/g,' ')+' ';
+    if(o.indexOf(n)>=0) return list[i];
   }
   return '';
 }
+function matchSanctionedOperator(op){return matchName(op,SANCTIONS_OPERATORS);}
 
 var PERMIT_RULES={
   'Saudi Arabia':{lead:'72h',authority:'GACA',tel:'+966-920002814',notes:'Overflight permit via Jeddah ACC. Landing permit via GACA e-permit portal. Hajj/Umrah season: additional 7-day lead.'},
@@ -1479,6 +1677,7 @@ var PERMIT_RULES={
   'Turkey':{lead:'48h',authority:'DGCA Turkey',tel:'+90-312-203-6000',notes:'Standard ICAO procedures. AFTN filing required. State aircraft: 72h + diplomatic note.'},
   'Libya':{lead:'96h+',authority:'LYCAA (split authority)',tel:'N/A',notes:'Conflict zone. GNA controls Tripoli/Mitiga; LNA controls Benghazi. Both permits may be required.'},
   'Yemen':{lead:'SUSPENDED',authority:'CAMA Aden',tel:'N/A',notes:'Active armed conflict. All commercial flight permits SUSPENDED per ICAO NOTAM.'},
+  'Haiti':{lead:'RESTRICTED',authority:'OFNAC Haiti',tel:'N/A',notes:'Port-au-Prince: gang gunfire and drones against low-flying aircraft. FAA NOTAM restrictions in force. Confirm airport status before every flight.'},
   'Lebanon':{lead:'48h',authority:'DGCA Lebanon',tel:'+961-1-628-000',notes:'Israeli-registered or Israeli-operated aircraft NOT permitted. NOTAM review mandatory.'},
   'Syria':{lead:'RESTRICTED',authority:'DGCA Syria',tel:'N/A',notes:'Airspace largely closed. Special diplomatic permit required. Most operators cannot comply.'},
   'Israel':{lead:'72h',authority:'CAAI',tel:'+972-3-971-6500',notes:'Arab League member-state operators may be subject to restrictions in their home countries for routing via Israeli airspace.'},
@@ -1489,7 +1688,7 @@ var PERMIT_RULES={
   'Sudan':{lead:'72h',authority:'SCAA',tel:'+249-183-787777',notes:'Ongoing internal conflict in Khartoum and Darfur. NOTAM review critical. Port Sudan airport partially operational.'},
   'Somalia':{lead:'RESTRICTED',authority:'SCAA',tel:'N/A',notes:'Mogadishu FIR HIGH RISK. Piracy advisory active. Minimum overflight altitude 25,000ft per ICAO.'},
   'Russia':{lead:'96h',authority:'FATA Russia',tel:'+7-495-155-5555',notes:'EU/US sanctions in effect. EU-registered aircraft CANNOT overfly Russian airspace per Regulation (EU) 2022/334.'},
-  'Ukraine':{lead:'CLOSED',authority:'UkSATSE',tel:'+380-44-454-0000',notes:'Ukrainian FIRs (UKBV/UKFV/UKDV) closed due to armed conflict. No overflights permitted.'},
+  'Ukraine':{lead:'CLOSED',authority:'UkSATSE',tel:'+380-44-454-0000',notes:'All Ukrainian FIRs (UKBV/UKLV/UKDV/UKOV/UKFV) closed due to armed conflict. No overflights permitted.'},
   'Belarus':{lead:'72h',authority:'Belavia CAAB',tel:'N/A',notes:'EU sanctions in effect. EU operators cannot use Belarusian airspace per Regulation (EU) 2021/1028.'},
   'Greece':{lead:'24h',authority:'HCAA',tel:'+30-210-891-6000',notes:'EUROCONTROL IFPS filing required. EU standard procedures.'},
   'Cyprus':{lead:'24h',authority:'DCA Cyprus',tel:'+357-22-404-700',notes:''},
@@ -1518,6 +1717,7 @@ var PERMIT_NOTES_AR={
   'Turkey':'إجراءات ICAO القياسية مع تقديم الطلب عبر AFTN. الطائرات الحكومية: 72 ساعة مع مذكرة دبلوماسية.',
   'Libya':'منطقة نزاع. حكومة طرابلس تسيطر على طرابلس ومعيتيقة، وقيادة بنغازي على بنغازي. قد يلزم التصريحان.',
   'Yemen':'نزاع مسلح نشط. جميع تصاريح الرحلات التجارية معلّقة وفق إشعار ICAO.',
+  'Haiti':'بورت أو برنس: إطلاق نار من العصابات ومسيّرات ضد الطائرات المنخفضة، وقيود FAA سارية. أكّد حالة المطار قبل كل رحلة.',
   'Lebanon':'لا يُسمح للطائرات المسجلة في إسرائيل أو التي تشغّلها جهات إسرائيلية. مراجعة NOTAM إلزامية.',
   'Syria':'الأجواء مغلقة في معظمها. يلزم تصريح دبلوماسي خاص، ومعظم المشغلين لا يستوفونه.',
   'Israel':'قد يخضع مشغلو دول الجامعة العربية لقيود في بلدانهم عند العبور عبر الأجواء الإسرائيلية.',
@@ -1528,7 +1728,7 @@ var PERMIT_NOTES_AR={
   'Sudan':'نزاع داخلي مستمر في الخرطوم ودارفور. مراجعة NOTAM ضرورية. مطار بورتسودان يعمل جزئياً.',
   'Somalia':'إقليم مقديشو عالي الخطورة. تحذير قرصنة ساري. الحد الأدنى لارتفاع العبور 25,000 قدم.',
   'Russia':'العقوبات الأوروبية والأمريكية سارية. الطائرات المسجلة في الاتحاد الأوروبي ممنوعة من عبور الأجواء الروسية وفق اللائحة 2022/334.',
-  'Ukraine':'الأقاليم الأوكرانية (UKBV/UKFV/UKDV) مغلقة بسبب النزاع المسلح. العبور ممنوع.',
+  'Ukraine':'جميع الأقاليم الأوكرانية (UKBV/UKLV/UKDV/UKOV/UKFV) مغلقة بسبب النزاع المسلح. العبور ممنوع.',
   'Belarus':'العقوبات الأوروبية سارية. مشغلو الاتحاد الأوروبي ممنوعون من استخدام الأجواء البيلاروسية وفق اللائحة 2021/1028.',
   'Greece':'يلزم التقديم عبر نظام EUROCONTROL IFPS. إجراءات الاتحاد الأوروبي القياسية.',
   'Germany':'إجراءات الاتحاد الأوروبي القياسية. يلزم نظام EUROCONTROL IFPS.',
@@ -1550,7 +1750,7 @@ function getAP(icao){return AP_DB[icao]||{name:icao,city:'Unknown',country:'Unkn
 
 function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var fromAP=getAP(from), toAP=getAP(to);
-  var allICAO=[from,to].concat(legs||[]);
+  var allICAO=[from,to].concat(legs||[]).filter(function(c,i,a){return c&&a.indexOf(c)===i;});
   var conflictHits=allICAO.filter(function(c){return CONFLICT_ZONES[c];});
   var isConflict=conflictHits.length>0;
   var regPx=regPrefix(reg);
@@ -1562,12 +1762,30 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var destMilitary=toAP.military||false;
   var fromMilitary=fromAP.military||false;
 
-  // Country risk tiers
-  var HIGH_RISK_COUNTRIES=['Yemen','Libya','Syria','Afghanistan','Somalia','Sudan','Iraq','Ukraine'];
-  var MED_RISK_COUNTRIES=['Iran','Russia','Belarus','Pakistan','Lebanon','Israel','North Korea','Venezuela','Myanmar'];
-  var destCountry=toAP.country||''; var fromCountry=fromAP.country||'';
-  var isHighRiskCountry=HIGH_RISK_COUNTRIES.indexOf(destCountry)>=0||HIGH_RISK_COUNTRIES.indexOf(fromCountry)>=0;
-  var isMedRiskCountry=MED_RISK_COUNTRIES.indexOf(destCountry)>=0||MED_RISK_COUNTRIES.indexOf(fromCountry)>=0;
+  // Country advisories on every airport of the route (departure, arrival and stops)
+  var destCountry=toAP.country||'';
+  var routeISO=[];
+  allICAO.forEach(function(c){var i=apISO(getAP(c));if(i&&routeISO.indexOf(i)<0) routeISO.push(i);});
+  // Severity: 5 EASA "do not operate", 4 Level 1 NO-FLY, 3 Level 1 in part of the FIR, 2 Level 2 DANGER, 1 Level 3 CAUTION
+  function sev(i){var r=COUNTRY_RISK[i];if(!r) return 0;return r.dno?5:r.partial?3:r.lv===1?4:r.lv===2?2:1;}
+  function lvLabel(v){return v===5?tr('NO-FLY (EASA: do not operate)','حظر طيران (EASA: عدم التشغيل)'):v===4?tr('Level 1 NO-FLY','المستوى 1: حظر طيران'):
+    v===3?tr('Level 1 NO-FLY in part of the FIR','المستوى 1: حظر في جزء من الإقليم'):v===2?tr('Level 2 DANGER','المستوى 2: خطر'):tr('Level 3 CAUTION','المستوى 3: حذر');}
+  function cn(i){return ctry(AP_COUNTRY[i]||i);}
+  var advISO=routeISO.filter(function(i){return COUNTRY_RISK[i];}).sort(function(a,b){return sev(b)-sev(a);});
+  var topISO=advISO[0]||'', topSev=topISO?sev(topISO):0, topRisk=COUNTRY_RISK[topISO]||null, cName=topISO?cn(topISO):'';
+  var isHighRiskCountry=topSev>=4, isMedRiskCountry=topSev===2||topSev===3;
+  var faaHits=routeISO.filter(function(i){return FAA_PROHIB[i];});
+  var isUSReg=regPx==='N';
+  var gnssHits=routeISO.filter(function(i){return GNSS_ISO[i];});
+  var aslCarrier=matchName(op,EU_ASL_A_CARRIERS), aslState=EU_ASL_A_PREFIX[regPx]||'';
+  var isASLA=!!(aslCarrier||aslState), aslB=isASLA?'':matchName(op,EU_ASL_B_CARRIERS);
+  var inEU=routeISO.some(function(i){return EU_EEA.indexOf(i)>=0;});
+  var iasa=IASA_CAT2_PREFIX[regPx]||'';
+  var staleISO=advISO.filter(function(i){return daysSince(COUNTRY_RISK[i].asOf)>STALE_DAYS;});
+  var expiredISO=advISO.filter(function(i){var u=COUNTRY_RISK[i].until;return u&&daysSince(u)>0;});
+  var faaTxt=faaHits.map(function(i){return cn(i)+' — '+FAA_PROHIB[i];}).join(tr(', ','، '));
+  var gnssTxt=gnssHits.map(function(i){var g=GNSS_ISO[i];return cn(i)+' — '+tr(g,GNSS_AR[g]||g);}).join(tr('; ','؛ '));
+  var aslTxt=aslCarrier?aslCarrier:aslState?tr('all carriers certified in '+aslState+' ('+regPx+'-)','جميع الناقلات المسجلة في '+ctry(aslState)+' ('+regPx+'-)'):'';
 
   var SEP=tr(', ','، '), SEP2=tr('; ','؛ ');
   var routeLTR='<span dir="ltr">'+from+' → '+to+'</span>';
@@ -1583,10 +1801,18 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   add(isMilPax||isMilitary,15,tr('Military personnel / aircraft','أفراد أو طائرة عسكرية'));
   add(isStateAC,8,tr('State aircraft','طائرة حكومية'));
   add(destMilitary||fromMilitary,10,tr('Military airfield','مطار عسكري'));
-  add(isHighRiskCountry&&!isConflict,20,tr('High-risk country','دولة عالية الخطورة'));
-  add(isMedRiskCountry&&!isSanctioned,10,tr('Medium-risk country','دولة متوسطة الخطورة'));
-  var conflictFIRs=['OYSC','HLLL','OSTT','UKBV','HCSM','OAKX','ORBB','HSSS'];
-  add(conflictFIRs.indexOf(fromAP.fir)>=0||conflictFIRs.indexOf(toAP.fir)>=0,12,tr('Restricted FIR','إقليم جوي مقيّد')+' ('+(conflictFIRs.indexOf(toAP.fir)>=0?toAP.fir:fromAP.fir)+')');
+  // Country advisory: only the most severe country on the route scores, and an active-conflict airport already covers it
+  if(topRisk&&!isConflict){
+    var cPts=topSev===5?55:topSev===4?40:topSev===3?35:topSev===2?20:8;
+    add(true,cPts,lvLabel(topSev)+' ('+cName+(topRisk.easa&&topSev!==4?' — EASA '+topRisk.easa:'')+')');
+  }
+  add(faaHits.length>0&&isUSReg,45,tr('FAA prohibition — binding on N-registered aircraft','حظر FAA — ملزم للطائرات المسجلة في أمريكا')+' ('+faaTxt+')');
+  add(faaHits.length>0&&!isUSReg,20,tr('FAA prohibition area on route','منطقة حظر FAA على المسار')+' ('+faaTxt+')');
+  add(isASLA,35,tr('EU Air Safety List — Annex A','قائمة السلامة الأوروبية — الملحق A')+' ('+aslTxt+')');
+  add(!!aslB,15,tr('EU Air Safety List — Annex B (restricted)','قائمة السلامة الأوروبية — الملحق B (مقيّد)')+' ('+aslB+')');
+  add(!!iasa,10,tr('FAA IASA Category 2 state of operator','دولة المشغّل في الفئة 2 لدى FAA IASA')+' ('+ctry(iasa)+')');
+  add(gnssHits.length>0,5,tr('GNSS interference region','منطقة تشويش على GPS')+' ('+gnssHits.map(cn).join(tr(', ','، '))+')');
+  add(isDG&&topSev>=2,10,tr('Dangerous goods through a Level 1/2 country','بضائع خطرة عبر دولة من المستوى 1 أو 2'));
   // Multi-leg routing: legs lists every airport, so 3+ airports means at least one intermediate stop
   var nLegs=(legs||[]).length;
   add(nLegs>=3,5,tr('Multi-leg routing ('+nLegs+' airports)','مسار متعدد المحطات ('+nLegs+' مطارات)'));
@@ -1595,20 +1821,23 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   var score=breakdown.reduce(function(a,b){return a+b.pts;},0);
   var rawScore=score;
   score=Math.min(100,score);
-  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:toAP.country+' CAAC',tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.',notesAr:'قدّم طلب التصريح بصيغة ICAO القياسية قبل 72 ساعة من الإقلاع.'};
+  var pr=PERMIT_RULES[toAP.country]||{lead:'72h',authority:tr(toAP.country+' Civil Aviation Authority','هيئة الطيران المدني في '+ctry(toAP.country)),tel:'N/A',notes:'Submit standard ICAO format permit request 72h before ETD.',notesAr:'قدّم طلب التصريح بصيغة ICAO القياسية قبل 72 ساعة من الإقلاع.'};
   var prNotes=LANG==='ar'?(pr.notesAr||PERMIT_NOTES_AR[toAP.country]||pr.notes):pr.notes;
   var lead=leadTxt(pr.lead);
   // Hard stops (ICAO Doc 9859 risk matrix: catastrophic severity = intolerable) — never rated below HIGH
   var hardStops=[];
   if(isSanctioned) hardStops.push(tr('Sanctioned operator/aircraft','مشغّل أو طائرة خاضعة للعقوبات'));
   if(isConflict) hardStops.push(tr('Active conflict zone','منطقة نزاع نشط'));
+  if(!isConflict&&topSev>=4) hardStops.push(lvLabel(topSev)+' ('+cName+')');
+  if(faaHits.length&&isUSReg) hardStops.push(tr('FAA prohibition for a US-registered aircraft','حظر FAA على طائرة مسجلة في أمريكا'));
+  if(isASLA&&inEU) hardStops.push(tr('EU-banned carrier on an EU route','ناقل محظور أوروبياً على مسار أوروبي'));
   if(isMilWpn) hardStops.push(tr('Weapons/munitions cargo','شحنة أسلحة أو ذخائر'));
   if(pr.lead==='SUSPENDED'||pr.lead==='CLOSED'||pr.lead==='RESTRICTED') hardStops.push(tr('Destination permits ','تصاريح الوجهة ')+lead);
   if(hardStops.length&&score<75){breakdown.push({label:tr('Hard-stop floor: ','حد أدنى إلزامي: ')+hardStops.join(SEP),pts:75-score});score=75;}
   var level=score>=75?'HIGH':score>=50?'MEDIUM':score>=30?'LOW':'CLEAR';
   var color=score>=75?'#ef4444':score>=50?'#f59e0b':score>=30?'#10b981':'#0ea5e9';
 
-  var permitStatus=(isConflict||isSanctioned||pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?'DANGER':(pr.lead==='96h'||isMilWpn||isStateAC)?'WARN':'OK';
+  var permitStatus=(isConflict||isSanctioned||topSev>=4||pr.lead==='SUSPENDED'||pr.lead==='RESTRICTED'||pr.lead==='CLOSED')?'DANGER':(pr.lead==='96h'||isMilWpn||isStateAC)?'WARN':'OK';
 
   // Military layer detail
   var milDetail='';
@@ -1622,6 +1851,12 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
     'لا توجد مؤشرات على طائرة عسكرية أو حكومية. تنطبق قواعد الطيران المدني القياسية وفق الملحق 2 لـ ICAO.');
   var milStatus=isMilWpn?'DANGER':(isMilPax||isMilitary||isStateAC)?'WARN':'OK';
   var opE=escHTML(op||'—'), regE=escHTML(reg||'—');
+  var advTxt=advISO.map(function(i){var r=COUNTRY_RISK[i];
+    return (sev(i)>=4?'⛔ ':'⚠ ')+'<b>'+cn(i)+'</b> — '+lvLabel(sev(i))+': '+tr(r.why,r.whyAr)+
+      (r.easa?' EASA '+r.easa+(r.until?tr(' (valid to ',' (سارية حتى ')+r.until+')':'')+'.':'')+(r.faa?' FAA: '+r.faa+'.':'')+
+      (r.firs.length?tr(' FIR: ',' الإقليم: ')+r.firs.join('/')+'.':'')+tr(' As of ',' بتاريخ ')+r.asOf+'.';}).join('<br>');
+  var staleTxt=(staleISO.length?'<br>'+tr('⚠ Advisory data older than '+STALE_DAYS+' days for: ','⚠ بيانات التحذير أقدم من '+STALE_DAYS+' يوماً لـ: ')+staleISO.map(cn).join(tr(', ','، '))+tr('. Verify with the live source.','. تحقق من المصدر المباشر.'):'')+
+    (expiredISO.length?'<br>'+tr('⚠ EASA bulletin has passed its end date for: ','⚠ انتهت مدة نشرة EASA لـ: ')+expiredISO.map(function(i){return cn(i)+' ('+COUNTRY_RISK[i].until+')';}).join(tr(', ','، '))+tr('. Check whether it was renewed.','. تحقق مما إذا تم تجديدها.'):'');
   var conflictNotes=conflictHits.map(function(c){return LANG==='ar'&&CONFLICT_ZONES_AR[c]?CONFLICT_ZONES_AR[c]:CONFLICT_ZONES[c];}).join(' | ');
 
   var layers=[
@@ -1646,13 +1881,34 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
           'احتمال انطباق قرارات مجلس الأمن 1267/1988/2253 — راجع القائمة الموحدة للجنة 1267. قد تنطبق التزامات إبلاغ على الدولة.'):
        tr('No match in the ARIS built-in watchlist for '+escHTML(op||'operator')+' / '+escHTML(reg||'registration')+'. Confirm against the UN SC consolidated list (1267/1718/2253).',
           'لا يوجد تطابق في قائمة ARIS المدمجة لـ '+escHTML(op||'المشغّل')+' / '+escHTML(reg||'التسجيل')+'. تحقق من القائمة الموحدة لمجلس الأمن (1267/1718/2253).')},
-    {icon:'⚔',name:tr('Conflict Zone Assessment (ICAO Doc 9870)','تقييم مناطق النزاع (ICAO Doc 9870)'),
-     status:isConflict?'DANGER':isHighRiskCountry?'WARN':'OK',
-     detail:isConflict?tr('⛔ ACTIVE CONFLICT ZONE — ','⛔ منطقة نزاع نشط — ')+conflictNotes:
-       isHighRiskCountry?tr('⚠ HIGH-RISK COUNTRY: '+destCountry+'. ICAO Doc 9870 Appendix A caution. Consult national CAA conflict zone bulletins and EASA SIB before dispatch.',
-          '⚠ دولة عالية الخطورة: '+ctry(destCountry)+'. تنبيه وفق الملحق A من ICAO Doc 9870. راجع نشرات مناطق النزاع لدى سلطة الطيران الوطنية ونشرات EASA قبل الإقلاع.'):
-       tr('Route '+routeLTR+' clear of active conflict zones per ICAO conflict zone map (Doc 9870). No active EASA SIBs noted.',
-          'المسار '+routeLTR+' خالٍ من مناطق النزاع النشطة وفق خريطة ICAO (Doc 9870). لا توجد نشرات EASA سارية.')},
+    {icon:'⚔',name:tr('Conflict Zones & Airspace Advisories (ICAO Doc 9870 / EASA CZIB)','مناطق النزاع وتحذيرات الأجواء (ICAO Doc 9870 / EASA CZIB)'),
+     status:(isConflict||topSev>=4)?'DANGER':topSev>0?'WARN':'OK',
+     detail:(isConflict?tr('⛔ ACTIVE CONFLICT ZONE — ','⛔ منطقة نزاع نشط — ')+conflictNotes+'<br>':'')+
+       (advTxt?advTxt:isConflict?'':tr('Route '+routeLTR+' has no country under a Level 1-3 airspace advisory (ARIS global dataset, '+RISK_DATA_DATE+'). Confirm against the latest EASA CZIBs and NOTAMs.',
+          'المسار '+routeLTR+' لا يمر بأي دولة عليها تحذير أجواء من المستوى 1 إلى 3 (قاعدة بيانات ARIS العالمية، '+RISK_DATA_DATE+'). تحقق من أحدث نشرات EASA وإشعارات NOTAM.'))+
+       staleTxt},
+    {icon:'🚫',name:tr('FAA Prohibitions (14 CFR SFAR / KICZ NOTAM)','محظورات FAA الأمريكية (SFAR / KICZ)'),
+     status:faaHits.length?(isUSReg?'DANGER':'WARN'):'OK',
+     detail:faaHits.length?
+       tr('FAA prohibits US operators, N-registered aircraft and US-certificated airmen from operating in: '+faaTxt+'. ','تحظر FAA على المشغلين الأمريكيين والطائرات المسجلة في أمريكا وحاملي الإجازات الأمريكية العمل في: '+faaTxt+'. ')+
+       (isUSReg?tr('⛔ This aircraft is N-registered: the flight is PROHIBITED (14 CFR Part 91 Subpart M).','⛔ هذه الطائرة مسجلة في أمريكا (N): الرحلة ممنوعة (14 CFR Part 91 Subpart M).'):
+        tr('The aircraft is not US-registered, so treat this as a strong advisory and check altitude floors in each SFAR.','الطائرة غير مسجلة في أمريكا، لذا يُعامل الحظر كتحذير قوي. راجع حدود الارتفاع في كل SFAR.')):
+       tr('No FAA SFAR or KICZ prohibition covers the countries on this route.','لا يوجد حظر FAA (SFAR أو KICZ) على دول هذا المسار.')},
+    {icon:'🇪🇺',name:tr('EU Air Safety List & FAA IASA','قائمة السلامة الأوروبية وتصنيف FAA IASA'),
+     status:isASLA?(inEU?'DANGER':'WARN'):(aslB||iasa)?'WARN':'OK',
+     detail:(isASLA?tr('⛔ EU AIR SAFETY LIST, ANNEX A — '+escHTML(aslTxt)+'. ','⛔ قائمة السلامة الأوروبية، الملحق A — '+escHTML(aslTxt)+'. ')+
+         (inEU?tr('This route touches EU/EEA airspace: the operation is NOT permitted.','هذا المسار يمر بأجواء الاتحاد الأوروبي: التشغيل غير مسموح.'):
+               tr('The route is outside the EU, but the listing is a strong safety warning.','المسار خارج الاتحاد الأوروبي، لكن الإدراج تحذير سلامة قوي.'))+' ':'')+
+       (aslB?tr('⚠ EU Air Safety List, Annex B — '+aslB+' may operate only specified aircraft types. ','⚠ قائمة السلامة الأوروبية، الملحق B — '+aslB+' يسمح لها بتشغيل أنواع محددة فقط من الطائرات. '):'')+
+       (iasa?tr('⚠ State of operator ('+iasa+') is FAA IASA Category 2: safety oversight does not meet ICAO standards. ','⚠ دولة المشغّل ('+ctry(iasa)+') في الفئة 2 لدى FAA IASA: الرقابة على السلامة لا تستوفي معايير ICAO. '):'')+
+       ((isASLA||aslB||iasa)?'':tr('Operator "'+opE+'" and registration "'+regE+'" do not match the EU Air Safety List (48th update, 2026-06-08) or an FAA IASA Category 2 state.',
+          'المشغّل "'+opE+'" والتسجيل "'+regE+'" غير مدرجين في قائمة السلامة الأوروبية (التحديث 48، 2026-06-08) ولا ينتميان لدولة في الفئة 2 لدى FAA IASA.'))},
+    {icon:'🛰',name:tr('GNSS Interference (EASA SIB 2022-02R3)','التشويش على GPS (نشرة EASA SIB 2022-02R3)'),
+     status:gnssHits.length?'WARN':'OK',
+     detail:gnssHits.length?
+       tr('⚠ GPS jamming/spoofing reported: '+gnssTxt+'. Brief the crew, keep conventional navaids available, expect false TAWS/position alerts and report interference.',
+          '⚠ تم رصد تشويش أو تزييف لإشارات GPS: '+gnssTxt+'. أحِط الطاقم، وأبقِ وسائل الملاحة التقليدية متاحة، وتوقع إنذارات خاطئة في TAWS والموقع، وأبلغ عن أي تشويش.'):
+       tr('No listed GNSS interference region on this route.','لا توجد منطقة تشويش GPS مسجلة على هذا المسار.')},
     {icon:'⚔️',name:tr('Military / State Aircraft (Chicago Convention Art.3)','الطائرات العسكرية والحكومية (اتفاقية شيكاغو م.3)'),
      status:milStatus,
      detail:milDetail},
@@ -1681,11 +1937,12 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
        (fromMilitary?tr(' [DEP = Military airfield — PPR required from base commander.]',' [المغادرة من مطار عسكري — يلزم إذن مسبق (PPR) من قائد القاعدة.]'):'')+
        (destMilitary?tr(' [DEST = Military airfield — PPR + MoD liaison mandatory.]',' [الوصول إلى مطار عسكري — يلزم إذن مسبق (PPR) وتنسيق مع وزارة الدفاع.]'):'')+
        (isConflict?tr(' ⚠ Restricted FIR — ICAO SL Doc 7030 regional supplement review mandatory. Entry clearance required from responsible ACC.',' ⚠ إقليم مقيّد — مراجعة الملحق الإقليمي لـ ICAO Doc 7030 إلزامية، ويلزم إذن دخول من مركز المراقبة المسؤول.'):
+       (topRisk&&topRisk.firs.length?tr(' ⚠ Advisory FIR(s): ',' ⚠ أقاليم عليها تحذير: ')+topRisk.firs.join(', ')+'.':'')+
        isMedRiskCountry?tr(' ⚠ Sensitive FIR — verify ATC/AFTN filing routes and any published route restrictions.',' ⚠ إقليم حساس — تحقق من مسارات تقديم خطة الطيران وأي قيود منشورة على المسارات.'):
        tr(' Both FIRs open. File flight plan per ICAO Doc 4444 PANS-ATM §4.',' الإقليمان مفتوحان. قدّم خطة الطيران وفق ICAO Doc 4444.'))},
     {icon:'📡',name:tr('NOTAM / AIS Review (ICAO Annex 15)','مراجعة إشعارات NOTAM (الملحق 15 لـ ICAO)'),
-     status:isConflict||isHighRiskCountry?'WARN':'OK',
-     detail:(isConflict||isHighRiskCountry)?
+     status:isConflict||isHighRiskCountry||isMedRiskCountry?'WARN':'OK',
+     detail:(isConflict||isHighRiskCountry||isMedRiskCountry)?
        tr('⚠ ACTIVE NOTAM REVIEW REQUIRED — Check NOTAM A-series (aerodrome), B-series (FIR), D-series (enroute). Source: ICAO NOTAM Office, EUROCONTROL EAD, or national AIS. Review within 24h of ETD per ICAO Annex 15 §5.2.',
           '⚠ مراجعة إشعارات NOTAM إلزامية — راجع السلسلة A (المطارات) والسلسلة B (الأقاليم) والسلسلة D (المسارات). المصدر: مكتب NOTAM الدولي أو EUROCONTROL EAD أو خدمة المعلومات الوطنية. راجعها خلال 24 ساعة قبل الإقلاع وفق الملحق 15 لـ ICAO.'):
        tr('Verify NOTAMs 24h before ETD at '+from+' and '+to+' via ICAO AIS portal or EUROCONTROL EAD. Monitor: aerodrome, FIR, and SIGMET/AIRMET (ICAO Annex 15 §5).',
@@ -1715,8 +1972,11 @@ function getRisk(from,to,cargo,op,reg,legs,isMilitary,isStateAC){
   if(isMilPax||isMilitary) riskFactors.push(tr('Military personnel/aircraft','أفراد أو طائرة عسكرية'));
   if(isStateAC) riskFactors.push(tr('State aircraft — Chicago Convention Art.3 applies','طائرة حكومية — تنطبق المادة 3 من اتفاقية شيكاغو'));
   if(isDG) riskFactors.push(tr('Dangerous goods cargo','شحنة بضائع خطرة'));
-  if(isHighRiskCountry) riskFactors.push(tr('High-risk country routing ('+destCountry+')','مسار عبر دولة عالية الخطورة ('+ctry(destCountry)+')'));
-  if(isMedRiskCountry) riskFactors.push(tr('Medium-risk country routing ('+destCountry+')','مسار عبر دولة متوسطة الخطورة ('+ctry(destCountry)+')'));
+  if(topRisk) riskFactors.push(lvLabel(topSev)+' ('+cName+')');
+  if(faaHits.length) riskFactors.push(tr('FAA prohibition area','منطقة حظر FAA')+' ('+faaTxt+')');
+  if(isASLA||aslB) riskFactors.push(tr('Operator on the EU Air Safety List','مشغّل مدرج في قائمة السلامة الأوروبية'));
+  if(iasa) riskFactors.push(tr('FAA IASA Category 2 state of operator','دولة المشغّل في الفئة 2 لدى FAA IASA'));
+  if(gnssHits.length) riskFactors.push(tr('GNSS interference','تشويش على GPS'));
   if(destMilitary||fromMilitary) riskFactors.push(tr('Military airfield involved','مطار عسكري ضمن الرحلة'));
   var rf=riskFactors.join(SEP2);
 
@@ -1883,7 +2143,7 @@ function renderResult(d,f,legs,noScroll){
     if(fOK) L.marker(fc,{icon:L.divIcon({className:'',html:mk('#0ea5e9',f.from)})}).addTo(resultMap);
     if(tOK) L.marker(tc,{icon:L.divIcon({className:'',html:mk('#10b981',f.to)})}).addTo(resultMap);
     if(fOK&&tOK){L.polyline([fc,tc],{color:'#1e3a8a',weight:4,dashArray:'10,6'}).addTo(resultMap);resultMap.fitBounds([fc,tc],{padding:[30,30],maxZoom:6});}
-    ZONES.forEach(function(z){L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.22,weight:2,dashArray:z.level==='HIGH'?null:'6,5'}).addTo(resultMap).bindPopup(zonePopup(z));});
+    zones().forEach(function(z){L.circle([z.lat,z.lng],{radius:z.r,color:z.color,fillColor:z.color,fillOpacity:.2,weight:2,dashArray:(z.lvl==='NOFLY'&&z.rank!==3)?null:'6,5'}).addTo(resultMap).bindPopup(zonePopup(z));});
     setTimeout(function(){resultMap.invalidateSize();},100);
   },200);
 }
@@ -1900,6 +2160,11 @@ function copySummary(){
 function pdfSafe(v){
   return String(v==null?'':v).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
     .replace(/[→]/g,'->').replace(/[—–]/g,'-').replace(/[·]/g,'|').replace(/§/g,'S.').replace(/[^\x20-\x7E]/g,'').replace(/\s{2,}/g,' ').trim();
+}
+function pdfFooter(doc){
+  doc.setFillColor(10,22,55);doc.rect(0,285,210,12,'F');
+  doc.setFontSize(6.5);doc.setTextColor(100,116,139);doc.setFont('helvetica','normal');
+  doc.text('ARIS - Aviation Risk Intelligence System | Confidential | Advisory only - verify with competent authority | '+new Date().getFullYear(),105,292,{align:'center'});
 }
 function genPDF(){
   if(!window._last){alert(t('runFirst'));return;}
@@ -1956,6 +2221,7 @@ function genPDF(){
   });
   // Narrative
   var ny=ly+8+d.layers.length*9+6;
+  if(ny>235){pdfFooter(doc);doc.addPage();doc.setFillColor(4,13,31);doc.rect(0,0,210,297,'F');ny=20;}
   if(ny<270){
     doc.setFontSize(9);doc.setTextColor(14,165,233);doc.setFont('helvetica','bold');doc.text('AI RISK NARRATIVE',14,ny);
     doc.setDrawColor(14,165,234);doc.line(14,ny+2,196,ny+2);
@@ -1965,10 +2231,7 @@ function genPDF(){
     var maxLines=Math.floor((275-ny-4)/4);
     doc.text(lines.slice(0,maxLines),14,ny+8);
   }
-  // Footer
-  doc.setFillColor(10,22,55);doc.rect(0,285,210,12,'F');
-  doc.setFontSize(6.5);doc.setTextColor(100,116,139);
-  doc.text('ARIS - Aviation Risk Intelligence System | Confidential | Advisory only - verify with competent authority | '+new Date().getFullYear(),105,292,{align:'center'});
+  pdfFooter(doc);
   doc.save('ARIS_Report_'+f.from+'_'+f.to+'_'+(f.date||'today')+'.pdf');
 }
 
